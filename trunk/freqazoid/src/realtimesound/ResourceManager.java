@@ -6,6 +6,8 @@
 
 package realtimesound;
 
+import gui.Menu;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -15,6 +17,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 
 /**
  *
@@ -28,6 +31,7 @@ public class ResourceManager implements ActionListener {
     private JButton buttonPause = new JButton("pause");
     private JButton buttonStop = new JButton("stop");
     private Canvas canvas;
+    private Menu menuBar;
     
     /** Creates a new instance of ResourceManager */
     public ResourceManager() {
@@ -52,6 +56,8 @@ public class ResourceManager implements ActionListener {
         canvas = new Canvas();
         window.add(canvas, BorderLayout.CENTER);
         
+        menuBar = new Menu(this);
+        window.setJMenuBar(menuBar);
         window.setVisible(true);
     }
 
@@ -63,6 +69,14 @@ public class ResourceManager implements ActionListener {
             System.out.println("stopping");
             audioEngine.stopEngine();
         }
+    }
+    
+    public JFrame getFrame() {
+    	return this.window;
+    }
+    
+    public AudioEngine getAudioEngine() {
+    	return audioEngine;
     }
     
     public Canvas getCanvas() {
