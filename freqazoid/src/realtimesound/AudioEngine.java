@@ -13,8 +13,11 @@ import javax.sound.sampled.Control;
 import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Line.Info;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
@@ -37,11 +40,14 @@ public class AudioEngine implements Runnable {
     public static final int RUNNING = 0, PAUSED = 1, STOPPED = 2;
     private ResourceManager rm;
     private int engineStatus;
+    private String[] inputInfos;
+    private String[] outputInfos;
     
     
     /** Creates a new instance of AudioEngine */
     public AudioEngine(ResourceManager rm) {
         this.rm = rm;
+        
         engineStatus = STOPPED;
         int frameSizeInBytes = BIT_DEPTH/8;
         int frameRate = SAMPLE_RATE;
@@ -49,6 +55,50 @@ public class AudioEngine implements Runnable {
                 SAMPLE_RATE, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, LITTLE_ENDIAN);
         
         System.out.println("audio format: "+format.toString());
+        
+        /*
+         * These latencies can be determined by the difference  
+between getLongFramePosition() and the number of frames you have read from  
+/ written to the line.
+ * 
+ * I use a trvial control loop which notes how many frames have been written  
+and how many frames have actually got to the hardware  
+(getLongFramePosition()). The difference in these frame counts is the  
+number of frames output latency which can easily be converted to  
+milliseconds output latency. Once the control loop is stable the overall  
+input/output latency remains constant, I minimise input latency by crudely  
+flushing the TargetDataLine once the loop is stable. Rather than blocking  
+I return silence if the TargetDataLine doesn't have enough data so it then  
+stablises at a minimum latency.
+         */
+        
+        /*
+         * mixer'lere bak
+         */
+        Mixer.Info[] info = AudioSystem.getMixerInfo();
+        Line.Info[] lineInfo = AudioSystem.getSourceLineInfo(new Line.Info(SourceDataLine.class));
+        
+        for(int i=0; i<lineInfo.length; i++) {
+        	//AudioSystem.getSourceDataLine(arg0, arg1)
+        	System.out.println(lineInfo[i]);
+        }
+        
+        inputInfos = new String[info.length];
+        outputInfos = new String[info.length];
+        int n=0;
+        int m=0;
+        for(int i=0; i<info.length; i++) {
+        	if(AudioSystem.getMixer(info[i]).getSourceLineInfo().length > 0) {        		
+        		inputInfos[n] = n+": "+info[i].getName() +": "+info[i].getDescription();
+        		n++;
+        	}
+        	if(AudioSystem.getMixer(info[i]).getTargetLineInfo().length > 0) {
+        		outputInfos[m] = m+": "+info[i].getName() +": "+info[i].getDescription();
+        		m++;
+        	}        	
+        	//System.out.println(info[i].getName()+"::"+info[i].getDescription());
+        	//System.out.println(mixerInfo[i]);
+        }
         
         DataLine.Info targetInfo = new DataLine.Info(TargetDataLine.class, format);        
         DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class, format);
@@ -175,5 +225,13 @@ public class AudioEngine implements Runnable {
     
     public void stopEngine() {
         engineStatus = STOPPED;
+    }
+    
+    public String[] getInputInfos() {
+    	return inputInfos;
+    }
+    
+    public String[] getOutputInfos() {
+    	return outputInfos;
     }
 }
