@@ -17,17 +17,17 @@ import javax.swing.JPanel;
 /**
  * @author HAL
  */
-public class Canvas extends JPanel {
+public class Oscilloscope extends JPanel {
     
     private double[] amplitude;
     private int nPoints = 128;
     private int head = 0;
     
     /** Creates a new instance of Canvas */
-    public Canvas() {
-        Dimension dim = new Dimension(200, 200);
-        this.setSize(dim);
-        this.setMinimumSize(dim);
+    public Oscilloscope() {
+        //Dimension dim = new Dimension(200, 200);
+        //this.setSize(dim);
+        //this.setMinimumSize(dim);
         this.setBackground(new Color(100,100,100));
         
         amplitude = new double[nPoints];
@@ -65,6 +65,4 @@ public class Canvas extends JPanel {
 	public int getNPoints() {
 		return nPoints;
 	}
-    
-        
 }
