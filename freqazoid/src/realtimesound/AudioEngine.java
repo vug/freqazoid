@@ -36,8 +36,10 @@ public class AudioEngine implements Runnable {
     private SourceDataLine outputLine;
     private boolean stopped = false;    
     private ByteArrayOutputStream outStream;
+    private AudioFormat format;
     
-    public static final int RUNNING = 0, PAUSED = 1, STOPPED = 2;
+    public static final int STARTING = 0, RUNNING = 1, 
+    						PAUSED = 2, STOPPING = 3, STOPPED = 4;
     private ResourceManager rm;
     private int engineStatus;
     private String[] inputInfos;
@@ -51,7 +53,7 @@ public class AudioEngine implements Runnable {
         engineStatus = STOPPED;
         int frameSizeInBytes = BIT_DEPTH/8;
         int frameRate = SAMPLE_RATE;
-        AudioFormat format = new  AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+        format = new  AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 SAMPLE_RATE, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, LITTLE_ENDIAN);
         
         System.out.println("audio format: "+format.toString());
@@ -147,7 +149,21 @@ stablises at a minimum latency.
         long counter = 0;
         
         while(true) {
-            switch(engineStatus) {        
+            switch(engineStatus) {
+            	case STARTING:
+            		try {
+						inputLine.open(format, BUFFER_SIZE);
+						outputLine.open(format, BUFFER_SIZE);
+					} catch (LineUnavailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+            		
+            		inputLine.start();
+                    outputLine.start();
+                    engineStatus = RUNNING;
+                    System.out.println("Engine started.");
+                    break;
                 case RUNNING:
                 // Read the next chunk of data from the TargetDataLine.
                 
@@ -166,7 +182,10 @@ stablises at a minimum latency.
                 //System.out.println("Number of Read Bytes: " + numBytesRead);
                 //outStream.write(dataIn, 0, numBytesRead);
                 
-                /* plot graph */
+                /* plot graph
+                 * Bu hata, encapsulation anlayisina aykiri. AudioEngine'nin
+                 * plot etmede kullanilacak arabirime dair fikri olmamali.
+                 * */
                 for(int i=0; i<numBytesRead; i+=2) {           
                     int x = dataIn[i] | (dataIn[i+1]<<8);
                     counter++;
@@ -185,14 +204,17 @@ stablises at a minimum latency.
                 break;
                 case PAUSED:
                     break;
-                case STOPPED:
+                case STOPPING:
                     //inputLine.drain();
                     System.out.println("stoppin input line");
                     inputLine.stop();
                     System.out.println("closing input line");
                     inputLine.close();
                     System.out.println("Engine stopped.");
-                    return;
+                    engineStatus = STOPPED;
+                    break;
+                case STOPPED:
+                	break;
             }    
         }
     }
@@ -224,7 +246,11 @@ stablises at a minimum latency.
     }
     
     public void stopEngine() {
-        engineStatus = STOPPED;
+        engineStatus = STOPPING;
+    }
+    
+    public void startEngine() {
+    	engineStatus = STARTING;
     }
     
     public String[] getInputInfos() {
