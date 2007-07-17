@@ -6,8 +6,9 @@
 
 package realtimesound;
 
-import gui.Canvas;
+import gui.Oscilloscope;
 import gui.Menu;
+import gui.Spectroscope;
 import gui.StatusBar;
 import gui.Window;
 
@@ -25,7 +26,8 @@ public class ResourceManager {
     private AudioEngine audioEngine;
     private Thread audioThread;
     private Window window;
-    private Canvas canvas;
+    //private Oscilloscope canvas;
+    private Spectroscope canvas;
 	private Menu menuBar;
 	private StatusBar statusBar;
     
@@ -33,7 +35,7 @@ public class ResourceManager {
     public ResourceManager() {
     	window = new Window(this);
     	
-    	canvas = new Canvas();
+    	canvas = new Spectroscope(this);
     	window.add(canvas, BorderLayout.CENTER);
     	
         System.out.println("Opening audio system...");
@@ -60,7 +62,7 @@ public class ResourceManager {
     	return audioEngine;
     }
     
-    public Canvas getCanvas() {
+    public Spectroscope getCanvas() {
         return this.canvas;
     }
     
