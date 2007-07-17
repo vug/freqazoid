@@ -4,7 +4,7 @@
  * Created on March 25, 2007, 5:44 AM
  */
 
-package realtimesound;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,7 +15,6 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
 /**
- *
  * @author HAL
  */
 public class Canvas extends JPanel {
@@ -62,5 +61,10 @@ public class Canvas extends JPanel {
             head = 0;
         }
     }
+
+	public int getNPoints() {
+		return nPoints;
+	}
     
+        
 }
