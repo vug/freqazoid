@@ -1,13 +1,8 @@
-#summary discussion about the project
+#summary discussion about the project, todo list etc.
+#labels Featured,Phase-Design
 
-= Introduction =
-
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+== To Do ==
+* Implement a peak detection algorithm for spectral peaks.
+* Options for selecting different types of windows (Rectangular, Hann, Hamming vs.)
+* Options for window size
+* View menu to select one of: Oscilloscope, Spectroscope (+ show peaks), Spectrogram, Pitch
