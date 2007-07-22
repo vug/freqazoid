@@ -2,7 +2,9 @@
 #labels Featured,Phase-Design
 
 == To Do ==
- * Implement a peak detection algorithm for spectral peaks.
- * Options for selecting different types of windows (Rectangular, Hann, Hamming vs.)
+ * Implement a peak detection algorithm for spectral peaks. (Read the PARSHL paper of JOS)
+ * Options for selecting different types of windows (Rectangular, Hann, Hamming, Kaiser, Black something... vs.)
  * Options for window size
  * View menu to select one of: Oscilloscope, Spectroscope (+ show peaks), Spectrogram, Pitch
+ * Options for allowing or stopping audio input and output.
+ * Facility for opening a sound file and sending its content to the analyser in real-time.
