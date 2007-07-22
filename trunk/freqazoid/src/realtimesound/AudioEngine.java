@@ -6,18 +6,13 @@
  */
 package realtimesound;
 
-import java.io.ByteArrayOutputStream;
+//import java.io.ByteArrayOutputStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Control;
-import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Line.Info;
 import javax.sound.sampled.Line;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
@@ -33,9 +28,8 @@ public class AudioEngine implements Runnable {
     private static final boolean LITTLE_ENDIAN = false;
     private static final int BUFFER_SIZE = 4096;
     private TargetDataLine inputLine;
-    private SourceDataLine outputLine;
-    private boolean stopped = false;    
-    private ByteArrayOutputStream outStream;
+    private SourceDataLine outputLine;  
+    //private ByteArrayOutputStream outStream;
     private AudioFormat format;
     
     public static final int STARTING = 0, RUNNING = 1, 
@@ -82,7 +76,7 @@ stablises at a minimum latency.
         
         for(int i=0; i<lineInfo.length; i++) {
         	//AudioSystem.getSourceDataLine(arg0, arg1)
-        	System.out.println(lineInfo[i]);
+        	//System.out.println(lineInfo[i]);
         }
         
         inputInfos = new String[info.length];
@@ -106,7 +100,7 @@ stablises at a minimum latency.
         DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class, format);
         
         if(AudioSystem.isLineSupported(targetInfo)) {
-            System.out.println("input format supported by the system");
+            System.out.println("input format is supported by the system");
             try {
                 System.out.println("trying to open an input line...");
                 inputLine = (TargetDataLine) AudioSystem.getLine(targetInfo);
@@ -131,14 +125,15 @@ stablises at a minimum latency.
             }            
         }
         
-        outStream = new ByteArrayOutputStream();
+        //outStream = new ByteArrayOutputStream();
     }
     
     public void run()  {
         int numBytesRead;
-        int numBytesWritten;
-        byte[] dataIn = new byte[64/*inputLine.getBufferSize() / 5*/];
-        byte[] dataSynthesis = new byte[64];
+        //int numBytesWritten;
+        int buff=64;
+        byte[] dataIn = new byte[buff/*inputLine.getBufferSize() / 5*/];
+        byte[] dataSynthesis = new byte[buff];
         int n=0;
         
         inputLine.start();
@@ -171,10 +166,10 @@ stablises at a minimum latency.
                 // Save this chunk of data.
                 
                 /* Synthesize simple sinusoid */
-                for(int i=0; i<64; i+=2) {
+                for(int i=0; i<buff; i+=2) {
                     n++;
-                    double x = Math.sin(220*2*Math.PI*n/SAMPLE_RATE);
-                    int sample = (int)(x*5000);
+                    double x = Math.sin(1000*2*Math.PI*n/SAMPLE_RATE);
+                    int sample = (int)(x*20000);
                     dataSynthesis[i]   = (byte)( sample     & 0xFF);
                     dataSynthesis[i+1] = (byte)((sample>>8) & 0xFF);                                    
                 }
@@ -188,16 +183,17 @@ stablises at a minimum latency.
                  * */
                 for(int i=0; i<numBytesRead; i+=2) {           
                     int x = dataIn[i] | (dataIn[i+1]<<8);
+                	//int x = dataSynthesis[i] | (dataSynthesis[i+1]<<8);
                     counter++;
                     if(counter%10==0) {
                         rm.getCanvas().setData(x);
-                        rm.getCanvas().repaint();
+                        //rm.getCanvas().repaint();
                     }
                 }          
                 
                 
                 //System.out.println("Available:" + outputLine.available());
-                numBytesWritten = outputLine.write(dataIn, 0, numBytesRead);
+                //numBytesWritten = outputLine.write(dataIn, 0, numBytesRead);
             
                 //numBytestoRead= outputLine.available();
             
@@ -206,7 +202,7 @@ stablises at a minimum latency.
                     break;
                 case STOPPING:
                     //inputLine.drain();
-                    System.out.println("stoppin input line");
+                    System.out.println("stopping input line");
                     inputLine.stop();
                     System.out.println("closing input line");
                     inputLine.close();

@@ -5,27 +5,35 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Vector;
 
 import javax.swing.JPanel;
 
+import math.Complex;
 import math.DFT;
+import math.FFT;
+import math.Peak;
+import math.PeakDetector;
+import math.Tools;
 
 import realtimesound.ResourceManager;
 
+@SuppressWarnings("serial")
 public class Spectroscope extends JPanel {
 	
-	private ResourceManager rm;
+	//private ResourceManager rm;
     private double[] amplitude;
-    private double[] magnitude;
-    private int nPoints = 128;
+    private Complex[] magnitude;
+    private Vector<Peak> peaks;
+    private int nPoints = 256;
     private int head = 0;
 	
 	public Spectroscope(ResourceManager rm) {
 		super();
-		this.rm = rm;
+		//this.rm = rm;
 		
 		amplitude = new double[nPoints];
-		magnitude = new double[nPoints];
+		magnitude = new Complex[nPoints];
 	}
 	
     public void paint (Graphics g) {
@@ -40,7 +48,22 @@ public class Spectroscope extends JPanel {
             //x=0.0;
             y0 = this.getHeight();
             l=(double)this.getWidth()/nPoints;
-            Line2D.Double line = new Line2D.Double(l*i, -magnitude[i]+y0, l*(i+1), -magnitude[i+1]+y0);
+            
+            //System.out.println(magnitude[i]);
+            double sample1 = -25*Math.log10(Complex.abs(magnitude[i]));
+            double sample2 = -25*Math.log10(Complex.abs(magnitude[i+1]));
+            
+            Line2D.Double line = new Line2D.Double(l*i, sample1+y0, l*(i+1), sample2+y0);
+            
+            g2.setColor(new Color(255,0,0));
+            
+            if(peaks!=null) {
+            	for(int n=0; n<peaks.size(); n++) {
+            		Line2D.Double line1 = new Line2D.Double(peaks.elementAt(n).frequency*l,0,peaks.elementAt(n).frequency*l,y0);         		
+            		//g2.draw(line1);
+            	}
+            }
+            
             g2.setColor(new Color(0,255,0));
             g2.draw(line);
         }
@@ -54,9 +77,16 @@ public class Spectroscope extends JPanel {
         amplitude[head] = x;
         head++;
         if(head == nPoints) {
-        	magnitude = DFT.magnitude(amplitude);
+        	//magnitude = DFT.magnitude(amplitude);
+        	
+        	amplitude = DFT.window(amplitude);
+        	magnitude = FFT.forward( Tools.makeComplex(amplitude) );
+        	
+        	//magnitude = Tools.lowpass(magnitude,3);
             head = 0;
+            //peaks = PeakDetector.detect(magnitude);
         }
+        this.repaint();
     }
     
 	public int getNPoints() {

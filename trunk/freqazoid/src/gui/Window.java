@@ -6,13 +6,14 @@ import javax.swing.JFrame;
 
 import realtimesound.ResourceManager;
 	
+@SuppressWarnings("serial")
 public class Window extends JFrame {
 	
-	private ResourceManager rm;
+	//private ResourceManager rm;
 	
 	public Window(ResourceManager rm) {
 		super("Freqazoid");
-		this.rm = rm;
+		//this.rm = rm;
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(500,300);
