@@ -135,9 +135,7 @@ stablises at a minimum latency.
         inputLine.start();
         outputLine.start();
         System.out.println("Engine started.");
-        engineStatus = RUNNING;
-        
-        long counter = 0;
+        engineStatus = RUNNING;        
         
         while(true) {
             switch(engineStatus) {
@@ -146,7 +144,6 @@ stablises at a minimum latency.
 						inputLine.open(format, BUFFER_SIZE);
 						outputLine.open(format, BUFFER_SIZE);
 					} catch (LineUnavailableException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
             		
@@ -158,7 +155,7 @@ stablises at a minimum latency.
                 case RUNNING:
                 // Read the next chunk of data from the TargetDataLine.
                 
-                numBytesRead =  inputLine.read(dataIn, 0, dataIn.length);            
+                numBytesRead =  inputLine.read(dataIn, 0, dataIn.length);
                 // Save this chunk of data.
                 
                 /* Synthesize simple sinusoid */
@@ -180,12 +177,7 @@ stablises at a minimum latency.
                 for(int i=0; i<numBytesRead; i+=2) {           
                     int x = dataIn[i] | (dataIn[i+1]<<8);
                 	//int x = dataSynthesis[i] | (dataSynthesis[i+1]<<8);
-                	rm.getCanvas().setData(x);
-                    counter++;
-                    if(counter%10==0) {
-                        //rm.getCanvas().setData(x);
-                        //rm.getCanvas().repaint();
-                    }
+                	rm.getCanvas().setData(x);                    
                 }          
                 
                 
