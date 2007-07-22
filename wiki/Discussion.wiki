@@ -2,7 +2,7 @@
 #labels Featured,Phase-Design
 
 == To Do ==
-* Implement a peak detection algorithm for spectral peaks.
-* Options for selecting different types of windows (Rectangular, Hann, Hamming vs.)
-* Options for window size
-* View menu to select one of: Oscilloscope, Spectroscope (+ show peaks), Spectrogram, Pitch
+ * Implement a peak detection algorithm for spectral peaks.
+ * Options for selecting different types of windows (Rectangular, Hann, Hamming vs.)
+ * Options for window size
+ * View menu to select one of: Oscilloscope, Spectroscope (+ show peaks), Spectrogram, Pitch
