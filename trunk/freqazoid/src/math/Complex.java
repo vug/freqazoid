@@ -48,6 +48,15 @@ public class Complex {
 		return Math.sqrt(c.real*c.real+c.imag*c.imag);
 	}
 	
+	public static double[] abs(Complex[] c) {
+		int N = c.length;
+		double[] mag = new double[N];
+		for(int i=0; i<N; i++) {
+			mag[i] = Math.sqrt(c[i].real*c[i].real+c[i].imag*c[i].imag);
+		}
+		return mag;
+	}
+	
 	public static final Complex nthRootOfUnity(int n, int N) {
 		double re = Math.cos(2*Math.PI*n/N);
 		double im = Math.sin(2*Math.PI*n/N);

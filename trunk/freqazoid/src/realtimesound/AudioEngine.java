@@ -16,10 +16,6 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-/**
- *
- * @author HAL
- */
 public class AudioEngine implements Runnable {
     
     private static final int SAMPLE_RATE = 44100;
@@ -130,7 +126,7 @@ stablises at a minimum latency.
     
     public void run()  {
         int numBytesRead;
-        //int numBytesWritten;
+        int numBytesWritten;
         int buff=64;
         byte[] dataIn = new byte[buff/*inputLine.getBufferSize() / 5*/];
         byte[] dataSynthesis = new byte[buff];
@@ -168,7 +164,7 @@ stablises at a minimum latency.
                 /* Synthesize simple sinusoid */
                 for(int i=0; i<buff; i+=2) {
                     n++;
-                    double x = Math.sin(1000*2*Math.PI*n/SAMPLE_RATE);
+                    double x = Math.sin(22000*2*Math.PI*n/SAMPLE_RATE);
                     int sample = (int)(x*20000);
                     dataSynthesis[i]   = (byte)( sample     & 0xFF);
                     dataSynthesis[i+1] = (byte)((sample>>8) & 0xFF);                                    
@@ -184,16 +180,17 @@ stablises at a minimum latency.
                 for(int i=0; i<numBytesRead; i+=2) {           
                     int x = dataIn[i] | (dataIn[i+1]<<8);
                 	//int x = dataSynthesis[i] | (dataSynthesis[i+1]<<8);
+                	rm.getCanvas().setData(x);
                     counter++;
                     if(counter%10==0) {
-                        rm.getCanvas().setData(x);
+                        //rm.getCanvas().setData(x);
                         //rm.getCanvas().repaint();
                     }
                 }          
                 
                 
                 //System.out.println("Available:" + outputLine.available());
-                //numBytesWritten = outputLine.write(dataIn, 0, numBytesRead);
+                numBytesWritten = outputLine.write(dataIn, 0, numBytesRead);
             
                 //numBytestoRead= outputLine.available();
             
