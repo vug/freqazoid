@@ -25,7 +25,7 @@ public class Spectroscope extends JPanel {
     private double[] amplitude;
     private Complex[] magnitude;
     private Vector<Peak> peaks;
-    private int nPoints = 256;
+    private int nPoints = 512;
     private int head = 0;
 	
 	public Spectroscope(ResourceManager rm) {
@@ -44,14 +44,14 @@ public class Spectroscope extends JPanel {
         g2.fill(rect);
         
         double x, y0, l;
-        for(int i=0; i<nPoints-1; i++) {
+        for(int i=0; i<nPoints/2-1; i++) {
             //x=0.0;
             y0 = this.getHeight();
-            l=(double)this.getWidth()/nPoints;
+            l=(double)this.getWidth()/(nPoints/2);
             
             //System.out.println(magnitude[i]);
-            double sample1 = -25*Math.log10(Complex.abs(magnitude[i]));
-            double sample2 = -25*Math.log10(Complex.abs(magnitude[i+1]));
+            double sample1 = -30*Math.log10(Complex.abs(magnitude[i]));
+            double sample2 = -30*Math.log10(Complex.abs(magnitude[i+1]));
             
             Line2D.Double line = new Line2D.Double(l*i, sample1+y0, l*(i+1), sample2+y0);
             
@@ -84,7 +84,7 @@ public class Spectroscope extends JPanel {
         	
         	//magnitude = Tools.lowpass(magnitude,3);
             head = 0;
-            //peaks = PeakDetector.detect(magnitude);
+            //peaks = PeakDetector.detect( Complex.abs(magnitude));
         }
         this.repaint();
     }
