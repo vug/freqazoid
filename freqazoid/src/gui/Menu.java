@@ -11,11 +11,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import realtimesound.ResourceManager;
 
 public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	
+	private static final long serialVersionUID = 1L;
+
 	private ResourceManager rm;
 	
 	private JMenu menuFile;
@@ -39,7 +42,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		menuFile.add(itemExit);
 		
 		menuOptions = new JMenu("Options");
-		subMenuAudioDriver = new JMenu("Audio Driver");
+		subMenuAudioDriver = new JMenu("Audio Devices");
 		menuOptions.add(subMenuAudioDriver);
 		String[] inputInfos = rm.getAudioEngine().getInputInfos();
 		for(int i=0; i<inputInfos.length; i++) {
@@ -58,6 +61,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		}
 		menuOptions.addSeparator();
 		itemPause = new JCheckBoxMenuItem("Pause");
+		itemPause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 		itemPause.addItemListener(this);
 		menuOptions.add(itemPause);
 		itemStartStop = new JMenuItem("Stop Engine");

@@ -1,7 +1,6 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import javax.swing.JLabel;
@@ -9,15 +8,16 @@ import javax.swing.JPanel;
 
 import realtimesound.ResourceManager;
 
+@SuppressWarnings("serial")
 public class StatusBar extends JPanel {
 	
 	private JLabel labelWidthDuration;
-	private ResourceManager rm;
+	//private ResourceManager rm;
 	
 	public StatusBar(ResourceManager rm) {
 		super(new FlowLayout(FlowLayout.RIGHT));
 		
-		this.rm = rm;
+		//this.rm = rm;
 		String duration = Double.toString((double)rm.getCanvas().getNPoints()/44.1).substring(0,3);
 		labelWidthDuration = new JLabel(duration+" msec");	
 		

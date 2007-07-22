@@ -7,7 +7,6 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
@@ -19,7 +18,8 @@ import javax.swing.JPanel;
  */
 public class Oscilloscope extends JPanel {
     
-    private double[] amplitude;
+	private static final long serialVersionUID = 1L;
+	private double[] amplitude;
     private int nPoints = 128;
     private int head = 0;
     
@@ -40,7 +40,7 @@ public class Oscilloscope extends JPanel {
         Rectangle2D.Double rect = new Rectangle2D.Double(0,0,getWidth(),getHeight());
         g2.fill(rect);
         
-        double x, y0, l;
+        double y0, l;
         for(int i=0; i<nPoints-1; i++) {
             //x=0.0;
             y0 = this.getHeight()/2;
