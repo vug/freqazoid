@@ -40,7 +40,7 @@ public class Spectroscope extends JPanel {
     	super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         
-        //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(new Color(100,100,100));
         Rectangle2D.Double rect = new Rectangle2D.Double(0,0,getWidth(),getHeight());
         g2.fill(rect);
@@ -77,7 +77,7 @@ public class Spectroscope extends JPanel {
         g2.dispose();
     }
     
-    public void setData(int newPoint) {
+    public void setData2(int newPoint) {
         double x = ((double)newPoint)/32768;
         //System.out.println(head);
         amplitude[head] = x;
@@ -92,6 +92,16 @@ public class Spectroscope extends JPanel {
             //peaks = PeakDetector.detect( Complex.abs(magnitude));
         }
         this.repaint();
+    }
+    
+    public void setData(int[] newPoints) {
+    	for(int i=0; i<amplitude.length; i++) {
+    		amplitude[i] = ((double)newPoints[i])/32768;
+    	}
+    	amplitude = DFT.window(amplitude, DFT.BLACKMANN);
+    	magnitude = Complex.abs( FFT.forward( Tools.makeComplex(amplitude) ) );
+    	
+    	this.repaint();
     }
     
 	public int getNPoints() {

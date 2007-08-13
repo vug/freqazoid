@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 public class StatusBar extends JPanel implements ActionListener {
 	
 	private JLabel labelWidthDuration;
+	private JLabel labelHopSize;
 	private JButton buttonPlayPause;
 	private JButton buttonStop;
 	private ResourceManager rm;
@@ -27,11 +28,14 @@ public class StatusBar extends JPanel implements ActionListener {
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		this.rm = rm;
-		String duration = Double.toString((double)rm.getCanvas().getNPoints()/44.1).substring(0,3);
-		labelWidthDuration = new JLabel(duration+" msec");	
+		String duration = Double.toString((double)rm.getAudioEngine().getAudioBuffer().getFrameSize()/44.1).substring(0,3);
+		labelWidthDuration = new JLabel(duration+" msec");
+		
+		duration = Double.toString(((double)rm.getAudioEngine().getAudioBuffer().getHopSize()/44.1)).substring(0, 3);
+		labelHopSize = new JLabel(duration+" msec ");
 		
 		//labelWidthDuration.setPreferredSize(new Dimension(80,10));
-		labelWidthDuration.setBackground(Color.MAGENTA);
+//		labelWidthDuration.setBackground(Color.MAGENTA);
 		//this.setMaximumSize(new Dimension(1000,20));
 		//this.setPreferredSize(new Dimension(10,20));
 		//labelWidthDuration.setAlignmentX(Component.);
@@ -46,16 +50,15 @@ public class StatusBar extends JPanel implements ActionListener {
 		this.add(buttonStop);
 		
 		this.add(Box.createHorizontalGlue());
+		this.add(labelHopSize);
 		this.add(labelWidthDuration);
 	}
 	public void actionPerformed(ActionEvent ae) {
 		JButton source = (JButton) ae.getSource();
 		if(source == buttonPlayPause) {
-			System.out.println("playpause");
 			rm.getAudioEngine().reopenFile();
 			rm.getAudioEngine().muteFile = false;
 		} else if(source == buttonStop) {
-			System.out.println("stop");
 			rm.getAudioEngine().muteFile = true;
 			
 		}

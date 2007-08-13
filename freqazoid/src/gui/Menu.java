@@ -31,6 +31,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private JCheckBoxMenuItem itemPause;
 	private JMenuItem itemStartStop;
 	private boolean running = true;
+	private JMenuItem itemSettings;
 		
 	private JMenu menuHelp;
 	private JMenuItem itemAbout;
@@ -78,6 +79,9 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		itemStartStop = new JMenuItem("Stop Engine");
 		itemStartStop.addActionListener(this);
 		menuOptions.add(itemStartStop);
+		itemSettings = new JMenuItem("Settings");
+		itemSettings.addActionListener(this);
+		menuOptions.add(itemSettings);
 		
 		
 		menuHelp = new JMenu("Help");
@@ -117,6 +121,9 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 			if( returnValue == JFileChooser.APPROVE_OPTION ) {
 				rm.getAudioEngine().openFile( fileChooser.getSelectedFile() );
 			}
+		}
+		else if(ae.getSource() == itemSettings) {
+			rm.getSettings().setVisible(true);
 		}
 	}
 
