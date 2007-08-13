@@ -148,7 +148,7 @@ stablises at a minimum latency.
     public void run()  {
         int numBytesRead;
         int numBytesWritten;
-        int softwareBufferSize=128;
+        int softwareBufferSize=1024;
         byte[] dataFromMic = new byte[softwareBufferSize*2];
         byte[] dataSynthesis = new byte[softwareBufferSize*2];
         byte[] dataFromFile = new byte[softwareBufferSize*2];
@@ -190,41 +190,38 @@ stablises at a minimum latency.
 						}
                 	}
                 
-                	/* Synthesize simple sinusoid */
-                	/* example of integer to byte conversion */
-                	for(int i=0; i<softwareBufferSize; i+=2) {
-                		n++;
-                		double x = Math.sin(22000*2*Math.PI*n/SAMPLE_RATE);
-                		int sample = (int)(x*20000);
-                		dataSynthesis[i]   = (byte)( sample     & 0xFF);
-                		dataSynthesis[i+1] = (byte)((sample>>8) & 0xFF);                                    
-                	}
+                	/* Synthesize simple sinusoid */                	
+//                	for(int i=0; i<softwareBufferSize; i+=2) {
+//                		n++;
+//                		double x = Math.sin(22000*2*Math.PI*n/SAMPLE_RATE);
+//                		int sample = (int)(x*20000);
+//                		dataSynthesis[i]   = (byte)( sample     & 0xFF);
+//                		dataSynthesis[i+1] = (byte)((sample>>8) & 0xFF);                                    
+//                	}
                 
                 	/* plot graph
                 	 * This contradicts with the encapsulation idea. AudioEngine must have
                 	 * no idea about the interface to plot the audio.
                 	 * */
-                	short[] masterOut = new short[softwareBufferSize];
+                	int[] masterOut = new int[softwareBufferSize];                	
                 	
-                	for(int i=0, j = 0; i<softwareBufferSize; i+=2, j++) {
+                	for(int i=0, j = 0; j<softwareBufferSize; i+=2, j++) {
                 		masterOut[j] = 0;
                 		if( !muteMicrophone ) {
-                			masterOut[j] += ((dataFromMic[i] & 0xFF) | (dataFromMic[i+1]<<8));
+                			masterOut[j] += ((dataFromMic[i] & 0xFF) | (dataFromMic[i+1]<<8));                	
                 		}
                 		if( !muteFile ) {
                 			masterOut[j] += (dataFromFile[i] & 0xFF) | (dataFromFile[i+1]<<8);
                 		}
                 		rm.getCanvas().setData( masterOut[j] );                    
-                	}
+                	}                	
                 	audioBuffer.addSamples(masterOut);
                 	
-                	for(int j=0, i=0; j<softwareBufferSize; i+=2, j++) {                		
-                		dataMasterOut[i]   = (byte)(masterOut[j] & 0xFF);
-                		dataMasterOut[i+1] = (byte)((masterOut[j]>>8));
-//                		dataMasterOut[i]   = dataFromMic[i];
-//                		dataMasterOut[i+1] = dataFromMic[i+1];
-                	}
-               
+                	for(int i=0, j=0; j<softwareBufferSize; i+=2, j++) {                		
+                		dataMasterOut[i]   = (byte)(masterOut[j] &  0xFF);
+                		dataMasterOut[i+1] = (byte)(masterOut[j] >> 8);
+                	}     	
+                	
                 	numBytesWritten = outputLine.write(dataMasterOut, 0, dataMasterOut.length);
             
                 	//numBytestoRead= outputLine.available();

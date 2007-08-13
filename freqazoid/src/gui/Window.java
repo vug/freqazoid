@@ -15,7 +15,7 @@ public class Window extends JFrame {
 		//this.rm = rm;
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(500,300);
+		this.setSize(700,300);
 		this.setLocation(100,100);
 		this.setLayout(new BorderLayout());
 	}

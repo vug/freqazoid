@@ -3,6 +3,7 @@ package gui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Vector;
@@ -35,17 +36,16 @@ public class Spectroscope extends JPanel {
 		magnitude = new double[nPoints];
 	}
 	
-    public void paint (Graphics g) {
+    public void paintComponent(Graphics g) {
+    	super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         
+        //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(new Color(100,100,100));
         Rectangle2D.Double rect = new Rectangle2D.Double(0,0,getWidth(),getHeight());
         g2.fill(rect);
         
-        double y0, l;
-        for(int i=0; i<nPoints/2-1; i++) {
-        	
-        }
+        double y0, l;        
         for(int i=0; i<nPoints/2-1; i++) {
             //x=0.0;
             y0 = this.getHeight()-1;
