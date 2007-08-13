@@ -16,7 +16,7 @@ public class AudioBuffer {
 		frame = new int[frameSize];
 	}
 	
-	public void addSamples(/*int[]*/short[] newData) {
+	public void addSamples(int[] newData) {
 		int N = newData.length;
 		
 		for(int i=0; i<N; i++) {

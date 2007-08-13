@@ -92,7 +92,10 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 
 	public void actionPerformed(ActionEvent ae) {
 		if( ae.getSource() == itemAbout ) {
-			JOptionPane.showMessageDialog(rm.getFrame(), "Real-time implementation of Beauchamp's two-way mismatch algorithm\n written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(rm.getFrame(), 
+					"Real-time implementation of Beauchamp's two-way mismatch algorithm\n" +
+					"(for the present it is just a spectroscope)\n"+
+					"written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
 		}		
 		else if(ae.getSource() == itemQuit ) {
 			System.exit(0);
