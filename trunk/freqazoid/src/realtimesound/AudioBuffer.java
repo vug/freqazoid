@@ -1,13 +1,18 @@
 package realtimesound;
 
+import gui.ResourceManager;
+
 public class AudioBuffer {
 	
+	private ResourceManager rm;
 	private int frameSize;
 	private int hopSize;
 	private int[] buffer, frame;
 	private int headWrite, headRead;
 	
-	public AudioBuffer(int frameSize, int hopSize) {
+	public AudioBuffer(int frameSize, int hopSize, ResourceManager rm) {
+		this.rm = rm;
+		
 		headWrite = 0;
 		headRead = 0;
 		this.frameSize = frameSize;
@@ -25,14 +30,20 @@ public class AudioBuffer {
 			if(headWrite==buffer.length) headWrite=0;
 			
 			
-			// if the number of incoming samples equals to hopsize
+			// if the number of newly incoming samples equals to hopsize
 			if(headWrite==headRead) {
-				//System.out.println("esit");
+//				System.out.println("esit");
 				for(int n=0; n<frameSize; n++) {
 					frame[n] = buffer[(headRead+n)%frameSize];		
 				}
 				headRead += hopSize;
 				if(headRead==buffer.length) headRead=0;
+				
+//				for(int j=0; j<frame.length; j++) {
+//					System.out.print(frame[j]+", ");
+//				}
+//				System.out.print("\n");
+				rm.getCanvas().setData( this.frame );
 			}
 		}
 		
@@ -70,7 +81,7 @@ public class AudioBuffer {
 	}
 	
 	public static void main(String[] args) {
-		AudioBuffer audioBuffer = new AudioBuffer(8,2);
+		//AudioBuffer audioBuffer = new AudioBuffer(8,2);
 		int[] samples = {1, 2, 3, 4, 5, 6, 7, 8};
 		/*audioBuffer.addSamples(samples);
 		int[] samples2 = {30, 31};

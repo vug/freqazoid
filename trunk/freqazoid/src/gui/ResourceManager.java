@@ -16,6 +16,7 @@ public class ResourceManager {
     private AudioEngine audioEngine;
     private Thread audioThread;
     private Window window;
+    private Settings settings;
     //private Oscilloscope canvas;
     private Spectroscope canvas;
     //private Spectrogram canvas;
@@ -27,15 +28,15 @@ public class ResourceManager {
     	window = new Window(this);
     	
     	canvas = new Spectroscope(this);
-    	System.out.println("canvas double buffered: "+ canvas.isDoubleBuffered());
+//    	System.out.println("canvas double buffered: "+ canvas.isDoubleBuffered());
     	//canvas = new Spectrogram(this);
     	window.add(canvas, BorderLayout.CENTER);
     	
-        System.out.println("Opening audio system...");
+//        System.out.println("Opening audio system...");
         audioEngine = new AudioEngine(this);
-        System.out.println("Audio system opened.");
+//        System.out.println("Audio system opened.");
         audioThread = new Thread(audioEngine);        
-        System.out.println("starting the audio engine...");        
+//        System.out.println("starting the audio engine...");        
         audioThread.start();
         
         
@@ -43,6 +44,8 @@ public class ResourceManager {
         window.setJMenuBar(menuBar);
         statusBar = new StatusBar(this);
         window.add(statusBar, BorderLayout.SOUTH);
+        
+        settings = new Settings(this);
         
         window.setVisible(true);
     }
@@ -60,4 +63,7 @@ public class ResourceManager {
         return this.canvas;
     }
     
+    public Settings getSettings() {
+    	return this.settings;
+    }
 }
