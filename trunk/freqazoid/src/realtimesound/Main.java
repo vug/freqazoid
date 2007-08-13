@@ -9,6 +9,10 @@
 
 package realtimesound;
 
+import java.io.File;
+
+import gui.ResourceManager;
+
 /**
  *
  * @author HAL
@@ -18,7 +22,10 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {        
-        ResourceManager rm = new ResourceManager();     
+        ResourceManager rm = new ResourceManager();
+        
+        File file = new File("c:\\java\\projects\\CELLO2.wav");
+        //rm.getAudioEngine().openFile(file);
         /*byte b1 = 0;
         byte b2 = 2;
         

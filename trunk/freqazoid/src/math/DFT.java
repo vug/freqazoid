@@ -2,7 +2,12 @@ package math;
 
 public class DFT {
 	
-	public static final double[] magnitude(double[] input) {
+	public static final int RECTANGULAR = 0;
+	public static final int HANN = 1;
+	public static final int BLACKMANN = 2;
+	public static final int KEISER = 3;
+	
+	public static final double[] forwardMagnitude(double[] input) {
 		int N = input.length;
 		double[] mag = new double[N];
 		double[] c = new double[N];
@@ -23,35 +28,25 @@ public class DFT {
 		return mag;
 	}
 	
-	public static final double[] window(double[] input) {
+	public static final double[] window(double[] input, int type) {
 		int N = input.length;
 		double[] windowed = new double[N];
 		
-		for(int i=0; i<N; i++) {
-			windowed[i] = 0.5*(1-Math.cos(2*Math.PI*i/N)) * input[i];
+		switch(type) {
+		case RECTANGULAR:
+			return input;
+		case HANN:
+			for(int n=0; n<N; n++) {
+				windowed[n] = 0.5*(1-Math.cos(2*Math.PI*n/N)) * input[n];
+			}
+			break;
+		case BLACKMANN:
+			for(int n=0; n<N; n++) {
+				windowed[n] = (0.42-0.5*Math.cos(2*Math.PI*n/N)+0.08*Math.cos(4*Math.PI*n/N) ) * input[n];
+			}
+			break;
 		}
+		
 		return windowed;
 	}
-	
-	public static void main(String[] args) {
-		int N=16;
-		double[] x = new double[N];		
-		
-		for(int i=0; i<N; i++) {
-			x[i]+=Math.sin(2*Math.PI*i/N);
-			x[i]+=Math.sin(0*2*Math.PI*i/N);
-			x[i]+=Math.cos(0*2*Math.PI*i/N);
-		}
-		
-		double mag[] = magnitude(x); 
-		
-		for(int i=0; i<N; i++) {
-			System.out.println(mag[i]);
-		}
-				
-		  
-	}
-	
-	
-
 }

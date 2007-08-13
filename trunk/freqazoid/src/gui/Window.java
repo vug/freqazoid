@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
-import realtimesound.ResourceManager;
 	
 @SuppressWarnings("serial")
 public class Window extends JFrame {
