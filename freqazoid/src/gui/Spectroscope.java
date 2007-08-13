@@ -16,7 +16,6 @@ import math.Peak;
 import math.PeakDetector;
 import math.Tools;
 
-import realtimesound.ResourceManager;
 
 @SuppressWarnings("serial")
 public class Spectroscope extends JPanel {
@@ -25,7 +24,7 @@ public class Spectroscope extends JPanel {
     private double[] amplitude;
     private double[] magnitude;
     private Vector<Peak> peaks;
-    private int nPoints = 512;
+    private int nPoints = 2048;
     private int head = 0;
 	
 	public Spectroscope(ResourceManager rm) {
@@ -85,7 +84,7 @@ public class Spectroscope extends JPanel {
         head++;
         if(head == nPoints) {
         	//magnitude = DFT.magnitude(amplitude);        	
-        	amplitude = DFT.window(amplitude);
+        	amplitude = DFT.window(amplitude,DFT.BLACKMANN);
         	magnitude = Complex.abs( FFT.forward( Tools.makeComplex(amplitude) ) );
         	
         	//magnitude = Tools.lowpass(magnitude,10);

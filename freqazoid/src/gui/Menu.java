@@ -7,13 +7,13 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import realtimesound.ResourceManager;
 
 public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	
@@ -22,10 +22,12 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private ResourceManager rm;
 	
 	private JMenu menuFile;
-	private JMenuItem itemExit;
+	private JMenuItem itemOpenSoundFile;
+	private JMenuItem itemQuit;
 		
 	private JMenu menuOptions;
 	private JMenu subMenuAudioDriver;
+	private JCheckBoxMenuItem itemMuteMicrophone;
 	private JCheckBoxMenuItem itemPause;
 	private JMenuItem itemStartStop;
 	private boolean running = true;
@@ -37,9 +39,14 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		this.rm = rm;
 		
 		menuFile = new JMenu("File");
-		itemExit = new JMenuItem("Quit", KeyEvent.VK_Q);
-		itemExit.addActionListener(this);
-		menuFile.add(itemExit);
+		itemOpenSoundFile = new JMenuItem("Open a sound file", KeyEvent.VK_O);
+		itemOpenSoundFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));
+		itemOpenSoundFile.addActionListener(this);
+		menuFile.add(itemOpenSoundFile);
+		itemQuit = new JMenuItem("Quit", KeyEvent.VK_Q);
+		itemQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,ActionEvent.CTRL_MASK));
+		itemQuit.addActionListener(this);
+		menuFile.add(itemQuit);
 		
 		menuOptions = new JMenu("Options");
 		subMenuAudioDriver = new JMenu("Audio Devices");
@@ -60,6 +67,10 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 			}
 		}
 		menuOptions.addSeparator();
+		itemMuteMicrophone = new JCheckBoxMenuItem("Mute Mic");
+		itemMuteMicrophone.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,ActionEvent.CTRL_MASK));
+		itemMuteMicrophone.addItemListener(this);
+		menuOptions.add(itemMuteMicrophone);
 		itemPause = new JCheckBoxMenuItem("Pause");
 		itemPause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 		itemPause.addItemListener(this);
@@ -82,12 +93,10 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	public void actionPerformed(ActionEvent ae) {
 		if( ae.getSource() == itemAbout ) {
 			JOptionPane.showMessageDialog(rm.getFrame(), "Real-time implementation of Beauchamp's two-way mismatch algorithm\n written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
-		}
-		
-		else if(ae.getSource() == itemExit ) {
+		}		
+		else if(ae.getSource() == itemQuit ) {
 			System.exit(0);
-		}
-		
+		}		
 		else if(ae.getSource() == itemStartStop ) {
 			if(running==true) {
 				rm.getAudioEngine().stopEngine();
@@ -98,6 +107,13 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 				itemStartStop.setText("Stop Engine");
 			}
 			running = !running;
+		} 
+		else if(ae.getSource() == itemOpenSoundFile) {
+			JFileChooser fileChooser = new JFileChooser();
+			int returnValue = fileChooser.showOpenDialog(rm.getFrame());
+			if( returnValue == JFileChooser.APPROVE_OPTION ) {
+				rm.getAudioEngine().openFile( fileChooser.getSelectedFile() );
+			}
 		}
 	}
 
@@ -105,6 +121,8 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		if( ie.getSource() == itemPause ) {
 			//System.out.println(itemPause.getState());
 			rm.getAudioEngine().pauseEngine();
+		} else if(ie.getSource() == itemMuteMicrophone ) {
+			rm.getAudioEngine().muteMicrophone = itemMuteMicrophone.getState();
 		}
 	}
 }

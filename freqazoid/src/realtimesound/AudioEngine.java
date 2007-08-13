@@ -7,7 +7,14 @@
 package realtimesound;
 
 //import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+
+import gui.ResourceManager;
+
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Line;
@@ -15,6 +22,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioEngine implements Runnable {
     
@@ -35,10 +43,21 @@ public class AudioEngine implements Runnable {
     private String[] inputInfos;
     private String[] outputInfos;
     
+    private AudioBuffer audioBuffer;
+    
+    private AudioInputStream inputFileStream;
+    private AudioFileFormat inputFileFormat;
+    private File inputFile;
+    
+    public boolean muteMicrophone;
+    public boolean muteFile;
     
     /** Creates a new instance of AudioEngine */
     public AudioEngine(ResourceManager rm) {
         this.rm = rm;
+        
+        muteMicrophone = false;
+        muteFile = true;
         
         engineStatus = STOPPED;
         int frameSizeInBytes = BIT_DEPTH/8;
@@ -122,14 +141,18 @@ stablises at a minimum latency.
         }
         
         //outStream = new ByteArrayOutputStream();
+        
+        audioBuffer = new AudioBuffer(2048,256);
     }
     
     public void run()  {
         int numBytesRead;
         int numBytesWritten;
-        int buff=64;
-        byte[] dataIn = new byte[buff/*inputLine.getBufferSize() / 5*/];
-        byte[] dataSynthesis = new byte[buff];
+        int softwareBufferSize=128;
+        byte[] dataFromMic = new byte[softwareBufferSize*2];
+        byte[] dataSynthesis = new byte[softwareBufferSize*2];
+        byte[] dataFromFile = new byte[softwareBufferSize*2];
+        byte[] dataMasterOut = new byte[softwareBufferSize*2];
         int n=0;
         
         inputLine.start();
@@ -146,45 +169,67 @@ stablises at a minimum latency.
 					} catch (LineUnavailableException e) {
 						e.printStackTrace();
 					}
-            		
+					
             		inputLine.start();
                     outputLine.start();
                     engineStatus = RUNNING;
                     System.out.println("Engine started.");
                     break;
                 case RUNNING:
-                // Read the next chunk of data from the TargetDataLine.
                 
-                numBytesRead =  inputLine.read(dataIn, 0, dataIn.length);
-                // Save this chunk of data.
+                if( inputLine.available() > softwareBufferSize*2 )
+                {
+                	// Read the next chunk of data from the TargetDataLine.
+                	numBytesRead =  inputLine.read(dataFromMic, 0, dataFromMic.length);
+                	
+                	if ( !muteFile && inputFile != null ) {
+                		try {
+							inputFileStream.read(dataFromFile);
+                		} catch (IOException e) {
+							e.printStackTrace();
+						}
+                	}
                 
-                /* Synthesize simple sinusoid */
-                for(int i=0; i<buff; i+=2) {
-                    n++;
-                    double x = Math.sin(22000*2*Math.PI*n/SAMPLE_RATE);
-                    int sample = (int)(x*20000);
-                    dataSynthesis[i]   = (byte)( sample     & 0xFF);
-                    dataSynthesis[i+1] = (byte)((sample>>8) & 0xFF);                                    
-                }
+                	/* Synthesize simple sinusoid */
+                	/* example of integer to byte conversion */
+                	for(int i=0; i<softwareBufferSize; i+=2) {
+                		n++;
+                		double x = Math.sin(22000*2*Math.PI*n/SAMPLE_RATE);
+                		int sample = (int)(x*20000);
+                		dataSynthesis[i]   = (byte)( sample     & 0xFF);
+                		dataSynthesis[i+1] = (byte)((sample>>8) & 0xFF);                                    
+                	}
                 
-                //System.out.println("Number of Read Bytes: " + numBytesRead);
-                //outStream.write(dataIn, 0, numBytesRead);
-                
-                /* plot graph
-                 * Bu hata, encapsulation anlayisina aykiri. AudioEngine'nin
-                 * plot etmede kullanilacak arabirime dair fikri olmamali.
-                 * */
-                for(int i=0; i<numBytesRead; i+=2) {           
-                    int x = dataIn[i] | (dataIn[i+1]<<8);
-                	//int x = dataSynthesis[i] | (dataSynthesis[i+1]<<8);
-                	rm.getCanvas().setData(x);                    
-                }          
-                
-                
-                //System.out.println("Available:" + outputLine.available());
-                numBytesWritten = outputLine.write(dataIn, 0, numBytesRead);
+                	/* plot graph
+                	 * This contradicts with the encapsulation idea. AudioEngine must have
+                	 * no idea about the interface to plot the audio.
+                	 * */
+                	short[] masterOut = new short[softwareBufferSize];
+                	
+                	for(int i=0, j = 0; i<softwareBufferSize; i+=2, j++) {
+                		masterOut[j] = 0;
+                		if( !muteMicrophone ) {
+                			masterOut[j] += ((dataFromMic[i] & 0xFF) | (dataFromMic[i+1]<<8));
+                		}
+                		if( !muteFile ) {
+                			masterOut[j] += (dataFromFile[i] & 0xFF) | (dataFromFile[i+1]<<8);
+                		}
+                		rm.getCanvas().setData( masterOut[j] );                    
+                	}
+                	audioBuffer.addSamples(masterOut);
+                	
+                	for(int j=0, i=0; j<softwareBufferSize; i+=2, j++) {                		
+                		dataMasterOut[i]   = (byte)(masterOut[j] & 0xFF);
+                		dataMasterOut[i+1] = (byte)((masterOut[j]>>8));
+//                		dataMasterOut[i]   = dataFromMic[i];
+//                		dataMasterOut[i+1] = dataFromMic[i+1];
+                	}
+               
+                	numBytesWritten = outputLine.write(dataMasterOut, 0, dataMasterOut.length);
             
-                //numBytestoRead= outputLine.available();
+                	//numBytestoRead= outputLine.available();
+                	//System.out.println(numBytesWritten);
+                }
             
                 break;
                 case PAUSED:
@@ -202,6 +247,40 @@ stablises at a minimum latency.
                 	break;
             }    
         }
+    }
+    
+    public void openFile(File file) {
+    	inputFile = file;
+        System.out.println("can read the file? "+ file.canRead() );
+        try {
+			inputFileStream = AudioSystem.getAudioInputStream(file);
+			inputFileFormat = AudioSystem.getAudioFileFormat(file);
+			
+			System.out.println("mark supported? "+ inputFileStream.markSupported() );
+		} catch (UnsupportedAudioFileException e) {
+			System.out.println("unsupported file format");
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(inputFileFormat.toString());
+    }
+    
+    public void reopenFile() {
+    	if(inputFile !=  null ) {
+    		openFile(inputFile);
+    	}
+    }
+    
+    public void rewindFile() {
+    	if( inputFileStream != null ) {
+    		try {
+				inputFileStream.reset();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     }
     
     public int getEngineStatus() {

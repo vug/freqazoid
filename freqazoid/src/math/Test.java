@@ -16,12 +16,14 @@ public class Test {
 		}
 		
 		Complex[] x = FFT.forward(c);
-		double[] x2 = DFT.magnitude(num);
+		double[] x2 = DFT.forwardMagnitude(num);
 		//x = FFT.inverse(x);
 		
 		for(int i=0; i<N; i++) {
 			System.out.println( Complex.abs(x[i]) + " ... " + 8*x2[i]);
 		}
+		
+		System.out.println("db: " + Math.log10(0.09*100+1));
 	}
 
 }
