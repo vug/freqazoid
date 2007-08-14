@@ -8,20 +8,24 @@ import java.awt.geom.Line2D;
 
 import javax.swing.JPanel;
 
-public class Display extends JPanel {
+public class Display extends JPanel implements Runnable {
 	
 	private int mode;
 	public static final int OSCILLOSCOPE = 0;
 	public static final int SPECTROSCOPE = 1;
 	private boolean showPeaks;
 	private ResourceManager rm;
+	protected Thread displayThread;
+	private int refreshRate;
 	
 	public Display(ResourceManager rm) {
 		super();
 		this.rm = rm;
 		mode = SPECTROSCOPE;
 		showPeaks = false;
-		this.setBackground(new Color(100,100,100));
+		this.setBackground(Colors.BACKGROUND);
+		displayThread = new Thread(this);
+		refreshRate = 10;
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -42,16 +46,15 @@ public class Display extends JPanel {
 	            
 	            Line2D.Double line = new Line2D.Double(l*i, y0-sample1, l*(i+1), y0-sample2);
 	            
-	            g2.setColor(new Color(255,0,0));
+	            g2.setColor( Colors.RED );
 	            
 //	            if(peaks!=null) {
 //	            	for(int n=0; n<peaks.size(); n++) {
 //	            		Line2D.Double line1 = new Line2D.Double(peaks.elementAt(n).frequency*l,0,peaks.elementAt(n).frequency*l,y0);         		
 //	            		//g2.draw(line1);
 //	            	}
-//	            }
-	            
-	            g2.setColor(new Color(0,255,0));
+//	            }	            
+	            g2.setColor( Colors.GREEN );
 	            g2.draw(line);
 			}
 			
@@ -62,7 +65,7 @@ public class Display extends JPanel {
 	        for(int i=0; i<amplitude.length-1; i++) {	            
 	            l=(double)this.getWidth()/amplitude.length;
 	            Line2D.Double line = new Line2D.Double(l*i, y0*amplitude[i]+y0, l*(i+1), y0*amplitude[i+1]+y0);
-	            g2.setColor(new Color(0,255,0));
+	            g2.setColor( Colors.GREEN );
 	            g2.draw(line);
 	        }
 			break;
@@ -79,5 +82,24 @@ public class Display extends JPanel {
 		this.mode = mode;
 	}
 	
-	
+	public int getRefreshRate() {
+		return refreshRate;
+	}
+
+	public void setRefreshRate(int refreshRate) {
+		this.refreshRate = refreshRate;
+	}
+
+	public void run() {
+		while (true) {
+			this.repaint();
+			
+			try {
+				Thread.sleep(refreshRate);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
+		}
+		
+	}
 }

@@ -39,7 +39,7 @@ public class AudioEngine implements Runnable {
     private String[] inputInfos;
     private String[] outputInfos;
     
-    private static final int BLOCK_SIZE = 1024*8;
+    private static final int BLOCK_SIZE = 1024*4;
     
     public static final int STARTING = 0, RUNNING = 1, 
     						PAUSED = 2, STOPPING = 3, STOPPED = 4;    

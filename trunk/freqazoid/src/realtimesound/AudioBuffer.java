@@ -8,28 +8,17 @@ public class AudioBuffer {
 	private AudioAnalyser analyser;
 	private int frameSize;
 	private int hopSize;
+	private int numberOfHops;
 	private int[] buffer;
 	private double[] frame;
 	private int headWrite, headRead;
 	
-	// silinecek.
-	public AudioBuffer(int frameSize, int hopSize, ResourceManager rm) {
-		this.rm = rm;
-		
-		headWrite = 0;
-		headRead = 0;
-		this.frameSize = frameSize;
-		this.hopSize = hopSize;
-		buffer = new int[frameSize];
-		frame = new double[frameSize];
-	}
-	
-	public AudioBuffer(int frameSize, int hopSize, AudioAnalyser analyser) {
+	public AudioBuffer(int frameSize, int numberOfHops, AudioAnalyser analyser) {
 		this.analyser = analyser;
 		headWrite = 0;
 		headRead = 0;
 		this.frameSize = frameSize;
-		this.hopSize = hopSize;
+		this.hopSize = frameSize/numberOfHops;
 		buffer = new int[frameSize];
 		frame = new double[frameSize];
 	}
@@ -98,6 +87,15 @@ public class AudioBuffer {
 		return frame;
 	}
 
+	public int getNumberOfHops() {
+		return numberOfHops;
+	}
+
+	public void setNumberOfHops(int numberOfHops) {
+		this.numberOfHops = numberOfHops;
+		hopSize = frameSize / numberOfHops;
+	}
+
 	public static void main(String[] args) {
 		//AudioBuffer audioBuffer = new AudioBuffer(8,2);
 		int[] samples = {1, 2, 3, 4, 5, 6, 7, 8};
@@ -113,5 +111,4 @@ public class AudioBuffer {
 		audioBuffer.addSamples(samples3);
 		audioBuffer.addSamples(samples3);*/
 	}
-
 }

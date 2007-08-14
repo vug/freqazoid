@@ -10,7 +10,7 @@ public class AudioAnalyser {
 	private AudioBuffer audioBuffer;
 	
 	private int windowSize;
-	private int hopSize;
+	private int numberOfHops;
 	private int windowType;
 	
 	private double[] windowedFrame;
@@ -18,10 +18,10 @@ public class AudioAnalyser {
 	
 	public AudioAnalyser() {
 		windowSize = 2048;
-		hopSize = 512;
+		numberOfHops = 4;
 		windowType = DFT.BLACKMANN;
 		
-		audioBuffer = new AudioBuffer(windowSize, hopSize, this);
+		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
 	}
 	
 	protected void bufferReady() {
@@ -41,12 +41,13 @@ public class AudioAnalyser {
 		return audioBuffer.getFrame();
 	}
 
-	public int getHopSize() {
-		return hopSize;
+	public int getNumberOfHops() {
+		return numberOfHops;
 	}
 
-	public void setHopSize(int hopSize) {
-		this.hopSize = hopSize;
+	public void setNumberOfHops(int numberOfHops) {
+		this.numberOfHops= numberOfHops;
+		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
 	}
 
 	public int getWindowSize() {
@@ -55,6 +56,13 @@ public class AudioAnalyser {
 
 	public void setWindowSize(int windowSize) {
 		this.windowSize = windowSize;
+		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
+	}
+	
+	public void setWindowSizeAndNumberOfHops(int windowSize, int numberOfHops) {
+		this.numberOfHops= numberOfHops;
+		this.windowSize = windowSize;
+		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
 	}
 
 	public int getWindowType() {
@@ -64,7 +72,4 @@ public class AudioAnalyser {
 	public void setWindowType(int windowType) {
 		this.windowType = windowType;
 	}
-	
-	
-
 }
