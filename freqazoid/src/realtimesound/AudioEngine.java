@@ -9,8 +9,6 @@ package realtimesound;
 import java.io.File;
 import java.io.IOException;
 
-import gui.ResourceManager;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -24,13 +22,11 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioEngine implements Runnable {
-    
-	private ResourceManager rm;
 	
     private static final int SAMPLE_RATE = 44100;
     private static final int BIT_DEPTH = 16;
     private static final int N_CHANNELS = 1;
-    private static final boolean LITTLE_ENDIAN = false;
+    private static final boolean BIG_ENDIAN = false;
     private AudioFormat format;
     
     private static final int BUFFER_SIZE = 4096*8;    
@@ -54,8 +50,13 @@ public class AudioEngine implements Runnable {
     public boolean muteMicrophone;
     public boolean muteFile;
     
-    public AudioEngine(ResourceManager rm) {
-        this.rm = rm;
+    private Thread audioThread;
+    
+    private Mixer.Info[] mixerInfo;
+    private DataLine.Info sourceInfo;
+    private DataLine.Info targetInfo;
+    
+    public AudioEngine() {
         
         muteMicrophone = false;
         muteFile = true;
@@ -64,44 +65,40 @@ public class AudioEngine implements Runnable {
         int frameSizeInBytes = BIT_DEPTH/8;
         int frameRate = SAMPLE_RATE;
         format = new  AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                SAMPLE_RATE, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, LITTLE_ENDIAN);
+                SAMPLE_RATE, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, BIG_ENDIAN);
         
         System.out.println("audio format: "+format.toString());
         
         // Find the Mixer's in the computer        
-        Mixer.Info[] info = AudioSystem.getMixerInfo();
-        Line.Info[] lineInfo = AudioSystem.getSourceLineInfo(new Line.Info(SourceDataLine.class));
+        mixerInfo = AudioSystem.getMixerInfo();
         
-        for(int i=0; i<lineInfo.length; i++) {
-        	//AudioSystem.getSourceDataLine(arg0, arg1)
-        	//System.out.println(lineInfo[i]);
-        }
-        
-        inputInfos = new String[info.length];
-        outputInfos = new String[info.length];
+        inputInfos = new String[mixerInfo.length];
+        outputInfos = new String[mixerInfo.length];
         int n=0;
         int m=0;
-        for(int i=0; i<info.length; i++) {
-        	if(AudioSystem.getMixer(info[i]).getSourceLineInfo().length > 0) {        		
-        		inputInfos[n] = n+": "+info[i].getName() +": "+info[i].getDescription();
+        for(int i=0; i<mixerInfo.length; i++) {
+//        	if(AudioSystem.getMixer(info[i]).getSourceLineInfo().length > 0) 
+        	{        		
+        		inputInfos[n] = n+": "+mixerInfo[i].getName() +": "+mixerInfo[i].getDescription();
         		n++;
         	}
-        	if(AudioSystem.getMixer(info[i]).getTargetLineInfo().length > 0) {
-        		outputInfos[m] = m+": "+info[i].getName() +": "+info[i].getDescription();
+//        	if(AudioSystem.getMixer(info[i]).getTargetLineInfo().length > 0)
+        	{
+        		outputInfos[m] = m+": "+mixerInfo[i].getName() +": "+mixerInfo[i].getDescription();
         		m++;
         	}        	
-        	//System.out.println(info[i].getName()+"::"+info[i].getDescription());
-        	//System.out.println(mixerInfo[i]);
         }
         
-        DataLine.Info targetInfo = new DataLine.Info(TargetDataLine.class, format);        
-        DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class, format);
+        targetInfo = new DataLine.Info(TargetDataLine.class, format);        
+        sourceInfo = new DataLine.Info(SourceDataLine.class, format);
         
         if(AudioSystem.isLineSupported(targetInfo)) {
 //            System.out.println("input format is supported by the system");
             try {
 //                System.out.println("trying to open an input line...");
                 inputLine = (TargetDataLine) AudioSystem.getLine(targetInfo);
+//                inputLine = (TargetDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[3] ).getLine(targetInfo);
+                System.out.println(inputLine.getLineInfo().toString());
                 inputLine.open(format, BUFFER_SIZE);
 //                System.out.println("Input line opened with a buffer size: "
 //                        + inputLine.getBufferSize());
@@ -115,6 +112,7 @@ public class AudioEngine implements Runnable {
             try {
 //                System.out.println("trying to open an output line...");
                 outputLine = (SourceDataLine) AudioSystem.getLine(sourceInfo);
+//                outputLine = (SourceDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[0] ).getLine(sourceInfo);
                 outputLine.open(format, BUFFER_SIZE);
 //                System.out.println("Output line opened with a buffer size: "
 //                        + inputLine.getBufferSize());
@@ -124,6 +122,8 @@ public class AudioEngine implements Runnable {
         }
         
         audioAnalyser = new AudioAnalyser();
+        audioThread = new Thread(this);
+        audioThread.start();
     }
     
     public void run()  {
@@ -135,7 +135,7 @@ public class AudioEngine implements Runnable {
         
         inputLine.start();
         outputLine.start();
-//        System.out.println("Engine started.");
+        System.out.println("Engine started.");
         engineStatus = RUNNING;        
         
         while(true) {
@@ -168,28 +168,18 @@ public class AudioEngine implements Runnable {
 						}
                 	}              
                 	
-                	/* plot graph
-                	 * This contradicts with the encapsulation idea. AudioEngine must have
-                	 * no idea about the interface to plot the audio.
-                	 * */
                 	int[] masterOut = new int[BLOCK_SIZE];                	
                 	
                 	for(int i=0, j = 0; j<BLOCK_SIZE; i+=2, j++) {
                 		masterOut[j] = 0;
                 		if( !muteMicrophone ) {
-                			masterOut[j] += ((dataFromMic[i] & 0xFF) | (dataFromMic[i+1]<<8));                	
+                			masterOut[j] += ((dataFromMic[i] & 0xFF) | (dataFromMic[i+1]<<8));            	
                 		}
                 		if( !muteFile ) {
                 			masterOut[j] += (dataFromFile[i] & 0xFF) | (dataFromFile[i+1]<<8);
                 		}
-//                		rm.getCanvas().setData( masterOut[j] );                    
                 	}                	
-                	audioAnalyser.addSamples(masterOut);
-//                	for(int j=0; j<masterOut.length; j++) {
-//    					System.out.print(masterOut[j]+", ");
-//    				}
-//    				System.out.print("\n");
-    				
+                	audioAnalyser.addSamples(masterOut);    				
                 	
                 	for(int i=0, j=0; j<BLOCK_SIZE; i+=2, j++) {                		
                 		dataMasterOut[i]   = (byte)(masterOut[j] &  0xFF);
@@ -207,10 +197,13 @@ public class AudioEngine implements Runnable {
                     break;
                 case STOPPING:
                     //inputLine.drain();
-                    System.out.println("stopping input line");
+                	//outLine.drain();
+                    System.out.println("stopping lines");
                     inputLine.stop();
-                    System.out.println("closing input line");
+                    outputLine.stop();
+                    System.out.println("closing lines");
                     inputLine.close();
+                    outputLine.close();
                     System.out.println("Engine stopped.");
                     engineStatus = STOPPED;
                     break;
@@ -258,7 +251,6 @@ public class AudioEngine implements Runnable {
             //inputLine.drain();
             System.out.println("pausing");
             inputLine.stop();
-            //System.out.println("patlican");
             //inputLine.close();
             engineStatus = PAUSED;
         }
@@ -267,6 +259,24 @@ public class AudioEngine implements Runnable {
             engineStatus = RUNNING;
             inputLine.start();
         }        
+    }
+    
+    public void changeInputAndOutputLine(int indexInput, int indexOutput) {
+    	stopEngine();
+        try {
+        	inputLine = (TargetDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[indexInput] ).getLine(targetInfo);
+			outputLine = (SourceDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[indexOutput] ).getLine(sourceInfo);
+			System.out.println(indexInput +", "+indexOutput);
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    	startEngine();
     }
     
     public void stopEngine() {
@@ -288,7 +298,9 @@ public class AudioEngine implements Runnable {
 	public AudioAnalyser getAudioAnalyser() {
 		return audioAnalyser;
 	}
+
+	public Mixer.Info[] getMixerInfo() {
+		return mixerInfo;
+	}
 	
-	
-    
 }

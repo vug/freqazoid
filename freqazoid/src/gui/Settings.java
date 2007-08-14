@@ -3,6 +3,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Dimension;
+
+import javax.sound.sampled.Mixer;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -12,6 +14,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -38,7 +41,6 @@ public class Settings extends JFrame implements ActionListener {
 	private JPanel panelDFTParameters;
 	private JPanel panelAudioDevices;
 	private JComboBox comboBoxWindowType;
-	private JButton buttonCancel;
 	private JButton buttonOK;
 	private JButton buttonApply;
 	private JLabel labelNHops;
@@ -50,8 +52,13 @@ public class Settings extends JFrame implements ActionListener {
 	
 	private int displayRefreshRate;
 	private int windowType;
+	private JTabbedPane tabbedPane1;
 	private int windowSize;
 	private int numberOfHops;
+	
+	private Mixer.Info[] mixerInfos;
+	private String[] inputInfos;
+	private String[] outputInfos;
 
 	public Settings(ResourceManager rm) {
 		this.rm = rm;
@@ -59,7 +66,23 @@ public class Settings extends JFrame implements ActionListener {
 		windowType = rm.getAudioEngine().getAudioAnalyser().getWindowType();
 		windowSize = rm.getAudioEngine().getAudioAnalyser().getWindowSize();
 		numberOfHops = rm.getAudioEngine().getAudioAnalyser().getNumberOfHops();
-//		System.out.println(numberOfHops);
+		
+		mixerInfos = rm.getAudioEngine().getMixerInfo();		
+		inputInfos = new String[mixerInfos.length];
+        outputInfos = new String[mixerInfos.length];
+        
+        for(int i=0, n=0, m=0; i<mixerInfos.length; i++) {
+//        	if(AudioSystem.getMixer(info[i]).getSourceLineInfo().length > 0) 
+        	{        		
+        		inputInfos[n] = n+": "+mixerInfos[i].getName() /*+": "+mixerInfos[i].getDescription()*/;
+        		n++;
+        	}
+//        	if(AudioSystem.getMixer(info[i]).getTargetLineInfo().length > 0)
+        	{
+        		outputInfos[m] = m+": "+mixerInfos[i].getName() /*+": "+mixerInfos[i].getDescription()*/;
+        		m++;
+        	}        	
+        }
 		
 		initGUI();
 	}
@@ -69,173 +92,175 @@ public class Settings extends JFrame implements ActionListener {
 			{
 				getContentPane().setLayout(null);
 				this.setTitle("Settings");
-				this.setSize(400, 265);
+				this.setSize(512, 265);
 				this.setLocation(500,100);
 			}
 			{
-				buttonApply = new JButton();
-				getContentPane().add(buttonApply);
-				buttonApply.setText("Apply");
-				buttonApply.setBounds(210, 161, 77, 28);
-				buttonApply.addActionListener(this);
-			}
-			{
-				buttonOK = new JButton();
-				getContentPane().add(buttonOK);
-				buttonOK.setText("OK");
-				buttonOK.setBounds(147, 161, 63, 28);
-				buttonOK.addActionListener(this);
-			}
-			{
-				buttonCancel = new JButton();
-				getContentPane().add(buttonCancel);
-				buttonCancel.setText("Cancel");
-				buttonCancel.setBounds(287, 161, 77, 28);
-			}
-			{
-				panelAudioDevices = new JPanel();
-				FlowLayout panelAudioDevicesLayout = new FlowLayout();
-				panelAudioDevicesLayout.setAlignment(FlowLayout.LEFT);
-				panelAudioDevicesLayout.setVgap(2);
-				panelAudioDevices.setLayout(panelAudioDevicesLayout);
-				getContentPane().add(panelAudioDevices);
-				panelAudioDevices.setBounds(7, 7, 133, 119);
-				panelAudioDevices.setBorder(BorderFactory.createTitledBorder("Audio Devices"));
+				tabbedPane1 = new JTabbedPane();
+				getContentPane().add(tabbedPane1);
+				
+				tabbedPane1.setBounds(0, 0, 504, 231);
 				{
-					labelInputDevice = new JLabel();
-					panelAudioDevices.add(labelInputDevice);
-					labelInputDevice.setText("Input Device:");
-					labelInputDevice.setBounds(7, 7, 119, 14);
-					labelInputDevice.setPreferredSize(new java.awt.Dimension(82, 14));
+					panelAudioDevices = new JPanel();
+					tabbedPane1.addTab("AudioDevices", null, panelAudioDevices, null);
+					panelAudioDevices.setLayout(null);
+					panelAudioDevices.setBounds(378, 133, 273, 175);
+					panelAudioDevices.setPreferredSize(new java.awt.Dimension(462, 175));
+					{
+						labelInputDevice = new JLabel();
+						panelAudioDevices.add(labelInputDevice);
+						labelInputDevice.setText("Input Device:");
+						labelInputDevice.setBounds(14, 14, 119, 14);
+					}
+					{
+						ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(
+						//new String[] { "AudioDevice1", "Input2", "Soundcard3"}
+							inputInfos);
+						comboBoxInputDevice = new JComboBox();
+						panelAudioDevices.add(comboBoxInputDevice);
+						comboBoxInputDevice.setModel(comboBoxInputDeviceModel);
+						comboBoxInputDevice.setBounds(14, 28, 210, 21);
+						comboBoxInputDevice.addActionListener(this);
+					}
+					{
+						labelOutputDevice = new JLabel();
+						panelAudioDevices.add(labelOutputDevice);
+						labelOutputDevice.setText("Output Device:");
+						labelOutputDevice.setBounds(14, 56, 119, 14);
+					}
+					{
+						ComboBoxModel comboBoxOutputDevicesModel = new DefaultComboBoxModel(
+						//						new String[] { "Outputcard1", "Item Two" }
+							outputInfos);
+						comboBoxOutputDevices = new JComboBox();
+						panelAudioDevices.add(comboBoxOutputDevices);
+						comboBoxOutputDevices
+							.setModel(comboBoxOutputDevicesModel);
+						comboBoxOutputDevices.setBounds(14, 70, 210, 21);
+					}
 				}
 				{
-					ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(
-						new String[] { "AudioDevice1", "Input2", "Soundcard3" });
-					comboBoxInputDevice = new JComboBox();
-					panelAudioDevices.add(comboBoxInputDevice);
-					comboBoxInputDevice.setModel(comboBoxInputDeviceModel);
-					comboBoxInputDevice.setBounds(7, 21, 119, 21);
+					panelDFTParameters = new JPanel();
+					tabbedPane1.addTab("DFT Parameters", null, panelDFTParameters, null);
+					panelDFTParameters.setLayout(null);
+					panelDFTParameters.setBounds(266, 7, 231, 105);
+					panelDFTParameters.setBorder(BorderFactory
+						.createTitledBorder("DFT Parameters"));
+					panelDFTParameters.setPreferredSize(new java.awt.Dimension(258, 205));
+					{
+						labelWindowType = new JLabel();
+						panelDFTParameters.add(labelWindowType);
+						labelWindowType.setText("Window Type:");
+						labelWindowType
+							.setPreferredSize(new java.awt.Dimension(102, 14));
+						labelWindowType.setBounds(10, 26, 102, 14);
+					}
+					{
+						ComboBoxModel comboBoxWindowTypeModel = new DefaultComboBoxModel(
+							new String[] { "Rectangular", "Hann", "Hamming",
+									"Kallman", "Blackmann" });
+						comboBoxWindowType = new JComboBox();
+						panelDFTParameters.add(comboBoxWindowType);
+						comboBoxWindowType.setModel(comboBoxWindowTypeModel);
+						comboBoxWindowType.setBounds(112, 21, 98, 21);
+					}
+					{
+						labelWindowSize = new JLabel();
+						panelDFTParameters.add(labelWindowSize);
+						labelWindowSize.setText("Window Size");
+						labelWindowSize.setBounds(10, 56, 105, 14);
+					}
+					{
+						ComboBoxModel comboBoxWindowSizeModel = new DefaultComboBoxModel(
+							new String[] { "128", "256", "512", "1024", "2048",
+									"4096", "8192" });
+						comboBoxWindowSize = new JComboBox();
+						panelDFTParameters.add(comboBoxWindowSize);
+						comboBoxWindowSize.setModel(comboBoxWindowSizeModel);
+						String size = Integer.toString(windowSize);
+						comboBoxWindowSize.setSelectedItem(size);
+						comboBoxWindowSize.setBounds(112, 56, 98, 21);
+						comboBoxWindowSize
+							.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									String str = ((String) ((JComboBox) evt
+										.getSource()).getSelectedItem());
+									windowSize = Integer.parseInt(str);
+								}
+							});
+					}
+					{
+						labelNHops = new JLabel();
+						panelDFTParameters.add(labelNHops);
+						labelNHops.setText("# of Hops");
+						labelNHops.setBounds(10, 91, 105, 14);
+					}
+					{
+						ComboBoxModel ComboBoxNHopsModel = new DefaultComboBoxModel(
+							new String[] { "1", "2", "3", "4", "5", "6", "7",
+									"8" });
+						ComboBoxNHops = new JComboBox();
+						panelDFTParameters.add(ComboBoxNHops);
+						ComboBoxNHops.setModel(ComboBoxNHopsModel);
+						ComboBoxNHops.setSelectedIndex(numberOfHops - 1);
+						ComboBoxNHops.setBounds(112, 91, 98, 21);
+						ComboBoxNHops.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								int n = ((JComboBox) evt.getSource())
+									.getSelectedIndex();
+								numberOfHops = n + 1;
+							}
+						});
+					}
+					{
+						buttonOK = new JButton();
+						panelDFTParameters.add(buttonOK);
+						buttonOK.setText("OK");
+						buttonOK.setBounds(21, 140, 63, 28);
+						buttonOK.addActionListener(this);
+					}
+					{
+						buttonApply = new JButton();
+						panelDFTParameters.add(buttonApply);
+						buttonApply.setText("Apply");
+						buttonApply.setBounds(105, 140, 77, 28);
+						buttonApply.addActionListener(this);
+					}
 				}
 				{
-					labelOutputDevice = new JLabel();
-					panelAudioDevices.add(labelOutputDevice);
-					labelOutputDevice.setText("Output Device:");
-					labelOutputDevice.setBounds(7, 42, 119, 14);
-					labelOutputDevice.setPreferredSize(new java.awt.Dimension(89, 14));
-				}
-				{
-					ComboBoxModel comboBoxOutputDevicesModel = new DefaultComboBoxModel(
-						new String[] { "Outputcard1", "Item Two" });
-					comboBoxOutputDevices = new JComboBox();
-					panelAudioDevices.add(comboBoxOutputDevices);
-					comboBoxOutputDevices.setModel(comboBoxOutputDevicesModel);
-					comboBoxOutputDevices.setBounds(7, 56, 119, 21);
-				}
-			}
-			{
-				panelDFTParameters = new JPanel();
-				FlowLayout panelDFTParametersLayout = new FlowLayout();
-				panelDFTParametersLayout.setAlignment(FlowLayout.LEFT);
-				panelDFTParametersLayout.setVgap(2);
-				panelDFTParameters.setLayout(panelDFTParametersLayout);
-				getContentPane().add(panelDFTParameters);
-				panelDFTParameters.setBounds(140, 7, 231, 105);
-				panelDFTParameters.setBorder(BorderFactory.createTitledBorder("DFT Parameters"));
-				{
-					labelWindowType = new JLabel();
-					panelDFTParameters.add(labelWindowType);
-					labelWindowType.setText("Window Type:");
-					labelWindowType.setPreferredSize(new java.awt.Dimension(102, 14));
-				}
-				{
-					ComboBoxModel comboBoxWindowTypeModel = new DefaultComboBoxModel(
-						new String[] { "Rectangular", "Hann", "Hamming",
-								"Kallman", "Blackmann" });
-					comboBoxWindowType = new JComboBox();
-					panelDFTParameters.add(comboBoxWindowType);
-					comboBoxWindowType.setModel(comboBoxWindowTypeModel);
-					comboBoxWindowType.setBounds(259, 35, 98, 21);
-				}
-				{
-					labelWindowSize = new JLabel();
-					panelDFTParameters.add(labelWindowSize);
-					labelWindowSize.setText("Window Size");
-					labelWindowSize.setBounds(357, 42, 98, 14);
-					labelWindowSize.setPreferredSize(new java.awt.Dimension(102, 14));
-				}
-				{
-					ComboBoxModel comboBoxWindowSizeModel = new DefaultComboBoxModel(
-						new String[] { "128", "256", "512", "1024", "2048",
-								"4096", "8192" });
-					comboBoxWindowSize = new JComboBox();
-					panelDFTParameters.add(comboBoxWindowSize);
-					comboBoxWindowSize.setModel(comboBoxWindowSizeModel);
-					String size = Integer.toString(windowSize);
-					comboBoxWindowSize.setSelectedItem(size);
-					comboBoxWindowSize.setPreferredSize(new java.awt.Dimension(
-						78,
-						20));
-					comboBoxWindowSize.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							String str = ((String) ((JComboBox) evt.getSource())
-								.getSelectedItem());
-							windowSize = Integer.parseInt(str);
-						}
-					});
-				}
-				{
-					labelNHops = new JLabel();
-					panelDFTParameters.add(labelNHops);
-					labelNHops.setText("# of Hops");
-					labelNHops.setBounds(357, 7, 84, 14);
-					labelNHops.setPreferredSize(new java.awt.Dimension(102, 14));
-				}
-				{
-					ComboBoxModel ComboBoxNHopsModel = new DefaultComboBoxModel(
-						new String[] { "1", "2", "3", "4", "5", "6", "7", "8" });
-					ComboBoxNHops = new JComboBox();
-					panelDFTParameters.add(ComboBoxNHops);
-					ComboBoxNHops.setModel(ComboBoxNHopsModel);
-					ComboBoxNHops.setSelectedIndex( numberOfHops-1 );
-					ComboBoxNHops.setPreferredSize(new java.awt.Dimension(79, 20));
-					ComboBoxNHops.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							int n = ((JComboBox)evt.getSource()).getSelectedIndex();
-							numberOfHops = n+1;
-						}
-					});
-				}
-			}
-			{
-				panelDisplay = new JPanel();
-				FlowLayout panelDisplayLayout = new FlowLayout();
-				panelDisplayLayout.setAlignment(FlowLayout.LEFT);
-				panelDisplayLayout.setVgap(2);
-				getContentPane().add(panelDisplay);
-				panelDisplay.setBounds(7, 126, 133, 84);
-				panelDisplay.setBorder(BorderFactory.createTitledBorder(BorderFactory.createTitledBorder(""), "Display", TitledBorder.LEADING, TitledBorder.TOP));
-				panelDisplay.setLayout(panelDisplayLayout);
-				{
-					textRefreshRate = new JTextField();
-					panelDisplay.add(textRefreshRate);
-					textRefreshRate.setText(Integer
-						.toString(displayRefreshRate));
-					textRefreshRate.setBounds(14, 154, 63, 21);
-					textRefreshRate.setPreferredSize(new java.awt.Dimension(
-						39,
-						20));
-					textRefreshRate.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							String input = ((JTextField) evt.getSource())
-								.getText();
-							displayRefreshRate = Integer.parseInt(input);
-						}
-					});
-				}
-				{
-					labelRefreshRate = new JLabel();
-					panelDisplay.add(labelRefreshRate);
-					labelRefreshRate.setText("Refresh Rate (ms)");
+					panelDisplay = new JPanel();
+					tabbedPane1.addTab("Display", null, panelDisplay, null);
+					FlowLayout panelDisplayLayout = new FlowLayout();
+					panelDisplayLayout.setAlignment(FlowLayout.LEFT);
+					panelDisplayLayout.setVgap(2);
+					panelDisplay.setBounds(392, 112, 133, 84);
+					panelDisplay.setBorder(BorderFactory.createTitledBorder(
+						BorderFactory.createTitledBorder(""),
+						"Display",
+						TitledBorder.LEADING,
+						TitledBorder.TOP));
+					panelDisplay.setLayout(panelDisplayLayout);
+					{
+						textRefreshRate = new JTextField();
+						panelDisplay.add(textRefreshRate);
+						textRefreshRate.setText(Integer
+							.toString(displayRefreshRate));
+						textRefreshRate.setBounds(14, 154, 63, 21);
+						textRefreshRate
+							.setPreferredSize(new java.awt.Dimension(39, 20));
+						textRefreshRate.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								String input = ((JTextField) evt.getSource())
+									.getText();
+								displayRefreshRate = Integer.parseInt(input);
+							}
+						});
+					}
+					{
+						labelRefreshRate = new JLabel();
+						panelDisplay.add(labelRefreshRate);
+						labelRefreshRate.setText("Refresh Rate (ms)");
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -255,6 +280,10 @@ public class Settings extends JFrame implements ActionListener {
 		else if( ae.getSource()==buttonOK ) {
 			apply();
 			this.setVisible(false);
+		}
+		else if( ae.getSource()==comboBoxInputDevice ) {
+			//System.out.println(comboBoxInputDevice.getSelectedItem().toString());
+			rm.getAudioEngine().changeInputAndOutputLine(comboBoxInputDevice.getSelectedIndex(), comboBoxOutputDevices.getSelectedIndex());
 		}
 		
 	}

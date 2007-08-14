@@ -21,8 +21,9 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {        
-        ResourceManager rm = new ResourceManager();
+    public static void main(String[] args) {
+    	AudioEngine audioEngine = new AudioEngine();
+        ResourceManager rm = new ResourceManager(audioEngine);
     }
     
 }
