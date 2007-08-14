@@ -2,8 +2,11 @@ package gui;
 
 import java.awt.Color;
 
-
 public class Colors {
+	
+	public static final Color BACKGROUND =  new Color(100, 100, 100);
+	public static final Color GREEN =  new Color(0, 255, 0);
+	public static final Color RED =  new Color(255, 0, 0);
 	
 	private ResourceManager rm;
 	

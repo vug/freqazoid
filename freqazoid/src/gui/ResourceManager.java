@@ -11,11 +11,10 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 
 import realtimesound.AudioEngine;
-public class ResourceManager implements Runnable {
+public class ResourceManager {
     
     private AudioEngine audioEngine;
     private Thread audioThread;
-    private Thread canvasThread;
     private Window window;
     private Settings settings;
     //private Oscilloscope canvas;
@@ -47,8 +46,8 @@ public class ResourceManager implements Runnable {
         
         window.setVisible(true);
         
-        canvasThread = new Thread(this);
-        canvasThread.start();
+        
+        display.displayThread.start();
     }
 
     public JFrame getFrame() {
@@ -66,17 +65,4 @@ public class ResourceManager implements Runnable {
     public Settings getSettings() {
     	return this.settings;
     }
-
-	public void run() {
-		while (true) {
-			display.repaint();
-			
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}			
-		}
-		
-	}
 }
