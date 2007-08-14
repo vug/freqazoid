@@ -23,15 +23,6 @@ public class Main {
      */
     public static void main(String[] args) {        
         ResourceManager rm = new ResourceManager();
-        
-        File file = new File("c:\\java\\projects\\CELLO2.wav");
-        //rm.getAudioEngine().openFile(file);
-        /*byte b1 = 0;
-        byte b2 = 2;
-        
-        int x;
-        x = (int)b1 + (((int)b2)<<8);
-        System.out.println(x);*/
     }
     
 }

@@ -5,11 +5,14 @@ import gui.ResourceManager;
 public class AudioBuffer {
 	
 	private ResourceManager rm;
+	private AudioAnalyser analyser;
 	private int frameSize;
 	private int hopSize;
-	private int[] buffer, frame;
+	private int[] buffer;
+	private double[] frame;
 	private int headWrite, headRead;
 	
+	// silinecek.
 	public AudioBuffer(int frameSize, int hopSize, ResourceManager rm) {
 		this.rm = rm;
 		
@@ -18,7 +21,17 @@ public class AudioBuffer {
 		this.frameSize = frameSize;
 		this.hopSize = hopSize;
 		buffer = new int[frameSize];
-		frame = new int[frameSize];
+		frame = new double[frameSize];
+	}
+	
+	public AudioBuffer(int frameSize, int hopSize, AudioAnalyser analyser) {
+		this.analyser = analyser;
+		headWrite = 0;
+		headRead = 0;
+		this.frameSize = frameSize;
+		this.hopSize = hopSize;
+		buffer = new int[frameSize];
+		frame = new double[frameSize];
 	}
 	
 	public void addSamples(int[] newData) {
@@ -34,7 +47,7 @@ public class AudioBuffer {
 			if(headWrite==headRead) {
 //				System.out.println("esit");
 				for(int n=0; n<frameSize; n++) {
-					frame[n] = buffer[(headRead+n)%frameSize];		
+					frame[n] = ((double)buffer[(headRead+n)%frameSize])/32768;		
 				}
 				headRead += hopSize;
 				if(headRead==buffer.length) headRead=0;
@@ -43,7 +56,8 @@ public class AudioBuffer {
 //					System.out.print(frame[j]+", ");
 //				}
 //				System.out.print("\n");
-				rm.getCanvas().setData( this.frame );
+				//rm.getCanvas().setData( this.frame );
+				analyser.bufferReady();
 			}
 		}
 		
@@ -77,9 +91,13 @@ public class AudioBuffer {
 	public void setFrameSize(int frameSize) {
 		this.frameSize = frameSize;
 		buffer = new int[frameSize];
-		frame = new int[frameSize];
-	}
+		frame = new double[frameSize];
+	}	
 	
+	public double[] getFrame() {
+		return frame;
+	}
+
 	public static void main(String[] args) {
 		//AudioBuffer audioBuffer = new AudioBuffer(8,2);
 		int[] samples = {1, 2, 3, 4, 5, 6, 7, 8};

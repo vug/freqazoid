@@ -45,7 +45,7 @@ public class AudioEngine implements Runnable {
     						PAUSED = 2, STOPPING = 3, STOPPED = 4;    
     private int engineStatus;    
     
-    private AudioBuffer audioBuffer;
+    private AudioAnalyser audioAnalyser;
     
     private AudioInputStream inputFileStream;
     private AudioFileFormat inputFileFormat;
@@ -123,7 +123,7 @@ public class AudioEngine implements Runnable {
             }            
         }
         
-        audioBuffer = new AudioBuffer(2048,512,rm);
+        audioAnalyser = new AudioAnalyser();
     }
     
     public void run()  {
@@ -184,7 +184,7 @@ public class AudioEngine implements Runnable {
                 		}
 //                		rm.getCanvas().setData( masterOut[j] );                    
                 	}                	
-                	audioBuffer.addSamples(masterOut);
+                	audioAnalyser.addSamples(masterOut);
 //                	for(int j=0; j<masterOut.length; j++) {
 //    					System.out.print(masterOut[j]+", ");
 //    				}
@@ -285,8 +285,10 @@ public class AudioEngine implements Runnable {
     	return outputInfos;
     }
 
-	public AudioBuffer getAudioBuffer() {
-		return audioBuffer;
+	public AudioAnalyser getAudioAnalyser() {
+		return audioAnalyser;
 	}
+	
+	
     
 }
