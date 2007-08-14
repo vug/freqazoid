@@ -14,28 +14,18 @@ import realtimesound.AudioEngine;
 public class ResourceManager {
     
     private AudioEngine audioEngine;
-    private Thread audioThread;
     private Window window;
     private Settings settings;
-    //private Oscilloscope canvas;
     private Display display;
-    //private Spectrogram canvas;
 	private Menu menuBar;
 	private StatusBar statusBar;
     
-    public ResourceManager() {
-    	window = new Window(this);
-
-    	//canvas = new Spectrogram(this);
-    	display = new Display(this);
-    	window.add(display, BorderLayout.CENTER);
+    public ResourceManager(AudioEngine audioEngine) {
+    	this.audioEngine = audioEngine;
     	
-//        System.out.println("Opening audio system...");
-        audioEngine = new AudioEngine(this);
-//        System.out.println("Audio system opened.");
-        audioThread = new Thread(audioEngine);        
-//        System.out.println("starting the audio engine...");        
-        audioThread.start();        
+    	window = new Window(this);
+    	display = new Display(this);    	
+    	window.add(display, BorderLayout.CENTER);
         
 		menuBar = new Menu(this);
         window.setJMenuBar(menuBar);
@@ -45,7 +35,6 @@ public class ResourceManager {
         settings = new Settings(this);
         
         window.setVisible(true);
-        
         
         display.displayThread.start();
     }

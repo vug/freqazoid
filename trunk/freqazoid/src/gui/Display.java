@@ -25,7 +25,7 @@ public class Display extends JPanel implements Runnable {
 		showPeaks = false;
 		this.setBackground(Colors.BACKGROUND);
 		displayThread = new Thread(this);
-		refreshRate = 10;
+		refreshRate = 20;
 	}
 	
 	public void paintComponent(Graphics g) {
