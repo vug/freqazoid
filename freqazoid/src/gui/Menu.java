@@ -6,12 +6,14 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 
@@ -24,6 +26,11 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private JMenu menuFile;
 	private JMenuItem itemOpenSoundFile;
 	private JMenuItem itemQuit;
+	
+	private JMenu menuView;
+	private ButtonGroup groupView;
+	private JRadioButtonMenuItem itemOscilloscope;
+	private JRadioButtonMenuItem itemSpectroscope;
 		
 	private JMenu menuOptions;
 	private JMenu subMenuAudioDriver;
@@ -48,6 +55,19 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		itemQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,ActionEvent.CTRL_MASK));
 		itemQuit.addActionListener(this);
 		menuFile.add(itemQuit);
+		
+		menuView = new JMenu("View");
+		groupView = new ButtonGroup();
+		itemOscilloscope = new JRadioButtonMenuItem("Oscilloscope");
+		itemOscilloscope.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1,ActionEvent.CTRL_MASK));
+		itemOscilloscope.addActionListener(this);
+		groupView.add(itemOscilloscope);
+		menuView.add(itemOscilloscope);
+		itemSpectroscope = new JRadioButtonMenuItem("Spectroscope");
+		itemSpectroscope.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2,ActionEvent.CTRL_MASK));
+		itemSpectroscope.addActionListener(this);
+		groupView.add(itemSpectroscope);
+		menuView.add(itemSpectroscope);
 		
 		menuOptions = new JMenu("Options");
 		subMenuAudioDriver = new JMenu("Audio Devices");
@@ -90,6 +110,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		menuHelp.add(itemAbout);
 		
 		this.add(menuFile);
+		this.add(menuView);
 		this.add(menuOptions);
 		this.add(menuHelp);
 	}
@@ -124,6 +145,12 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		}
 		else if(ae.getSource() == itemSettings) {
 			rm.getSettings().setVisible(true);
+		}
+		else if(ae.getSource() == itemOscilloscope) {
+			rm.getDisplay().setMode(Display.OSCILLOSCOPE);
+		}
+		else if(ae.getSource() == itemSpectroscope) {
+			rm.getDisplay().setMode(Display.SPECTROSCOPE);
 		}
 	}
 

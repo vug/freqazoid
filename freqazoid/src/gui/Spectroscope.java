@@ -21,7 +21,7 @@ import math.Tools;
 @SuppressWarnings("serial")
 public class Spectroscope extends JPanel {
 	
-	//private ResourceManager rm;
+	private ResourceManager rm;
     private double[] amplitude;
     private double[] magnitude;
     private Vector<Peak> peaks;
@@ -30,10 +30,11 @@ public class Spectroscope extends JPanel {
 	
 	public Spectroscope(ResourceManager rm) {
 		super();
-		//this.rm = rm;
+		this.rm = rm;
 		
 		amplitude = new double[nPoints];
 		magnitude = new double[nPoints];
+		this.setBackground(new Color(100,180,100));
 	}
 	
     public void paintComponent(Graphics g) {
@@ -41,11 +42,12 @@ public class Spectroscope extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(new Color(100,100,100));
-        Rectangle2D.Double rect = new Rectangle2D.Double(0,0,getWidth(),getHeight());
-        g2.fill(rect);
+     
+//        g2.setColor(new Color(100,100,100));        
+//        Rectangle2D.Double rect = new Rectangle2D.Double(0,0,getWidth(),getHeight());
+//        g2.fill(rect);
         
-        double y0, l;        
+        double y0, l;
         for(int i=0; i<nPoints/2-1; i++) {
             //x=0.0;
             y0 = this.getHeight()-1;
@@ -94,7 +96,7 @@ public class Spectroscope extends JPanel {
         this.repaint();
     }
     
-    public void setData(int[] newPoints) {
+    public void setData3(int[] newPoints) {
     	for(int i=0; i<amplitude.length; i++) {
     		amplitude[i] = ((double)newPoints[i])/32768;
     	}
@@ -102,6 +104,10 @@ public class Spectroscope extends JPanel {
     	magnitude = Complex.abs( FFT.forward( Tools.makeComplex(amplitude) ) );
     	
     	this.repaint();
+    }
+    
+    public void setData() {
+    	magnitude = rm.getAudioEngine().getAudioAnalyser().getMagnitudeSpectrum();
     }
     
 	public int getNPoints() {

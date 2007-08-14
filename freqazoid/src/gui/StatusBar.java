@@ -28,10 +28,10 @@ public class StatusBar extends JPanel implements ActionListener {
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		this.rm = rm;
-		String duration = Double.toString((double)rm.getAudioEngine().getAudioBuffer().getFrameSize()/44.1).substring(0,3);
+		String duration = Double.toString((double)rm.getAudioEngine().getAudioAnalyser().getWindowSize()/44.1).substring(0,3);
 		labelWidthDuration = new JLabel(duration+" msec");
 		
-		duration = Double.toString(((double)rm.getAudioEngine().getAudioBuffer().getHopSize()/44.1)).substring(0, 3);
+		duration = Double.toString(((double)rm.getAudioEngine().getAudioAnalyser().getHopSize()/44.1)).substring(0, 3);
 		labelHopSize = new JLabel(duration+" msec ");
 		
 		//labelWidthDuration.setPreferredSize(new Dimension(80,10));
