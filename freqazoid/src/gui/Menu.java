@@ -31,6 +31,8 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private ButtonGroup groupView;
 	private JRadioButtonMenuItem itemOscilloscope;
 	private JRadioButtonMenuItem itemSpectroscope;
+	private JRadioButtonMenuItem itemFrequencyTracker;
+	private JCheckBoxMenuItem itemShowPeaks;
 		
 	private JMenu menuOptions;
 	private JMenu subMenuAudioDriver;
@@ -68,6 +70,14 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		itemSpectroscope.addActionListener(this);
 		groupView.add(itemSpectroscope);
 		menuView.add(itemSpectroscope);
+		itemShowPeaks = new JCheckBoxMenuItem("Show Peaks");
+		itemShowPeaks.addItemListener(this);
+		itemFrequencyTracker = new JRadioButtonMenuItem("Frequency Tracker");
+		itemFrequencyTracker.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
+		itemFrequencyTracker.addActionListener(this);
+		groupView.add(itemFrequencyTracker);
+		menuView.add(itemFrequencyTracker);
+		menuView.add(itemShowPeaks);
 		
 		menuOptions = new JMenu("Options");
 		subMenuAudioDriver = new JMenu("Audio Devices");
@@ -152,14 +162,21 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		else if(ae.getSource() == itemSpectroscope) {
 			rm.getDisplay().setMode(Display.SPECTROSCOPE);
 		}
+		else if(ae.getSource() == itemFrequencyTracker) {
+			rm.getDisplay().setMode(Display.FREQUENCY_TRACKER);
+		}
 	}
 
 	public void itemStateChanged(ItemEvent ie) {
 		if( ie.getSource() == itemPause ) {
 			//System.out.println(itemPause.getState());
 			rm.getAudioEngine().pauseEngine();
-		} else if(ie.getSource() == itemMuteMicrophone ) {
+		}
+		else if(ie.getSource() == itemMuteMicrophone ) {
 			rm.getAudioEngine().muteMicrophone = itemMuteMicrophone.getState();
+		}
+		else if(ie.getSource() == itemShowPeaks ) {
+			rm.getDisplay().setShowPeaks( itemShowPeaks.getState() );
 		}
 	}
 }
