@@ -41,11 +41,6 @@ public class AudioBuffer {
 				headRead += hopSize;
 				if(headRead==buffer.length) headRead=0;
 				
-//				for(int j=0; j<frame.length; j++) {
-//					System.out.print(frame[j]+", ");
-//				}
-//				System.out.print("\n");
-				//rm.getCanvas().setData( this.frame );
 				analyser.bufferReady();
 			}
 		}

@@ -54,4 +54,5 @@ public class ResourceManager {
     public Settings getSettings() {
     	return this.settings;
     }
+    
 }

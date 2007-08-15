@@ -22,6 +22,9 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+    	/*
+    	 * Apply deglitching
+    	 */
     	AudioEngine audioEngine = new AudioEngine();
         ResourceManager rm = new ResourceManager(audioEngine);
     }

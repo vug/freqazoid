@@ -135,7 +135,7 @@ public class AudioEngine implements Runnable {
         
         inputLine.start();
         outputLine.start();
-        System.out.println("Engine started.");
+//        System.out.println("Engine started.");
         engineStatus = RUNNING;        
         
         while(true) {
@@ -151,7 +151,7 @@ public class AudioEngine implements Runnable {
             		inputLine.start();
                     outputLine.start();
                     engineStatus = RUNNING;
-                    System.out.println("Engine started.");
+//                    System.out.println("Engine started.");
                     break;
                 case RUNNING:
                 
@@ -271,6 +271,9 @@ public class AudioEngine implements Runnable {
 			e.printStackTrace();
 		}
 		
+		/*
+		 * Wait until audioEngine Thread come to STOPPED state.
+		 */
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
