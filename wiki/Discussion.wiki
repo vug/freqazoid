@@ -3,6 +3,10 @@
 
 == To Do ==
  * Implement a peak detection algorithm for spectral peaks. (Read the PARSHL paper of JOS)
+ * Use a parabolic interpolation to find a peaks frequency more precise
+ * Implement the two-way mismatch algorithm :-)
+
+== Done ==
  * Options for selecting different types of windows (Rectangular, Hann, Hamming, Kaiser, Black something... vs.)
  * Options for window size
  * View menu to select one of: Oscilloscope, Spectroscope (+ show peaks), Spectrogram, Pitch
