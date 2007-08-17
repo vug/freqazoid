@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -12,6 +11,7 @@ import math.Peak;
 
 public class Display extends JPanel implements Runnable {
 	
+	private static final long serialVersionUID = -5114358819176793973L;
 	private int mode;
 	public static final int OSCILLOSCOPE = 0;
 	public static final int SPECTROSCOPE = 1;
@@ -20,6 +20,7 @@ public class Display extends JPanel implements Runnable {
 	private ResourceManager rm;
 	protected Thread displayThread;
 	private int refreshRate;
+	private boolean antialiased;
 	
 	public Display(ResourceManager rm) {
 		super();
@@ -29,12 +30,17 @@ public class Display extends JPanel implements Runnable {
 		this.setBackground(ColorsAndStrokes.BACKGROUND);
 		displayThread = new Thread(this);
 		refreshRate = 20;
+		antialiased = true;
 	}
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;        
-//        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Graphics2D g2 = (Graphics2D) g;
+        if (antialiased == true) {
+        	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		}
+        
         double y0, l;
         
         switch (mode) {
@@ -65,8 +71,8 @@ public class Display extends JPanel implements Runnable {
 //            	Line2D.Double line1 = new Line2D.Double(f*l,0,f*l,y0);
 //            	g2.draw(line1);
             	g2.setColor( ColorsAndStrokes.YELLOW );
-            	double threshold = 60*Math.log1p(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold());
-            	Line2D.Double line2 = new Line2D.Double(0,threshold,getWidth(),threshold);
+            	double threshold = 60*Math.log10(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()+1);
+            	Line2D.Double line2 = new Line2D.Double(0,getHeight()-threshold,getWidth(),getHeight()-threshold);
             	g2.draw(line2);
             }
 			
@@ -85,7 +91,6 @@ public class Display extends JPanel implements Runnable {
 			y0 = this.getHeight();
 			double[] freqs = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getRecord();
 			l=(double)this.getWidth()/freqs.length;
-			
 			g2.setColor( ColorsAndStrokes.GRAY );
 			Line2D.Double axis = new Line2D.Double(5.0, 0.0, 5.0, getHeight());			
 			g2.draw(axis);		
@@ -98,6 +103,11 @@ public class Display extends JPanel implements Runnable {
 				g2.setStroke( ColorsAndStrokes.DASHED );
 				g2.draw(line);
 			}
+			g2.drawString("Pitch", 200, 20);
+			double time=(double)freqs.length*rm.getAudioEngine().getAudioAnalyser().getWindowSize()/
+			rm.getAudioEngine().getAudioAnalyser().getNumberOfHops()/44100;
+			g2.drawString(String.valueOf(time).substring(0, 5)+"sec", getWidth()-100, getHeight()-5);
+			
 			
 			g2.setStroke( ColorsAndStrokes.NORMAL );
 			for(int i=0; i<freqs.length-1; i++) {
@@ -115,6 +125,19 @@ public class Display extends JPanel implements Runnable {
 		}
         
 		g2.dispose();
+	}
+	
+	public void run() {
+		while (true) {
+			this.repaint();
+			
+			try {
+				Thread.sleep(refreshRate);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
+		}
+		
 	}
 
 	public int getMode() {
@@ -137,16 +160,11 @@ public class Display extends JPanel implements Runnable {
 		showPeaks = b;
 	}
 
-	public void run() {
-		while (true) {
-			this.repaint();
-			
-			try {
-				Thread.sleep(refreshRate);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}			
-		}
-		
+	public boolean isAntialiased() {
+		return antialiased;
+	}
+
+	public void setAntialiased(boolean antialiased) {
+		this.antialiased = antialiased;
 	}
 }

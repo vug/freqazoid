@@ -9,6 +9,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 
 import javax.swing.JFrame;
@@ -17,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import math.DFT;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -52,6 +55,10 @@ public class Settings extends JFrame implements ActionListener {
 	
 	private int displayRefreshRate;
 	private int windowType;
+	private JCheckBox checkBoxAntiAlias;
+	private JTextField textThreshold;
+	private JLabel labelThresholdLevel;
+	private JPanel panelTwoWayMismatch;
 	private JTabbedPane tabbedPane1;
 	private int windowSize;
 	private int numberOfHops;
@@ -67,22 +74,17 @@ public class Settings extends JFrame implements ActionListener {
 		windowSize = rm.getAudioEngine().getAudioAnalyser().getWindowSize();
 		numberOfHops = rm.getAudioEngine().getAudioAnalyser().getNumberOfHops();
 		
-		mixerInfos = rm.getAudioEngine().getMixerInfo();		
+		Mixer.Info[] mixerInfos = rm.getAudioEngine().getInputMixerInfos();
 		inputInfos = new String[mixerInfos.length];
-        outputInfos = new String[mixerInfos.length];
-        
-        for(int i=0, n=0, m=0; i<mixerInfos.length; i++) {
-//        	if(AudioSystem.getMixer(info[i]).getSourceLineInfo().length > 0) 
-        	{        		
-        		inputInfos[n] = n+": "+mixerInfos[i].getName() /*+": "+mixerInfos[i].getDescription()*/;
-        		n++;
-        	}
-//        	if(AudioSystem.getMixer(info[i]).getTargetLineInfo().length > 0)
-        	{
-        		outputInfos[m] = m+": "+mixerInfos[i].getName() /*+": "+mixerInfos[i].getDescription()*/;
-        		m++;
-        	}        	
-        }
+		for (int i = 0; i < mixerInfos.length; i++) {
+			 inputInfos[i] = mixerInfos[i].getName();
+		}
+		
+		mixerInfos = rm.getAudioEngine().getOutputMixerInfos();
+		outputInfos = new String[mixerInfos.length];
+		for (int i = 0; i < mixerInfos.length; i++) {
+			 outputInfos[i] = mixerInfos[i].getName();
+		}
 		
 		initGUI();
 	}
@@ -136,7 +138,8 @@ public class Settings extends JFrame implements ActionListener {
 						panelAudioDevices.add(comboBoxOutputDevices);
 						comboBoxOutputDevices
 							.setModel(comboBoxOutputDevicesModel);
-						comboBoxOutputDevices.setBounds(14, 70, 210, 21);
+						comboBoxOutputDevices.setBounds(14, 73, 210, 21);
+						comboBoxOutputDevices.addActionListener(this);
 					}
 				}
 				{
@@ -158,11 +161,40 @@ public class Settings extends JFrame implements ActionListener {
 					{
 						ComboBoxModel comboBoxWindowTypeModel = new DefaultComboBoxModel(
 							new String[] { "Rectangular", "Hann", "Hamming",
-									"Kallman", "Blackmann" });
+									"Keiser", "Blackmann" });
 						comboBoxWindowType = new JComboBox();
 						panelDFTParameters.add(comboBoxWindowType);
 						comboBoxWindowType.setModel(comboBoxWindowTypeModel);
 						comboBoxWindowType.setBounds(112, 21, 98, 21);
+						comboBoxWindowType
+							.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								switch (comboBoxWindowType.getSelectedIndex()) {
+								case 0:	
+									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.RECTANGULAR );
+									break;
+								case 1:
+									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HANN );
+								case 2:
+									// Hamming window yarat
+									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HANN );
+									break;
+								case 3:
+									// Keiser yarat
+									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HANN );
+									break;
+								case 4:
+									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.BLACKMANN );
+									break;									
+								default:
+									break;
+								}
+								System.out
+									.println(comboBoxWindowType.getSelectedIndex()
+											+ " " + 
+											comboBoxWindowType.getSelectedItem());
+							}
+							});
 					}
 					{
 						labelWindowSize = new JLabel();
@@ -230,24 +262,19 @@ public class Settings extends JFrame implements ActionListener {
 				{
 					panelDisplay = new JPanel();
 					tabbedPane1.addTab("Display", null, panelDisplay, null);
-					FlowLayout panelDisplayLayout = new FlowLayout();
-					panelDisplayLayout.setAlignment(FlowLayout.LEFT);
-					panelDisplayLayout.setVgap(2);
 					panelDisplay.setBounds(392, 112, 133, 84);
 					panelDisplay.setBorder(BorderFactory.createTitledBorder(
 						BorderFactory.createTitledBorder(""),
 						"Display",
 						TitledBorder.LEADING,
 						TitledBorder.TOP));
-					panelDisplay.setLayout(panelDisplayLayout);
+					panelDisplay.setLayout(null);
 					{
 						textRefreshRate = new JTextField();
 						panelDisplay.add(textRefreshRate);
 						textRefreshRate.setText(Integer
 							.toString(displayRefreshRate));
-						textRefreshRate.setBounds(14, 154, 63, 21);
-						textRefreshRate
-							.setPreferredSize(new java.awt.Dimension(39, 20));
+						textRefreshRate.setBounds(14, 28, 42, 21);
 						textRefreshRate.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								String input = ((JTextField) evt.getSource())
@@ -260,6 +287,39 @@ public class Settings extends JFrame implements ActionListener {
 						labelRefreshRate = new JLabel();
 						panelDisplay.add(labelRefreshRate);
 						labelRefreshRate.setText("Refresh Rate (ms)");
+						labelRefreshRate.setBounds(63, 28, 140, 21);
+					}
+					{
+						checkBoxAntiAlias = new JCheckBox("Anti-aliased lines", true);
+						panelDisplay.add(checkBoxAntiAlias);
+						checkBoxAntiAlias.setBounds(42, 56, 168, 21);
+						checkBoxAntiAlias
+							.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								rm.getDisplay().setAntialiased( checkBoxAntiAlias.isSelected() );
+							}
+							});
+					}
+				}
+				{
+					panelTwoWayMismatch = new JPanel();
+					tabbedPane1.addTab(
+						"Two-Way Mismatch",
+						null,
+						panelTwoWayMismatch,
+						null);
+					panelTwoWayMismatch.setLayout(null);
+					{
+						labelThresholdLevel = new JLabel();
+						panelTwoWayMismatch.add(labelThresholdLevel);
+						labelThresholdLevel.setText("Threshold Level");
+						labelThresholdLevel.setBounds(14, 21, 119, 21);
+					}
+					{
+						textThreshold = new JTextField();
+						panelTwoWayMismatch.add(textThreshold);
+						textThreshold.setText("10");
+						textThreshold.setBounds(98, 21, 63, 21);
 					}
 				}
 			}
@@ -283,6 +343,9 @@ public class Settings extends JFrame implements ActionListener {
 		}
 		else if( ae.getSource()==comboBoxInputDevice ) {
 			//System.out.println(comboBoxInputDevice.getSelectedItem().toString());
+			rm.getAudioEngine().changeInputAndOutputLine(comboBoxInputDevice.getSelectedIndex(), comboBoxOutputDevices.getSelectedIndex());
+		}
+		else if( ae.getSource() == comboBoxOutputDevices ) {
 			rm.getAudioEngine().changeInputAndOutputLine(comboBoxInputDevice.getSelectedIndex(), comboBoxOutputDevices.getSelectedIndex());
 		}
 		

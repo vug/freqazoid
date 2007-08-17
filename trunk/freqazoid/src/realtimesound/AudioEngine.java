@@ -8,13 +8,13 @@ package realtimesound;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
@@ -32,8 +32,8 @@ public class AudioEngine implements Runnable {
     private static final int BUFFER_SIZE = 4096*8;    
     private TargetDataLine inputLine;
     private SourceDataLine outputLine;  
-    private String[] inputInfos;
-    private String[] outputInfos;
+    private Mixer.Info[] inputInfos;
+    private Mixer.Info[] outputInfos;
     
     private static final int BLOCK_SIZE = 1024*4;
     
@@ -72,22 +72,28 @@ public class AudioEngine implements Runnable {
         // Find the Mixer's in the computer        
         mixerInfo = AudioSystem.getMixerInfo();
         
-        inputInfos = new String[mixerInfo.length];
-        outputInfos = new String[mixerInfo.length];
-        int n=0;
-        int m=0;
+        Vector<Mixer.Info> inputInfosVector = new Vector<Mixer.Info>();
+        Vector<Mixer.Info> outputInfosVector = new Vector<Mixer.Info>();
+        
         for(int i=0; i<mixerInfo.length; i++) {
-//        	if(AudioSystem.getMixer(info[i]).getSourceLineInfo().length > 0) 
-        	{        		
-        		inputInfos[n] = n+": "+mixerInfo[i].getName() +": "+mixerInfo[i].getDescription();
-        		n++;
-        	}
-//        	if(AudioSystem.getMixer(info[i]).getTargetLineInfo().length > 0)
+        	Mixer mixer = AudioSystem.getMixer(mixerInfo[i]);
+        	if ( !mixerInfo[i].getName().substring(0, 4).equalsIgnoreCase("port") )
         	{
-        		outputInfos[m] = m+": "+mixerInfo[i].getName() +": "+mixerInfo[i].getDescription();
-        		m++;
+        		if( mixer.getTargetLineInfo().length > 0 ) {
+        			inputInfosVector.add(mixerInfo[i]);
+        		} 
+        		if ( mixer.getSourceLineInfo().length > 0) {
+        			outputInfosVector.add(mixerInfo[i]);
+        		}
         	}        	
         }
+        inputInfosVector.trimToSize();
+        inputInfos = new Mixer.Info[inputInfosVector.size()];
+        inputInfos = inputInfosVector.toArray(inputInfos);
+        
+        outputInfosVector.trimToSize();
+        outputInfos = new Mixer.Info[outputInfosVector.size()];
+        outputInfos = outputInfosVector.toArray(outputInfos);      
         
         targetInfo = new DataLine.Info(TargetDataLine.class, format);        
         sourceInfo = new DataLine.Info(SourceDataLine.class, format);
@@ -187,9 +193,6 @@ public class AudioEngine implements Runnable {
                 	}     	
                 	
                 	numBytesWritten = outputLine.write(dataMasterOut, 0, dataMasterOut.length);
-            
-                	//numBytestoRead= outputLine.available();
-                	//System.out.println(numBytesWritten);
                 }
             
                 break;
@@ -263,10 +266,9 @@ public class AudioEngine implements Runnable {
     
     public void changeInputAndOutputLine(int indexInput, int indexOutput) {
     	stopEngine();
-        try {
-        	inputLine = (TargetDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[indexInput] ).getLine(targetInfo);
-			outputLine = (SourceDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[indexOutput] ).getLine(sourceInfo);
-			System.out.println(indexInput +", "+indexOutput);
+        try {			
+        	inputLine = (TargetDataLine) AudioSystem.getMixer( inputInfos[indexInput] ).getLine(targetInfo);
+        	outputLine = (SourceDataLine) AudioSystem.getMixer( outputInfos[indexOutput] ).getLine(sourceInfo);
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
 		}
@@ -290,11 +292,11 @@ public class AudioEngine implements Runnable {
     	engineStatus = STARTING;
     }
     
-    public String[] getInputInfos() {
+    public Mixer.Info[] getInputMixerInfos() {
     	return inputInfos;
     }
     
-    public String[] getOutputInfos() {
+    public Mixer.Info[] getOutputMixerInfos() {
     	return outputInfos;
     }
 

@@ -34,9 +34,9 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private JRadioButtonMenuItem itemFrequencyTracker;
 	private JCheckBoxMenuItem itemShowPeaks;
 		
-	private JMenu menuOptions;
-	private JMenu subMenuAudioDriver;
+	private JMenu menuOptions;	
 	private JCheckBoxMenuItem itemMuteMicrophone;
+	private JCheckBoxMenuItem itemMuteSpeaker;
 	private JCheckBoxMenuItem itemPause;
 	private JMenuItem itemStartStop;
 	private boolean running = true;
@@ -80,28 +80,14 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		menuView.add(itemShowPeaks);
 		
 		menuOptions = new JMenu("Options");
-		subMenuAudioDriver = new JMenu("Audio Devices");
-		menuOptions.add(subMenuAudioDriver);
-		String[] inputInfos = rm.getAudioEngine().getInputInfos();
-		for(int i=0; i<inputInfos.length; i++) {
-			if(inputInfos[i]!=null) {
-				JMenuItem itemDriver = new JMenuItem(inputInfos[i]);
-				subMenuAudioDriver.add(itemDriver);
-			}
-		}
-		subMenuAudioDriver.addSeparator();
-		String[] outputInfos = rm.getAudioEngine().getOutputInfos();
-		for(int i=0; i<outputInfos.length; i++) {
-			if(outputInfos[i]!=null) {
-				JMenuItem itemDriver = new JMenuItem(outputInfos[i]);
-				subMenuAudioDriver.add(itemDriver);
-			}
-		}
-		menuOptions.addSeparator();
 		itemMuteMicrophone = new JCheckBoxMenuItem("Mute Mic");
 		itemMuteMicrophone.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,ActionEvent.CTRL_MASK));
 		itemMuteMicrophone.addItemListener(this);
 		menuOptions.add(itemMuteMicrophone);
+		itemMuteSpeaker = new JCheckBoxMenuItem("Mute Speaker");
+		itemMuteSpeaker.addItemListener(this);
+		menuOptions.add(itemMuteSpeaker);
+		menuOptions.addSeparator();
 		itemPause = new JCheckBoxMenuItem("Pause");
 		itemPause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 		itemPause.addItemListener(this);
@@ -109,6 +95,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		itemStartStop = new JMenuItem("Stop Engine");
 		itemStartStop.addActionListener(this);
 		menuOptions.add(itemStartStop);
+		menuOptions.addSeparator();
 		itemSettings = new JMenuItem("Settings");
 		itemSettings.addActionListener(this);
 		menuOptions.add(itemSettings);
@@ -129,7 +116,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		if( ae.getSource() == itemAbout ) {
 			JOptionPane.showMessageDialog(rm.getFrame(), 
 					"Real-time implementation of Beauchamp's two-way mismatch algorithm\n" +
-					"(for the present it is just a spectroscope)\n"+
+					"(for the present it just selects the highest peak)\n"+
 					"written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
 		}		
 		else if(ae.getSource() == itemQuit ) {
