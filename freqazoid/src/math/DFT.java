@@ -45,6 +45,8 @@ public class DFT {
 				windowed[n] = (0.42-0.5*Math.cos(2*Math.PI*n/N)+0.08*Math.cos(4*Math.PI*n/N) ) * input[n];
 			}
 			break;
+		case KEISER:
+			break;
 		}
 		
 		return windowed;
