@@ -12,6 +12,7 @@ public class TwoWayMismatch {
 	
 	public static double calculateFundamentalFrequency(double f0Min, double f0Max, Peak[] peaks) {
 		
+		// divide the frequency range to equal tempered semitone steps.
 		double log102 = 1/Math.log10(2);		
 		int N = (int)Math.floor(12*log102*Math.log10(f0Max/f0Min));
 		
@@ -21,9 +22,10 @@ public class TwoWayMismatch {
 		for (int i = 0; i < N; i++) {
 			ftrials[i] = f0Min*Math.pow(2, (double)i/12);
 			errors[i] = calculateTotalError(ftrials[i], peaks);
-			System.out.println(ftrials[i]+ ": " + errors[i] );
+//			System.out.println(ftrials[i]+ ": " + errors[i] );
 		}
 		
+		// find the one with minimum error
 		double minError = Double.MAX_VALUE;		
 		int index = 0;
 		for (int i = 0; i < N; i++) {
@@ -37,30 +39,32 @@ public class TwoWayMismatch {
 		/*
 		 * second time
 		 */
-		if( index!=0 && index!=ftrials.length-1) {
-		f0Min = ftrials[index-1];
-		f0Max = ftrials[index+1];
+		{
+			f0Min = ftrials[index]*Math.pow(2.0, -1.0/12.0);
+			f0Max = ftrials[index]*Math.pow(2.0, 1.0/12.0);
 		
-		log102 = 1/Math.log10(2);
-		N = (int)Math.floor(10*log102*Math.log10(f0Max/f0Min));
+			log102 = 1/Math.log10(2);
+//			N = (int)Math.floor(10*log102*Math.log10(f0Max/f0Min));
+			N = 20;
 		
-		errors = new double[N];
-		ftrials = new double[N];
+			errors = new double[N];
+			ftrials = new double[N];
 		
-		for (int i = 0; i < N; i++) {
-			ftrials[i] = f0Min*Math.pow(2, (double)i/10);
-			errors[i] = calculateTotalError(ftrials[i], peaks);
-			System.out.println(ftrials[i]+ ": " + errors[i] );
-		}
-		
-		minError = Double.MAX_VALUE;		
-		index = 0;
-		for (int i = 0; i < N; i++) {
-			if(errors[i] < minError) {
-				minError = errors[i];
-				index = i;
+			for (int i = 0; i < N; i++) {
+//				ftrials[i] = f0Min*Math.pow(2, (double)i/10);
+				ftrials[i] = i*(f0Max - f0Min)/N + f0Min;
+				errors[i] = calculateTotalError(ftrials[i], peaks);
+				System.out.println(ftrials[i]+ ": " + errors[i] );
 			}
-		}
+		
+			minError = Double.MAX_VALUE;		
+			index = 0;
+			for (int i = 0; i < N; i++) {
+				if(errors[i] < minError) {
+					minError = errors[i];
+					index = i;
+				}
+			}
 		}
 		
 //		System.out.println(index + ", " + ftrials[index]);
