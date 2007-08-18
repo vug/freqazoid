@@ -41,7 +41,7 @@ public class Display extends JPanel implements Runnable {
         	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
         
-        double y0, l;
+        double y0, x0, l;
         
         switch (mode) {
 		case SPECTROSCOPE:
@@ -89,17 +89,25 @@ public class Display extends JPanel implements Runnable {
 			break;
 		case FREQUENCY_TRACKER:
 			y0 = this.getHeight();
+			x0 = this.getWidth();
 			double[] freqs = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getRecord();
 			l=(double)this.getWidth()/freqs.length;
+			
 			g2.setColor( ColorsAndStrokes.GRAY );
 			Line2D.Double axis = new Line2D.Double(5.0, 0.0, 5.0, getHeight());			
-			g2.draw(axis);		
-			double fmin=110.0;
+			g2.draw(axis);
+			
+			double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
+			double f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
 			double log102 = 1/Math.log10(2);
-			for(int i=0; i<60; i+=2) {
-				double f = fmin*Math.pow(2, i/12.0);
-				double pitch = 12*log102*Math.log10(f/fmin);
-				Line2D.Double line = new Line2D.Double(0, y0-y0*pitch/60, getWidth(), y0-y0*pitch/60);
+			
+			int nSemiTones = (int)Math.floor(12*log102*Math.log10(f0Max/f0Min));
+			double ly = y0/nSemiTones;
+			for(int i=0; i<nSemiTones; i++) {
+//				double f = f0Min*Math.pow(2, i/12.0);
+//				double pitch = 12*log102*Math.log10(f/f0Min);
+//				Line2D.Double line = new Line2D.Double(0, y0-y0*pitch/60, getWidth(), y0-y0*pitch/60);
+				Line2D.Double line = new Line2D.Double(0, y0-i*ly, getWidth(), y0-i*ly);
 				g2.setStroke( ColorsAndStrokes.DASHED );
 				g2.draw(line);
 			}
@@ -111,12 +119,12 @@ public class Display extends JPanel implements Runnable {
 			
 			g2.setStroke( ColorsAndStrokes.NORMAL );
 			for(int i=0; i<freqs.length-1; i++) {
-				if(freqs[i] > fmin && freqs[i+1] > fmin)
+				if(freqs[i] > f0Min && freqs[i+1] > f0Min)
 				{
-					double pitch1 = 12*log102*Math.log10(freqs[i]/fmin);
-					double pitch2 = 12*log102*Math.log10(freqs[i+1]/fmin);
+					double pitch1 = 12*log102*Math.log10(freqs[i]/f0Min);
+					double pitch2 = 12*log102*Math.log10(freqs[i+1]/f0Min);
 //					Line2D.Double line = new Line2D.Double(l*i, y0-y0*freqs[i]/1000, l*(i+1), y0-y0*freqs[i+1]/1000);
-					Line2D.Double line = new Line2D.Double(l*i, y0-y0*pitch1/60, l*(i+1), y0-y0*pitch2/60);
+					Line2D.Double line = new Line2D.Double(l*i, y0-pitch1*ly, l*(i+1), y0-pitch2*ly);
 					g2.setColor( ColorsAndStrokes.GREEN );
 					g2.draw(line);
 				}

@@ -19,7 +19,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import realtimesound.AudioAnalyser;
+
 import math.DFT;
+import math.TwoWayMismatch;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -55,9 +58,33 @@ public class Settings extends JFrame implements ActionListener {
 	
 	private int displayRefreshRate;
 	private int windowType;
+	private JLabel labelF0Min;
+	private JPanel panelF0Range;
+	private JTextField textMPr;
+	private JLabel labelMPr;
+	private JTextField textMPq;
+	private JLabel labelMPq;
+	private JTextField textMPp;
+	private JLabel labelMPp;
+	private JPanel panelMeasuredToPredicted;
+	private JComboBox comboBoxAlgorithm;
+	private JPanel panelAlgorithm;
+	private JTextField textTotalRho;
+	private JLabel labelTotalRho;
+	private JPanel panelTotalError;
+	private JPanel panelThresholdLevel;
+	private JLabel labelF0Max;
+	private JTextField textPMr;
+	private JLabel labelPMr;
+	private JTextField textPMq;
+	private JLabel labelPMq;
+	private JTextField textPMp;
+	private JLabel labelPMp;
+	private JPanel panelPredictedToMeasured;
+	private JTextField textF0Max;
+	private JTextField textF0Min;
 	private JCheckBox checkBoxAntiAlias;
 	private JTextField textThreshold;
-	private JLabel labelThresholdLevel;
 	private JPanel panelTwoWayMismatch;
 	private JTabbedPane tabbedPane1;
 	private int windowSize;
@@ -160,12 +187,12 @@ public class Settings extends JFrame implements ActionListener {
 					}
 					{
 						ComboBoxModel comboBoxWindowTypeModel = new DefaultComboBoxModel(
-							new String[] { "Rectangular", "Hann", "Hamming",
-									"Keiser", "Blackmann" });
+							new String[] { "Rectangular", "Hann", "Hamming", "Blackmann" });
 						comboBoxWindowType = new JComboBox();
 						panelDFTParameters.add(comboBoxWindowType);
 						comboBoxWindowType.setModel(comboBoxWindowTypeModel);
 						comboBoxWindowType.setBounds(112, 21, 98, 21);
+						comboBoxWindowType.setSelectedIndex( rm.getAudioEngine().getAudioAnalyser().getWindowType() );
 						comboBoxWindowType
 							.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
@@ -175,15 +202,10 @@ public class Settings extends JFrame implements ActionListener {
 									break;
 								case 1:
 									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HANN );
-								case 2:
-									// Hamming window yarat
-									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HANN );
-									break;
+								case 2:									 
+									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HAMMING );
+									break;								
 								case 3:
-									// Keiser yarat
-									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.HANN );
-									break;
-								case 4:
 									rm.getAudioEngine().getAudioAnalyser().setWindowType( DFT.BLACKMANN );
 									break;									
 								default:
@@ -310,16 +332,266 @@ public class Settings extends JFrame implements ActionListener {
 						null);
 					panelTwoWayMismatch.setLayout(null);
 					{
-						labelThresholdLevel = new JLabel();
-						panelTwoWayMismatch.add(labelThresholdLevel);
-						labelThresholdLevel.setText("Threshold Level");
-						labelThresholdLevel.setBounds(14, 21, 119, 21);
+						panelPredictedToMeasured = new JPanel();
+						FlowLayout panelPredictedToMeasuredLayout = new FlowLayout();
+						panelPredictedToMeasuredLayout.setAlignment(FlowLayout.LEFT);						
+						panelTwoWayMismatch.add(panelPredictedToMeasured);
+						panelPredictedToMeasured.setBounds(224, 7, 224, 56);
+						panelPredictedToMeasured.setBorder(BorderFactory.createTitledBorder("Predicted-to-measured Mismatch"));
+						panelPredictedToMeasured.setLayout(panelPredictedToMeasuredLayout);
+						{
+							labelPMp = new JLabel();
+							panelPredictedToMeasured.add(labelPMp);
+							labelPMp.setText("p:");
+							labelPMp.setPreferredSize(new java.awt.Dimension(14, 14));
+						}
+						{
+							textPMp = new JTextField();
+							panelPredictedToMeasured.add(textPMp);
+							textPMp.setText(Double.toString(TwoWayMismatch.getPmP()));
+							textPMp.setPreferredSize(new java.awt.Dimension(39, 20));
+							textPMp.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setPmP(Double.parseDouble(textPMp.getText()));
+								}
+							});
+						}
+						{
+							labelPMq = new JLabel();
+							panelPredictedToMeasured.add(labelPMq);
+							labelPMq.setText("q:");
+							labelPMq.setPreferredSize(new java.awt.Dimension(14, 14));
+						}
+						{
+							textPMq = new JTextField();
+							panelPredictedToMeasured.add(textPMq);
+							textPMq.setText(Double.toString(TwoWayMismatch.getPmQ()));
+							textPMq.setPreferredSize(new java.awt.Dimension(39, 20));
+							textPMq.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setPmQ(Double.parseDouble(textPMq.getText()));
+								}
+							});
+						}
+						{
+							labelPMr = new JLabel();
+							panelPredictedToMeasured.add(labelPMr);
+							labelPMr.setText("r:");
+							labelPMr.setPreferredSize(new java.awt.Dimension(14, 14));
+							labelPMr.setDoubleBuffered(true);
+						}
+						{
+							textPMr = new JTextField();
+							panelPredictedToMeasured.add(textPMr);
+							textPMr.setText(Double.toString(TwoWayMismatch.getPmR()));
+							textPMr.setPreferredSize(new java.awt.Dimension(44, 20));
+							textPMr.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setPmR(Double.parseDouble(textPMr.getText()));
+								}
+							});
+						}
 					}
 					{
-						textThreshold = new JTextField();
-						panelTwoWayMismatch.add(textThreshold);
-						textThreshold.setText("10");
-						textThreshold.setBounds(98, 21, 63, 21);
+						panelMeasuredToPredicted = new JPanel();
+						panelTwoWayMismatch.add(panelMeasuredToPredicted);
+						FlowLayout jPanel1Layout = new FlowLayout();
+						jPanel1Layout.setAlignment(FlowLayout.LEFT);
+						panelMeasuredToPredicted.setBorder(BorderFactory.createTitledBorder("Measured-to-predicted Mismatch"));
+						panelMeasuredToPredicted.setLayout(jPanel1Layout);
+						panelMeasuredToPredicted.setBounds(224, 63, 224, 56);
+						{
+							labelMPp = new JLabel();
+							panelMeasuredToPredicted.add(labelMPp);
+							labelMPp.setText("p:");
+							labelMPp.setPreferredSize(new java.awt.Dimension(
+								14,
+								14));
+						}
+						{
+							textMPp = new JTextField();
+							panelMeasuredToPredicted.add(textMPp);
+							textMPp.setText(Double.toString(TwoWayMismatch.getMpP()));
+							textMPp.setPreferredSize(new java.awt.Dimension(39, 20));
+							textMPp.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setMpP(Double.parseDouble(textMPp.getText()));
+								}
+							});
+						}
+						{
+							labelMPq = new JLabel();
+							panelMeasuredToPredicted.add(labelMPq);
+							labelMPq.setText("q:");
+							labelMPq.setPreferredSize(new java.awt.Dimension(
+								14,
+								14));
+						}
+						{
+							textMPq = new JTextField();
+							panelMeasuredToPredicted.add(textMPq);
+							textMPq.setText(Double.toString(TwoWayMismatch.getMpQ()));
+							textMPq.setPreferredSize(new java.awt.Dimension(39, 20));
+							textMPq.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setMpQ(Double.parseDouble(textMPq.getText()));
+								}
+							});
+						}
+						{
+							labelMPr = new JLabel();
+							panelMeasuredToPredicted.add(labelMPr);
+							labelMPr.setText("r:");
+							labelMPr.setPreferredSize(new java.awt.Dimension(
+								14,
+								14));
+							labelMPr.setDoubleBuffered(true);
+						}
+						{
+							textMPr = new JTextField();
+							panelMeasuredToPredicted.add(textMPr);
+							textMPr.setText(Double.toString(TwoWayMismatch.getMpR()));
+							textMPr.setPreferredSize(new java.awt.Dimension(41, 20));
+							textMPr.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setMpR(Double.parseDouble(textMPr.getText()));
+								}
+							});
+						}
+					}
+					{
+						panelF0Range = new JPanel();
+						FlowLayout panelF0RangeLayout = new FlowLayout();
+						panelF0RangeLayout.setAlignment(FlowLayout.LEFT);
+						panelF0Range.setLayout(panelF0RangeLayout);
+						panelTwoWayMismatch.add(panelF0Range);
+						panelF0Range.setBounds(7, 63, 217, 56);
+						panelF0Range.setBorder(BorderFactory.createTitledBorder("Fundamental Frequency Range (Hz)"));
+						{
+							labelF0Min = new JLabel();
+							panelF0Range.add(labelF0Min);
+							labelF0Min.setText("min:");
+						}
+						{
+							textF0Min = new JTextField();
+							panelF0Range.add(textF0Min);
+							textF0Min.setText(									
+									Double.toString(rm.getAudioEngine().getAudioAnalyser().getF0Min())
+											);
+							textF0Min.setBounds(7, 63, 49, 21);
+							textF0Min.setPreferredSize(new java.awt.Dimension(59, 21));
+							textF0Min.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									double f0Min = Double.parseDouble(textF0Min.getText());
+									rm.getAudioEngine().getAudioAnalyser().setF0Min(f0Min);
+								}
+							});
+						}
+						{
+							labelF0Max = new JLabel();
+							panelF0Range.add(labelF0Max);
+							labelF0Max.setText("max:");
+						}
+						{
+							textF0Max = new JTextField();
+							panelF0Range.add(textF0Max);
+							textF0Max.setText(
+									Double.toString(rm.getAudioEngine().getAudioAnalyser().getF0Max())		
+							);
+							textF0Max.setBounds(63, 63, 49, 21);
+							textF0Max.setPreferredSize(new java.awt.Dimension(58, 21));
+							textF0Max.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									double f0Max = Double.parseDouble( textF0Max.getText() );
+									rm.getAudioEngine().getAudioAnalyser().setF0Max(f0Max);
+								}
+							});
+						}
+					}
+					{
+						panelThresholdLevel = new JPanel();
+						FlowLayout panelThresholdLevelLayout = new FlowLayout();
+						panelThresholdLevelLayout.setAlignment(FlowLayout.LEFT);
+						panelThresholdLevel.setLayout(panelThresholdLevelLayout);
+						panelTwoWayMismatch.add(panelThresholdLevel);
+						panelThresholdLevel.setBounds(7, 7, 217, 56);
+						panelThresholdLevel.setBorder(BorderFactory.createTitledBorder("Threshold Level"));
+						{
+							textThreshold = new JTextField();
+							panelThresholdLevel.add(textThreshold);
+							textThreshold.setText("10");
+							textThreshold.setPreferredSize(new java.awt.Dimension(56, 21));
+							textThreshold
+								.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent evt) {
+										//								System.out.println(Double.parseDouble( textThreshold.getText() ));
+										rm.getAudioEngine().getAudioAnalyser()
+											.setPeakThreshold(
+												Double
+													.parseDouble(textThreshold
+														.getText()));
+									}
+								});
+						}
+					}
+					{
+						panelTotalError = new JPanel();
+						FlowLayout panelTotalErrorLayout = new FlowLayout();
+						panelTotalErrorLayout.setAlignment(FlowLayout.LEFT);
+						panelTotalError.setLayout(panelTotalErrorLayout);
+						panelTwoWayMismatch.add(panelTotalError);
+						panelTotalError.setBounds(224, 119, 224, 56);
+						panelTotalError.setBorder(BorderFactory.createTitledBorder("Total TWM Error"));
+						{
+							labelTotalRho = new JLabel();
+							panelTotalError.add(labelTotalRho);
+							labelTotalRho.setText("rho:");
+						}
+						{
+							textTotalRho = new JTextField();
+							panelTotalError.add(textTotalRho);
+							textTotalRho.setText(Double.toString(TwoWayMismatch.getRho()));
+							textTotalRho.setPreferredSize(new java.awt.Dimension(43, 20));
+							textTotalRho
+								.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									TwoWayMismatch.setRho(Double.parseDouble(textTotalRho.getText()));
+								}
+								});
+						}
+					}
+					{
+						panelAlgorithm = new JPanel();
+						FlowLayout panelAlgorithmLayout = new FlowLayout();
+						panelAlgorithmLayout.setAlignment(FlowLayout.LEFT);
+						panelAlgorithm.setLayout(panelAlgorithmLayout);
+						panelTwoWayMismatch.add(panelAlgorithm);
+						panelAlgorithm.setBounds(7, 119, 217, 56);
+						panelAlgorithm.setBorder(BorderFactory.createTitledBorder("Detection Algorithm"));
+						{
+							ComboBoxModel comboBoxAlgorithmModel = new DefaultComboBoxModel(
+								new String[] { "Two-Way Mismatch", "Left Most Peak", "Peak with highest amp" });
+							comboBoxAlgorithm = new JComboBox();
+							panelAlgorithm.add(comboBoxAlgorithm);
+							comboBoxAlgorithm.setModel(comboBoxAlgorithmModel);
+							comboBoxAlgorithm.setPreferredSize(new java.awt.Dimension(187, 20));
+							comboBoxAlgorithm
+								.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									switch(comboBoxAlgorithm.getSelectedIndex()) {
+									case 0:
+										rm.getAudioEngine().getAudioAnalyser().setMethod(AudioAnalyser.TWM);
+										break;
+									case 1:
+										rm.getAudioEngine().getAudioAnalyser().setMethod(AudioAnalyser.LEFT_MOST_PEAK);
+										break;
+									case 2:
+										rm.getAudioEngine().getAudioAnalyser().setMethod(AudioAnalyser.HIGHEST_PEAK);
+										break;
+									}
+								}
+								});
+						}
 					}
 				}
 			}

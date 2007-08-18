@@ -2,6 +2,8 @@ package math;
 
 public class Tools {
 	
+	public static final double TWO_PI = 2*Math.PI;
+	
 	public static final double[] lowpass(double[] signal, int nPoints) {
 		int N = signal.length;
 		double[] ret = new double[N];
