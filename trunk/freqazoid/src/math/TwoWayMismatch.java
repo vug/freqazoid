@@ -54,7 +54,7 @@ public class TwoWayMismatch {
 //				ftrials[i] = f0Min*Math.pow(2, (double)i/10);
 				ftrials[i] = i*(f0Max - f0Min)/N + f0Min;
 				errors[i] = calculateTotalError(ftrials[i], peaks);
-				System.out.println(ftrials[i]+ ": " + errors[i] );
+//				System.out.println(ftrials[i]+ ": " + errors[i] );
 			}
 		
 			minError = Double.MAX_VALUE;		

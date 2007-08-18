@@ -116,7 +116,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		if( ae.getSource() == itemAbout ) {
 			JOptionPane.showMessageDialog(rm.getFrame(), 
 					"Real-time implementation of Beauchamp's two-way mismatch algorithm\n" +
-					"(for the present it just selects the highest peak)\n"+
+					"(test version)\n"+
 					"written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
 		}		
 		else if(ae.getSource() == itemQuit ) {
