@@ -2,7 +2,6 @@ package gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Stroke;
 
 public class ColorsAndStrokes {
 	
@@ -20,18 +19,14 @@ public class ColorsAndStrokes {
 			10.0f, dash1, 0.0f);
 	public static final BasicStroke NORMAL = new BasicStroke();
 	
-	private ResourceManager rm;
-	
 	public static Color[] colorGradient;
 	private int nColors;
 	
 	public ColorsAndStrokes(ResourceManager rm) {
-		this.rm = rm;
 		nColors = 100;
 		
 		colorGradient = new Color[128];
 		for(int i=0; i<nColors; i++) {
-			int g = 256*i/nColors;
 			colorGradient[i] = new Color(i, i ,i);
 		}
 	}

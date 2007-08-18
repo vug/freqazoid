@@ -9,8 +9,6 @@
 
 package realtimesound;
 
-import java.io.File;
-
 import gui.ResourceManager;
 
 /**
@@ -26,7 +24,7 @@ public class Main {
     	 * Apply deglitching
     	 */
     	AudioEngine audioEngine = new AudioEngine();
-        ResourceManager rm = new ResourceManager(audioEngine);
+        new ResourceManager(audioEngine);
     }
     
 }

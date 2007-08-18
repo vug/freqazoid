@@ -84,30 +84,6 @@ public class AudioAnalyser {
 //		System.out.println(fundamentalFreqency);
 	}
 	
-	private double predictedToMeasuredError(double fTrial, Peak[] peaks) {
-		double error = 0.0;
-		
-		Peak maxPeak = peaks[0];
-		for (int i = 0; i < peaks.length; i++) {
-			if( peaks[i].amplitude > maxPeak.amplitude ) {
-				maxPeak = peaks[i];
-			}				
-		}
-		
-		for (int i = 0; i < peaks.length; i++) {
-			error += peaks[i].frequency;			
-		}
-		return error;
-	}
-	
-	private double measuredToPredictedError(double fTrial, Peak[] peaks) {
-		return 0.0;
-	}
-	
-	private double totalError(double mpError, double pmError) {
-		return 0.0;
-	}
-	
 	public double getFundamentalFrequency() {
 		return fundamentalFreqency;
 	}

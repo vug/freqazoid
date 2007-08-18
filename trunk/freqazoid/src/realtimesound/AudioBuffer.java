@@ -1,10 +1,7 @@
 package realtimesound;
 
-import gui.ResourceManager;
-
 public class AudioBuffer {
 	
-	private ResourceManager rm;
 	private AudioAnalyser analyser;
 	private int frameSize;
 	private int hopSize;
@@ -93,7 +90,7 @@ public class AudioBuffer {
 
 	public static void main(String[] args) {
 		//AudioBuffer audioBuffer = new AudioBuffer(8,2);
-		int[] samples = {1, 2, 3, 4, 5, 6, 7, 8};
+//		int[] samples = {1, 2, 3, 4, 5, 6, 7, 8};
 		/*audioBuffer.addSamples(samples);
 		int[] samples2 = {30, 31};
 		audioBuffer.addSamples(samples2);

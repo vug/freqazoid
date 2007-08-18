@@ -41,7 +41,7 @@ public class Display extends JPanel implements Runnable {
         	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
         
-        double y0, x0, l;
+        double y0, l;
         
         switch (mode) {
 		case SPECTROSCOPE:
@@ -89,7 +89,6 @@ public class Display extends JPanel implements Runnable {
 			break;
 		case FREQUENCY_TRACKER:
 			y0 = this.getHeight();
-			x0 = this.getWidth();
 			double[] freqs = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getRecord();
 			l=(double)this.getWidth()/freqs.length;
 			
