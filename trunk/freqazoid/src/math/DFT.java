@@ -4,8 +4,8 @@ public class DFT {
 	
 	public static final int RECTANGULAR = 0;
 	public static final int HANN = 1;
-	public static final int BLACKMANN = 2;
-	public static final int KEISER = 3;
+	public static final int HAMMING = 2;
+	public static final int BLACKMANN = 3;
 	
 	public static final double[] forwardMagnitude(double[] input) {
 		int N = input.length;
@@ -37,15 +37,17 @@ public class DFT {
 			return input;
 		case HANN:
 			for(int n=0; n<N; n++) {
-				windowed[n] = 0.5*(1-Math.cos(2*Math.PI*n/N)) * input[n];
+				windowed[n] = 0.5*(1-Math.cos(2*Math.PI*n/(N-1))) * input[n];
 			}
 			break;
+		case HAMMING:
+			for (int n = 0; n < input.length; n++) {
+				windowed[n] = (0.53836-0.46164*Math.cos(Tools.TWO_PI*n/(N-1))) * input[n];
+			}
 		case BLACKMANN:
 			for(int n=0; n<N; n++) {
-				windowed[n] = (0.42-0.5*Math.cos(2*Math.PI*n/N)+0.08*Math.cos(4*Math.PI*n/N) ) * input[n];
+				windowed[n] = (0.42-0.5*Math.cos(2*Math.PI*n/(N-1))+0.08*Math.cos(4*Math.PI*n/(N-1)) ) * input[n];
 			}
-			break;
-		case KEISER:
 			break;
 		}
 		

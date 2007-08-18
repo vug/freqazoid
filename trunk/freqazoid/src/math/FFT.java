@@ -2,6 +2,7 @@ package math;
 
 /*
  * http://www.cs.princeton.edu/introcs/97data/FFT.java.html
+ * Should be optimized. w_n may be looked up from a table etc.
  */
 public class FFT {
 	

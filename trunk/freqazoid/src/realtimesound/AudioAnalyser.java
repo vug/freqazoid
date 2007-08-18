@@ -1,15 +1,19 @@
 package realtimesound;
 
-import java.util.Vector;
-
 import math.Complex;
 import math.DFT;
 import math.FFT;
 import math.Peak;
 import math.PeakDetector;
 import math.Tools;
+import math.TwoWayMismatch;
 
 public class AudioAnalyser {
+	
+	public static final int TWM = 0;
+	public static final int LEFT_MOST_PEAK = 1;
+	public static final int HIGHEST_PEAK = 2;
+	private int method;
 	
 	private AudioBuffer audioBuffer;
 	private RecordFundamental recordFundamental;
@@ -21,6 +25,8 @@ public class AudioAnalyser {
 	private double[] windowedFrame;
 	private double[] magnitude;
 	private Peak[] peaks;
+	private double f0Min;
+	private double f0Max;
 	private double fundamentalFreqency;
 	
 	private double peakThreshold;
@@ -29,10 +35,12 @@ public class AudioAnalyser {
 	
 	public AudioAnalyser() {
 		windowSize = 2048;
-		numberOfHops = 4;
+		numberOfHops = 2;
 		windowType = DFT.BLACKMANN;
 		peakThreshold = 5.0;
 		fundamentalFreqency = 0.0;
+		f0Min = 440;
+		f0Max = 880*2;		
 		
 		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
 		recordFundamental = new RecordFundamental();
@@ -42,8 +50,30 @@ public class AudioAnalyser {
 		windowedFrame = DFT.window( audioBuffer.getFrame(), windowType );
 		magnitude = Complex.abs( FFT.forward( Tools.makeComplex(windowedFrame)) );
 		peaks = PeakDetector.detectSpectralPeaks( magnitude, peakThreshold );
-		fundamentalFreqency = twoWayMismatch( peaks );
-//		recordFundamental.add(110*Math.pow(2, (int)(Math.random()*5)));
+		
+		if( peaks.length > 0) {			
+			switch (method) {		
+			case TWM:
+				fundamentalFreqency = TwoWayMismatch.calculateFundamentalFrequency(f0Min, f0Max, peaks);
+				break;
+			case LEFT_MOST_PEAK:
+				fundamentalFreqency = peaks[0].frequency;
+				break;
+			case HIGHEST_PEAK:
+				Peak maxPeak = peaks[0];
+				for (int i = 0; i < peaks.length; i++) {
+					if( peaks[i].amplitude > maxPeak.amplitude ) {
+						
+						maxPeak = peaks[i];
+					}				
+				}
+				fundamentalFreqency = maxPeak.frequency;
+				break;
+			}
+		} else {
+			fundamentalFreqency = -1;
+		}
+		
 		recordFundamental.add( fundamentalFreqency );
 		
 //		for (int i = 0; i < peaks.length; i++) {
@@ -54,20 +84,28 @@ public class AudioAnalyser {
 //		System.out.println(fundamentalFreqency);
 	}
 	
-	private double twoWayMismatch(Peak[] peaks) {
-		if(peaks.length > 0) {
-			Peak maxPeak = peaks[0];
-			for (int i = 0; i < peaks.length; i++) {
-				if( peaks[i].amplitude > maxPeak.amplitude ) {
-					maxPeak = peaks[i];
-				}				
-			}
-			return peaks[0].frequency;
-//			return maxPeak.frequency;
+	private double predictedToMeasuredError(double fTrial, Peak[] peaks) {
+		double error = 0.0;
+		
+		Peak maxPeak = peaks[0];
+		for (int i = 0; i < peaks.length; i++) {
+			if( peaks[i].amplitude > maxPeak.amplitude ) {
+				maxPeak = peaks[i];
+			}				
 		}
-		else {
-			return 55;
+		
+		for (int i = 0; i < peaks.length; i++) {
+			error += peaks[i].frequency;			
 		}
+		return error;
+	}
+	
+	private double measuredToPredictedError(double fTrial, Peak[] peaks) {
+		return 0.0;
+	}
+	
+	private double totalError(double mpError, double pmError) {
+		return 0.0;
 	}
 	
 	public double getFundamentalFrequency() {
@@ -132,5 +170,30 @@ public class AudioAnalyser {
 
 	public RecordFundamental getRecordFundamental() {
 		return recordFundamental;
-	}	
+	}
+
+	public double getF0Max() {
+		return f0Max;
+	}
+
+	public void setF0Max(double f0max) {
+		this.f0Max = f0max;
+	}
+
+	public double getF0Min() {
+		return f0Min;
+	}
+
+	public void setF0Min(double f0min) {
+		this.f0Min = f0min;
+	}
+
+	public int getMethod() {
+		return method;
+	}
+
+	public void setMethod(int method) {
+		this.method = method;
+	}
+	
 }
