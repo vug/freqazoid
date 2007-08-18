@@ -2,7 +2,6 @@ package gui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Dimension;
 
 import javax.sound.sampled.Mixer;
 import javax.swing.BorderFactory;
@@ -37,6 +36,8 @@ import math.TwoWayMismatch;
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
 public class Settings extends JFrame implements ActionListener {
+
+	private static final long serialVersionUID = -4289544378146824904L;
 	private ResourceManager rm;
 	private JComboBox comboBoxInputDevice;
 	private JComboBox ComboBoxNHops;
@@ -57,7 +58,6 @@ public class Settings extends JFrame implements ActionListener {
 	private JComboBox comboBoxOutputDevices;
 	
 	private int displayRefreshRate;
-	private int windowType;
 	private JLabel labelF0Min;
 	private JPanel panelF0Range;
 	private JTextField textMPr;
@@ -90,14 +90,13 @@ public class Settings extends JFrame implements ActionListener {
 	private int windowSize;
 	private int numberOfHops;
 	
-	private Mixer.Info[] mixerInfos;
 	private String[] inputInfos;
 	private String[] outputInfos;
 
 	public Settings(ResourceManager rm) {
 		this.rm = rm;
 		displayRefreshRate = rm.getDisplay().getRefreshRate();
-		windowType = rm.getAudioEngine().getAudioAnalyser().getWindowType();
+//		windowType = rm.getAudioEngine().getAudioAnalyser().getWindowType();
 		windowSize = rm.getAudioEngine().getAudioAnalyser().getWindowSize();
 		numberOfHops = rm.getAudioEngine().getAudioAnalyser().getNumberOfHops();
 		

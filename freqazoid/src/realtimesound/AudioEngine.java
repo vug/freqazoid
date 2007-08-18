@@ -133,8 +133,8 @@ public class AudioEngine implements Runnable {
     }
     
     public void run()  {
-        int numBytesRead;
-        int numBytesWritten;        
+//        int numBytesRead;
+//        int numBytesWritten;        
         byte[] dataFromMic = new byte[BLOCK_SIZE*2];
         byte[] dataFromFile = new byte[BLOCK_SIZE*2];
         byte[] dataMasterOut = new byte[BLOCK_SIZE*2];
@@ -164,7 +164,8 @@ public class AudioEngine implements Runnable {
                 if( inputLine.available() > BLOCK_SIZE*2 )
                 {
                 	// Read the next chunk of data from the TargetDataLine.
-                	numBytesRead =  inputLine.read(dataFromMic, 0, dataFromMic.length);
+//                	numBytesRead =  inputLine.read(dataFromMic, 0, dataFromMic.length);
+                	inputLine.read(dataFromMic, 0, dataFromMic.length);
                 	
                 	if ( !muteFile && inputFile != null ) {
                 		try {
@@ -192,7 +193,8 @@ public class AudioEngine implements Runnable {
                 		dataMasterOut[i+1] = (byte)(masterOut[j] >> 8);
                 	}     	
                 	
-                	numBytesWritten = outputLine.write(dataMasterOut, 0, dataMasterOut.length);
+//                	numBytesWritten = outputLine.write(dataMasterOut, 0, dataMasterOut.length);
+                	outputLine.write(dataMasterOut, 0, dataMasterOut.length);
                 }
             
                 break;

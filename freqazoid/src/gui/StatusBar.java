@@ -1,9 +1,6 @@
 package gui;
 
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,9 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-@SuppressWarnings("serial")
 public class StatusBar extends JPanel implements ActionListener {
 	
+	private static final long serialVersionUID = 4971656319853172047L;
 	private JLabel labelWidthDuration;
 	private JLabel labelHopSize;
 	private JButton buttonPlayPause;
