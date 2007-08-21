@@ -47,8 +47,9 @@ public class AudioEngine implements Runnable {
     private AudioFileFormat inputFileFormat;
     private File inputFile;
     
-    public boolean muteMicrophone;
+    private boolean muteMicrophone;
     public boolean muteFile;
+    private boolean muteSpeaker;
     
     private Thread audioThread;
     
@@ -57,7 +58,8 @@ public class AudioEngine implements Runnable {
     private DataLine.Info targetInfo;
     
     public AudioEngine() {
-        
+    	
+    	muteSpeaker = false;
         muteMicrophone = false;
         muteFile = true;
         
@@ -188,9 +190,15 @@ public class AudioEngine implements Runnable {
                 	}                	
                 	audioAnalyser.addSamples(masterOut);    				
                 	
-                	for(int i=0, j=0; j<BLOCK_SIZE; i+=2, j++) {                		
-                		dataMasterOut[i]   = (byte)(masterOut[j] &  0xFF);
-                		dataMasterOut[i+1] = (byte)(masterOut[j] >> 8);
+                	for(int i=0, j=0; j<BLOCK_SIZE; i+=2, j++) {
+                		if( !muteSpeaker ) {
+                			dataMasterOut[i]   = (byte)(masterOut[j] &  0xFF);
+                    		dataMasterOut[i+1] = (byte)(masterOut[j] >> 8);
+                		} else {
+                			dataMasterOut[i] = 0;
+                			dataMasterOut[i+1] = 0;
+                		}
+                		
                 	}     	
                 	
 //                	numBytesWritten = outputLine.write(dataMasterOut, 0, dataMasterOut.length);
@@ -309,5 +317,23 @@ public class AudioEngine implements Runnable {
 	public Mixer.Info[] getMixerInfo() {
 		return mixerInfo;
 	}
+
+	public boolean isMuteMicrophone() {
+		return muteMicrophone;
+	}
+
+	public void setMuteMicrophone(boolean muteMicrophone) {
+		this.muteMicrophone = muteMicrophone;
+	}
+
+	public boolean isMuteSpeaker() {
+		return muteSpeaker;
+	}
+
+	public void setMuteSpeaker(boolean muteSpeaker) {
+		this.muteSpeaker = muteSpeaker;
+	}
+	
+	
 	
 }

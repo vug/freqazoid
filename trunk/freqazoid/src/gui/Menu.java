@@ -82,6 +82,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		menuOptions = new JMenu("Options");
 		itemMuteMicrophone = new JCheckBoxMenuItem("Mute Mic");
 		itemMuteMicrophone.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,ActionEvent.CTRL_MASK));
+//		itemMuteMicrophone.setSelected(rm.getAudioEngine().get)
 		itemMuteMicrophone.addItemListener(this);
 		menuOptions.add(itemMuteMicrophone);
 		itemMuteSpeaker = new JCheckBoxMenuItem("Mute Speaker");
@@ -160,7 +161,10 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 			rm.getAudioEngine().pauseEngine();
 		}
 		else if(ie.getSource() == itemMuteMicrophone ) {
-			rm.getAudioEngine().muteMicrophone = itemMuteMicrophone.getState();
+			rm.getAudioEngine().setMuteMicrophone( itemMuteMicrophone.getState() );
+		}
+		else if(ie.getSource() == itemMuteSpeaker ) {
+			rm.getAudioEngine().setMuteSpeaker( itemMuteSpeaker.getState() );
 		}
 		else if(ie.getSource() == itemShowPeaks ) {
 			rm.getDisplay().setShowPeaks( itemShowPeaks.getState() );
