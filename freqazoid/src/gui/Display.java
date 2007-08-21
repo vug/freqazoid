@@ -110,10 +110,12 @@ public class Display extends JPanel implements Runnable {
 				g2.setStroke( ColorsAndStrokes.DASHED );
 				g2.draw(line);
 			}
-			g2.drawString("Pitch", 200, 20);
+//			g2.drawString("Pitch", 200, 20);
 			double time=(double)freqs.length*rm.getAudioEngine().getAudioAnalyser().getWindowSize()/
 			rm.getAudioEngine().getAudioAnalyser().getNumberOfHops()/44100;
 			g2.drawString(String.valueOf(time).substring(0, 5)+"sec", getWidth()-100, getHeight()-5);
+			g2.drawString(String.valueOf(f0Min)+" Hz", 10, getHeight());
+			g2.drawString(String.valueOf(f0Max)+" Hz", 10, 10);
 			
 			
 			g2.setStroke( ColorsAndStrokes.NORMAL );
