@@ -4,6 +4,10 @@ public class Tools {
 	
 	public static final double TWO_PI = 2*Math.PI;
 	
+	public static double log2(double x) {
+		return Math.log10(x)/Math.log10(2.0);
+	}
+	
 	public static final double[] lowpass(double[] signal, int nPoints) {
 		int N = signal.length;
 		double[] ret = new double[N];

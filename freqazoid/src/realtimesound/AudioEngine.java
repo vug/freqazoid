@@ -29,13 +29,13 @@ public class AudioEngine implements Runnable {
     private static final boolean BIG_ENDIAN = false;
     private AudioFormat format;
     
-    private static final int BUFFER_SIZE = 4096*8;    
+    private static final int BUFFER_SIZE = 4096;    
     private TargetDataLine inputLine;
     private SourceDataLine outputLine;  
     private Mixer.Info[] inputInfos;
     private Mixer.Info[] outputInfos;
     
-    private static final int BLOCK_SIZE = 1024*4;
+    private static final int BLOCK_SIZE = 512;
     
     public static final int STARTING = 0, RUNNING = 1, 
     						PAUSED = 2, STOPPING = 3, STOPPED = 4;    

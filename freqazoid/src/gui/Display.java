@@ -33,6 +33,10 @@ public class Display extends JPanel implements Runnable {
 		antialiased = true;
 	}
 	
+	public void paintComponent2(Graphics g) {
+		
+	}
+	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
@@ -42,6 +46,7 @@ public class Display extends JPanel implements Runnable {
 		}
         
         double y0, l;
+        int lx = getWidth();
         
         switch (mode) {
 		case SPECTROSCOPE:
@@ -49,17 +54,26 @@ public class Display extends JPanel implements Runnable {
 			y0 = this.getHeight()-1;
 			l=(double)this.getWidth()/(magnitude.length/2);
 			
-			for(int i=0; i<magnitude.length/2-1; i++) {		
-	            double sample1 = 60*Math.log10(magnitude[i]+1);
-	            double sample2 = 60*Math.log10(magnitude[i+1]+1);
-	            
-	            Line2D.Double line = new Line2D.Double(l*i, y0-sample1, l*(i+1), y0-sample2);
-	            g2.setColor( ColorsAndStrokes.GREEN );
+//			for(int i=0; i<magnitude.length/2-1; i++) {		
+//	            double sample1 = 60*Math.log10(magnitude[i]+1);
+//	            double sample2 = 60*Math.log10(magnitude[i+1]+1);
+//	            
+//	            Line2D.Double line = new Line2D.Double(l*i, y0-sample1, l*(i+1), y0-sample2);
+//	            g2.setColor( ColorsAndStrokes.GREEN );
+//	            g2.draw(line);
+//			}
+			
+			g2.setColor( ColorsAndStrokes.GREEN );
+			for (int i = 0; i < lx; i++) {
+				int index = i*magnitude.length/lx/2;
+				double sample1 = 60*Math.log10(magnitude[index]+1);
+				
+				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
 	            g2.draw(line);
 			}
-			
-			g2.setColor( ColorsAndStrokes.RED );	            
+				            
             if(showPeaks == true) {
+            	g2.setColor( ColorsAndStrokes.RED );
             	Peak[] peaks = rm.getAudioEngine().getAudioAnalyser().getPeaks();
             	for(int n=0; n<peaks.length; n++) {
             		Line2D.Double line1 = new Line2D.Double(peaks[n].frequency*l*magnitude.length/44100,0,
@@ -80,12 +94,24 @@ public class Display extends JPanel implements Runnable {
 		case OSCILLOSCOPE:
 			double[] amplitude = rm.getAudioEngine().getAudioAnalyser().getCurrentFrame();
 			y0 = this.getHeight()/2;
-			l=(double)this.getWidth()/amplitude.length;
-	        for(int i=0; i<amplitude.length-1; i++) {           
-	            Line2D.Double line = new Line2D.Double(l*i, y0*amplitude[i]+y0, l*(i+1), y0*amplitude[i+1]+y0);
-	            g2.setColor( ColorsAndStrokes.GREEN );
+//			l=(double)this.getWidth()/amplitude.length;
+//	        for(int i=0; i<amplitude.length-1; i++) {           
+//	            Line2D.Double line = new Line2D.Double(l*i, y0*amplitude[i]+y0, l*(i+1), y0*amplitude[i+1]+y0);
+//	            g2.setColor( ColorsAndStrokes.GREEN );
+//	            g2.draw(line);
+//	        }
+	        
+	        
+			g2.setColor( ColorsAndStrokes.GREEN );
+	        for (int i = 0; i < lx-1; i++) {
+				int index = i*amplitude.length/lx;
+//				double sample1 = 60*Math.log10(magnitude[index]+1);
+				
+				Line2D.Double line = new Line2D.Double(i, y0-y0*amplitude[index], i+0.5, y0-y0*amplitude[index+1]);
+//				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
 	            g2.draw(line);
-	        }
+			}
+	        
 			break;
 		case FREQUENCY_TRACKER:
 			y0 = this.getHeight();
