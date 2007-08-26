@@ -48,7 +48,8 @@ public class AudioAnalyser {
 	
 	protected void bufferReady() {
 		windowedFrame = DFT.window( audioBuffer.getFrame(), windowType );
-		magnitude = Complex.abs( FFT.forward( Tools.makeComplex(windowedFrame)) );
+//		magnitude = Complex.abs( FFT.forward( Tools.makeComplex(windowedFrame)) );
+		magnitude = FFT.magnitudeSpectrum(windowedFrame);
 		peaks = PeakDetector.detectSpectralPeaks( magnitude, peakThreshold );
 		
 		if( peaks.length > 0) {			
