@@ -29,13 +29,13 @@ public class AudioEngine implements Runnable {
     private static final boolean BIG_ENDIAN = false;
     private AudioFormat format;
     
-    private static final int BUFFER_SIZE = 4096;    
+    private int bufferSize = 4096;    
     private TargetDataLine inputLine;
     private SourceDataLine outputLine;  
     private Mixer.Info[] inputInfos;
     private Mixer.Info[] outputInfos;
     
-    private static final int BLOCK_SIZE = 512;
+    private int blockSize = 512;
     
     public static final int STARTING = 0, RUNNING = 1, 
     						PAUSED = 2, STOPPING = 3, STOPPED = 4;    
@@ -107,7 +107,7 @@ public class AudioEngine implements Runnable {
                 inputLine = (TargetDataLine) AudioSystem.getLine(targetInfo);
 //                inputLine = (TargetDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[3] ).getLine(targetInfo);
                 System.out.println(inputLine.getLineInfo().toString());
-                inputLine.open(format, BUFFER_SIZE);
+                inputLine.open(format, bufferSize);
 //                System.out.println("Input line opened with a buffer size: "
 //                        + inputLine.getBufferSize());
             } catch (LineUnavailableException ex) {
@@ -121,7 +121,7 @@ public class AudioEngine implements Runnable {
 //                System.out.println("trying to open an output line...");
                 outputLine = (SourceDataLine) AudioSystem.getLine(sourceInfo);
 //                outputLine = (SourceDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[0] ).getLine(sourceInfo);
-                outputLine.open(format, BUFFER_SIZE);
+                outputLine.open(format, bufferSize);
 //                System.out.println("Output line opened with a buffer size: "
 //                        + inputLine.getBufferSize());
             } catch (LineUnavailableException ex) {
@@ -137,9 +137,9 @@ public class AudioEngine implements Runnable {
     public void run()  {
 //        int numBytesRead;
 //        int numBytesWritten;        
-        byte[] dataFromMic = new byte[BLOCK_SIZE*2];
-        byte[] dataFromFile = new byte[BLOCK_SIZE*2];
-        byte[] dataMasterOut = new byte[BLOCK_SIZE*2];
+        byte[] dataFromMic = new byte[blockSize*2];
+        byte[] dataFromFile = new byte[blockSize*2];
+        byte[] dataMasterOut = new byte[blockSize*2];
         
         inputLine.start();
         outputLine.start();
@@ -150,8 +150,8 @@ public class AudioEngine implements Runnable {
             switch(engineStatus) {
             	case STARTING:
             		try {
-						inputLine.open(format, BUFFER_SIZE);
-						outputLine.open(format, BUFFER_SIZE);
+						inputLine.open(format, bufferSize);
+						outputLine.open(format, bufferSize);
 					} catch (LineUnavailableException e) {
 						e.printStackTrace();
 					}
@@ -163,7 +163,7 @@ public class AudioEngine implements Runnable {
                     break;
                 case RUNNING:
                 
-                if( inputLine.available() > BLOCK_SIZE*2 )
+                if( inputLine.available() > blockSize*2 )
                 {
                 	// Read the next chunk of data from the TargetDataLine.
 //                	numBytesRead =  inputLine.read(dataFromMic, 0, dataFromMic.length);
@@ -177,9 +177,9 @@ public class AudioEngine implements Runnable {
 						}
                 	}              
                 	
-                	int[] masterOut = new int[BLOCK_SIZE];                	
+                	int[] masterOut = new int[blockSize];                	
                 	
-                	for(int i=0, j = 0; j<BLOCK_SIZE; i+=2, j++) {
+                	for(int i=0, j = 0; j<blockSize; i+=2, j++) {
                 		masterOut[j] = 0;
                 		if( !muteMicrophone ) {
                 			masterOut[j] += ((dataFromMic[i] & 0xFF) | (dataFromMic[i+1]<<8));            	
@@ -190,7 +190,7 @@ public class AudioEngine implements Runnable {
                 	}                	
                 	audioAnalyser.addSamples(masterOut);    				
                 	
-                	for(int i=0, j=0; j<BLOCK_SIZE; i+=2, j++) {
+                	for(int i=0, j=0; j<blockSize; i+=2, j++) {
                 		if( !muteSpeaker ) {
                 			dataMasterOut[i]   = (byte)(masterOut[j] &  0xFF);
                     		dataMasterOut[i+1] = (byte)(masterOut[j] >> 8);
@@ -294,7 +294,31 @@ public class AudioEngine implements Runnable {
     	startEngine();
     }
     
-    public void stopEngine() {
+    
+    public int getBlockSize() {
+		return blockSize;
+	}
+
+	public void setBlockSize(int block_size) {
+		this.blockSize = block_size;
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
+	}
+
+	public void setBufferSize(int buffer_size) {
+		this.bufferSize = buffer_size;
+		stopEngine();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    	startEngine();	
+	}
+
+	public void stopEngine() {
         engineStatus = STOPPING;
     }
     
