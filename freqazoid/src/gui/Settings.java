@@ -48,7 +48,6 @@ public class Settings extends JFrame implements ActionListener {
 	private JPanel panelDFTParameters;
 	private JPanel panelAudioDevices;
 	private JComboBox comboBoxWindowType;
-	private JButton buttonOK;
 	private JButton buttonApply;
 	private JLabel labelNHops;
 	private JLabel labelWindowSize;
@@ -67,6 +66,12 @@ public class Settings extends JFrame implements ActionListener {
 	private JTextField textMPp;
 	private JLabel labelMPp;
 	private JPanel panelMeasuredToPredicted;
+	private JTextField textBlockSize;
+	private JLabel labelBlockSize;
+	private JTextField textBufferSize;
+	private JLabel labelInputOutputBufferSize;
+	private JPanel panelSelectDevice;
+	private JPanel panelBuffers;
 	private JComboBox comboBoxAlgorithm;
 	private JPanel panelAlgorithm;
 	private JTextField textTotalRho;
@@ -135,37 +140,103 @@ public class Settings extends JFrame implements ActionListener {
 					panelAudioDevices.setBounds(378, 133, 273, 175);
 					panelAudioDevices.setPreferredSize(new java.awt.Dimension(462, 175));
 					{
-						labelInputDevice = new JLabel();
-						panelAudioDevices.add(labelInputDevice);
-						labelInputDevice.setText("Input Device:");
-						labelInputDevice.setBounds(14, 14, 119, 14);
+						panelBuffers = new JPanel();
+						FlowLayout panelBuffersLayout = new FlowLayout();
+						panelBuffersLayout.setAlignment(FlowLayout.LEFT);
+						panelAudioDevices.add(panelBuffers);
+						panelBuffers.setBounds(238, 0, 182, 140);
+						panelBuffers.setBorder(BorderFactory.createTitledBorder(BorderFactory.createTitledBorder(""), "Buffers", TitledBorder.LEADING, TitledBorder.TOP));
+						panelBuffers.setLayout(panelBuffersLayout);
+						{
+							labelInputOutputBufferSize = new JLabel();
+							panelBuffers.add(labelInputOutputBufferSize);
+							labelInputOutputBufferSize.setText("Buffer Size:");
+							labelInputOutputBufferSize.setPreferredSize(new java.awt.Dimension(81, 14));
+						}
+						{
+							textBufferSize = new JTextField();
+							panelBuffers.add(textBufferSize);
+							int bufferSize = rm.getAudioEngine().getBufferSize();
+							textBufferSize.setText(
+									Integer.toString(bufferSize)
+							);
+							textBufferSize.setPreferredSize(new java.awt.Dimension(64, 20));
+							textBufferSize
+								.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									int bufferSize = Integer.parseInt( textBufferSize.getText() );
+									rm.getAudioEngine().setBufferSize(bufferSize);
+								}
+								});
+						}
+						{
+							labelBlockSize = new JLabel();
+							panelBuffers.add(labelBlockSize);
+							labelBlockSize.setText("Block Size:");
+							labelBlockSize.setPreferredSize(new java.awt.Dimension(80, 14));
+						}
+						{
+							textBlockSize = new JTextField();
+							panelBuffers.add(textBlockSize);
+							int blockSize = rm.getAudioEngine().getBlockSize();
+							textBlockSize.setText(
+									Integer.toString(blockSize)
+							);
+							textBlockSize.setPreferredSize(new java.awt.Dimension(64, 20));
+							textBlockSize
+								.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									int blockSize = Integer.parseInt( textBlockSize.getText() );
+									rm.getAudioEngine().setBlockSize(blockSize);
+								}
+								});
+						}
 					}
 					{
-						ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(
-						//new String[] { "AudioDevice1", "Input2", "Soundcard3"}
-							inputInfos);
-						comboBoxInputDevice = new JComboBox();
-						panelAudioDevices.add(comboBoxInputDevice);
-						comboBoxInputDevice.setModel(comboBoxInputDeviceModel);
-						comboBoxInputDevice.setBounds(14, 28, 210, 21);
-						comboBoxInputDevice.addActionListener(this);
-					}
-					{
-						labelOutputDevice = new JLabel();
-						panelAudioDevices.add(labelOutputDevice);
-						labelOutputDevice.setText("Output Device:");
-						labelOutputDevice.setBounds(14, 56, 119, 14);
-					}
-					{
-						ComboBoxModel comboBoxOutputDevicesModel = new DefaultComboBoxModel(
-						//						new String[] { "Outputcard1", "Item Two" }
-							outputInfos);
-						comboBoxOutputDevices = new JComboBox();
-						panelAudioDevices.add(comboBoxOutputDevices);
-						comboBoxOutputDevices
-							.setModel(comboBoxOutputDevicesModel);
-						comboBoxOutputDevices.setBounds(14, 73, 210, 21);
-						comboBoxOutputDevices.addActionListener(this);
+						panelSelectDevice = new JPanel();	
+						FlowLayout panelSelectDeviceLayout = new FlowLayout();
+						panelSelectDeviceLayout.setAlignment(FlowLayout.LEFT);
+						panelSelectDevice.setLayout(panelSelectDeviceLayout);
+						panelAudioDevices.add(panelSelectDevice);
+						panelSelectDevice.setBounds(0, 0, 238, 140);
+						panelSelectDevice.setBorder(BorderFactory.createTitledBorder(BorderFactory.createTitledBorder(""), "Select Device", TitledBorder.LEADING, TitledBorder.TOP));
+						
+						{
+							labelInputDevice = new JLabel();
+							panelSelectDevice.add(labelInputDevice);
+							labelInputDevice.setText("Input Device:");
+							labelInputDevice.setBounds(14, 14, 119, 14);
+						}
+						{
+							ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(
+							//new String[] { "AudioDevice1", "Input2", "Soundcard3"}
+								inputInfos);
+							comboBoxInputDevice = new JComboBox();
+							panelSelectDevice.add(comboBoxInputDevice);
+							comboBoxInputDevice
+								.setModel(comboBoxInputDeviceModel);
+							comboBoxInputDevice.setBounds(14, 28, 210, 21);
+							comboBoxInputDevice.setPreferredSize(new java.awt.Dimension(212, 21));
+							comboBoxInputDevice.addActionListener(this);
+						}
+						{
+							labelOutputDevice = new JLabel();
+							panelSelectDevice.add(labelOutputDevice);
+							labelOutputDevice.setText("Output Device:");
+							labelOutputDevice.setBounds(14, 56, 119, 14);
+						}
+						{
+							ComboBoxModel comboBoxOutputDevicesModel = new DefaultComboBoxModel(
+							//						new String[] { "Outputcard1", "Item Two" }
+								outputInfos);
+							comboBoxOutputDevices = new JComboBox();
+							panelSelectDevice.add(comboBoxOutputDevices);
+							comboBoxOutputDevices
+								.setModel(comboBoxOutputDevicesModel);
+							comboBoxOutputDevices.setBounds(14, 73, 210, 21);
+							comboBoxOutputDevices.setPreferredSize(new java.awt.Dimension(213, 21));
+							comboBoxOutputDevices.addActionListener(this);
+						}
 					}
 				}
 				{
@@ -266,17 +337,10 @@ public class Settings extends JFrame implements ActionListener {
 						});
 					}
 					{
-						buttonOK = new JButton();
-						panelDFTParameters.add(buttonOK);
-						buttonOK.setText("OK");
-						buttonOK.setBounds(21, 140, 63, 28);
-						buttonOK.addActionListener(this);
-					}
-					{
 						buttonApply = new JButton();
 						panelDFTParameters.add(buttonApply);
 						buttonApply.setText("Apply");
-						buttonApply.setBounds(105, 140, 77, 28);
+						buttonApply.setBounds(7, 119, 77, 28);
 						buttonApply.addActionListener(this);
 					}
 				}
@@ -301,6 +365,7 @@ public class Settings extends JFrame implements ActionListener {
 								String input = ((JTextField) evt.getSource())
 									.getText();
 								displayRefreshRate = Integer.parseInt(input);
+								rm.getDisplay().setRefreshRate(displayRefreshRate);
 							}
 						});
 					}
@@ -599,19 +664,14 @@ public class Settings extends JFrame implements ActionListener {
 		}
 	}
 	
-	public void apply() {
-		rm.getDisplay().setRefreshRate(displayRefreshRate);
+	public void apply() {		
 		rm.getAudioEngine().getAudioAnalyser().setWindowSizeAndNumberOfHops(windowSize, numberOfHops);
 	}
 
 	public void actionPerformed(ActionEvent ae) {
 		if(ae.getSource()==buttonApply) {
 			apply();
-		}
-		else if( ae.getSource()==buttonOK ) {
-			apply();
-			this.setVisible(false);
-		}
+		}		
 		else if( ae.getSource()==comboBoxInputDevice ) {
 			//System.out.println(comboBoxInputDevice.getSelectedItem().toString());
 			rm.getAudioEngine().changeInputAndOutputLine(comboBoxInputDevice.getSelectedIndex(), comboBoxOutputDevices.getSelectedIndex());

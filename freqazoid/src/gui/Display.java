@@ -29,7 +29,7 @@ public class Display extends JPanel implements Runnable {
 		showPeaks = false;
 		this.setBackground(ColorsAndStrokes.BACKGROUND);
 		displayThread = new Thread(this);
-		refreshRate = 20;
+		refreshRate = 25; // milliseconds
 		antialiased = true;
 	}
 	
@@ -105,9 +105,10 @@ public class Display extends JPanel implements Runnable {
 			g2.setColor( ColorsAndStrokes.GREEN );
 	        for (int i = 0; i < lx-1; i++) {
 				int index = i*amplitude.length/lx;
+				int index2 = (i+1)*amplitude.length/lx;
 //				double sample1 = 60*Math.log10(magnitude[index]+1);
 				
-				Line2D.Double line = new Line2D.Double(i, y0-y0*amplitude[index], i+0.5, y0-y0*amplitude[index+1]);
+				Line2D.Double line = new Line2D.Double(i, y0-y0*amplitude[index], i+1, y0-y0*amplitude[index2]);
 //				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
 	            g2.draw(line);
 			}
