@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import math.Peak;
+import math.Tools;
 
 public class Display extends JPanel implements Runnable, ComponentListener {
 	
@@ -28,6 +29,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	private boolean antialiased;
 	
 	private BufferedImage backgroundFrequencyTracker;
+	private BufferedImage backgroundSpectroscope;
 	
 	protected Thread displayThread;
 		
@@ -51,27 +53,31 @@ public class Display extends JPanel implements Runnable, ComponentListener {
         	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
         
+        int width = this.getWidth();
+        int height = this.getHeight();
+        
         double y0, l;
-        int lx = getWidth();
         
         switch (mode) {
 		case SPECTROSCOPE:
+			if( backgroundSpectroscope == null ) {
+				createBackgroundImages();
+			}
 			double[] magnitude = rm.getAudioEngine().getAudioAnalyser().getMagnitudeSpectrum();			
-			y0 = this.getHeight()-1;
-			l=(double)this.getWidth()/(magnitude.length/2);
+			y0 = height-1;
+			l=(double)width/(magnitude.length/2);
+			
+			g2.setColor( ColorsAndStrokes.GREEN );
 			
 //			for(int i=0; i<magnitude.length/2-1; i++) {		
 //	            double sample1 = 60*Math.log10(magnitude[i]+1);
 //	            double sample2 = 60*Math.log10(magnitude[i+1]+1);
 //	            
 //	            Line2D.Double line = new Line2D.Double(l*i, y0-sample1, l*(i+1), y0-sample2);
-//	            g2.setColor( ColorsAndStrokes.GREEN );
 //	            g2.draw(line);
 //			}
-			
-			g2.setColor( ColorsAndStrokes.GREEN );
-			for (int i = 0; i < lx; i++) {
-				int index = i*magnitude.length/lx/2;
+			for (int i = 0; i < width; i++) {
+				int index = i*magnitude.length/width/2;
 				double sample1 = 60*Math.log10(magnitude[index]+1);
 				
 				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
@@ -90,6 +96,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //            	double f = rm.getAudioEngine().getAudioAnalyser().getFundamentalFrequency();
 //            	Line2D.Double line1 = new Line2D.Double(f*l,0,f*l,y0);
 //            	g2.draw(line1);
+            	
             	g2.setColor( ColorsAndStrokes.YELLOW );
             	double threshold = 60*Math.log10(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()+1);
             	Line2D.Double line2 = new Line2D.Double(0,getHeight()-threshold,getWidth(),getHeight()-threshold);
@@ -107,9 +114,9 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //	            g2.draw(line);
 //	        }     
 			g2.setColor( ColorsAndStrokes.GREEN );
-	        for (int i = 0; i < lx-1; i++) {
-				int index = i*amplitude.length/lx;
-				int index2 = (i+1)*amplitude.length/lx;
+	        for (int i = 0; i < width-1; i++) {
+				int index = i*amplitude.length/width;
+				int index2 = (i+1)*amplitude.length/width;
 //				double sample1 = 60*Math.log10(magnitude[index]+1);
 				
 				Line2D.Double line = new Line2D.Double(i, y0-y0*amplitude[index], i+1, y0-y0*amplitude[index2]);
@@ -125,13 +132,12 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 			
 			y0 = this.getHeight();
 			double[] freqs = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getRecord();
-			l=(double)this.getWidth()/freqs.length;
+			l=(double)width/freqs.length;
 			
 			double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
 			double f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
-			double log102 = 1/Math.log10(2);
 			
-			int nSemiTones = (int)Math.floor(12*log102*Math.log10(f0Max/f0Min));
+			int nSemiTones = (int)Math.floor(12*Tools.LOG_OF_2_BASE_10*Math.log10(f0Max/f0Min));
 			double ly = y0/nSemiTones;
 			
 			g2.drawImage(backgroundFrequencyTracker, 0, 0, null);
@@ -140,8 +146,8 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 			for(int i=0; i<freqs.length-1; i++) {
 				if(freqs[i] > f0Min && freqs[i+1] > f0Min)
 				{
-					double pitch1 = 12*log102*Math.log10(freqs[i]/f0Min);
-					double pitch2 = 12*log102*Math.log10(freqs[i+1]/f0Min);
+					double pitch1 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i]/f0Min);
+					double pitch2 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i+1]/f0Min);
 //					Line2D.Double line = new Line2D.Double(l*i, y0-y0*freqs[i]/1000, l*(i+1), y0-y0*freqs[i+1]/1000);
 					Line2D.Double line = new Line2D.Double(l*i, y0-pitch1*ly, l*(i+1), y0-pitch2*ly);
 					g2.setColor( ColorsAndStrokes.GREEN );
@@ -170,20 +176,21 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	private void createBackgroundImages() {
 		int width = this.getWidth();
 		int height = this.getHeight();
+		Graphics2D g2;
 		
 		backgroundFrequencyTracker = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2 = backgroundFrequencyTracker.createGraphics();
+		g2 = backgroundFrequencyTracker.createGraphics();
 		
 		g2.setColor( ColorsAndStrokes.BACKGROUND );
 		g2.fillRect(0, 0, width, height);
 		
-		double y0 = this.getHeight();
+		double y0 = width;
 		double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
 		double f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
 		double log102 = 1/Math.log10(2);
 		
 		g2.setColor( ColorsAndStrokes.GRAY );
-		Line2D.Double axis = new Line2D.Double(5.0, 0.0, 5.0, getHeight());			
+		Line2D.Double axis = new Line2D.Double(5.0, 0.0, 5.0, height);			
 		g2.draw(axis);
 		
 		int nSemiTones = (int)Math.floor(12*log102*Math.log10(f0Max/f0Min));
@@ -192,7 +199,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //			double f = f0Min*Math.pow(2, i/12.0);
 //			double pitch = 12*log102*Math.log10(f/f0Min);
 //			Line2D.Double line = new Line2D.Double(0, y0-y0*pitch/60, getWidth(), y0-y0*pitch/60);
-			Line2D.Double line = new Line2D.Double(0, y0-i*ly, getWidth(), y0-i*ly);
+			Line2D.Double line = new Line2D.Double(0, y0-i*ly, width, y0-i*ly);
 			g2.setStroke( ColorsAndStrokes.DASHED );
 			g2.draw(line);
 		}
@@ -202,6 +209,12 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //		g2.drawString(String.valueOf(time).substring(0, 5)+"sec", getWidth()-100, getHeight()-5);
 		g2.drawString(String.valueOf(f0Min)+" Hz", 10, getHeight());
 		g2.drawString(String.valueOf(f0Max)+" Hz", 10, 10);
+		
+		backgroundSpectroscope = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		g2 = backgroundSpectroscope.createGraphics();
+		
+		g2.setColor( ColorsAndStrokes.BACKGROUND );
+		g2.fillRect(0, 0, width, height);
 	}
 
 	public int getMode() {
