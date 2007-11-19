@@ -55,4 +55,9 @@ public class ResourceManager {
     	return this.settings;
     }
     
+    public void exitProgram() {
+    	audioEngine.getAudioAnalyser().getRecordFundamental().closeFile();
+    	System.exit(0);
+    }
+    
 }

@@ -121,7 +121,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 					"written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
 		}		
 		else if(ae.getSource() == itemQuit ) {
-			System.exit(0);
+			rm.exitProgram();
 		}		
 		else if(ae.getSource() == itemStartStop ) {
 			if(running==true) {

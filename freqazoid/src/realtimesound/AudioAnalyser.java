@@ -1,11 +1,11 @@
 package realtimesound;
 
-import math.Complex;
+//import math.Complex;
 import math.DFT;
 import math.FFT;
 import math.Peak;
 import math.PeakDetector;
-import math.Tools;
+//import math.Tools;
 import math.TwoWayMismatch;
 
 public class AudioAnalyser {
@@ -13,6 +13,7 @@ public class AudioAnalyser {
 	public static final int TWM = 0;
 	public static final int LEFT_MOST_PEAK = 1;
 	public static final int HIGHEST_PEAK = 2;
+	public static final int NO_FUNDAMENTAL = -1;
 	private int method;
 	
 	private AudioBuffer audioBuffer;
@@ -43,7 +44,7 @@ public class AudioAnalyser {
 		f0Max = 880;		
 		
 		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
-		recordFundamental = new RecordFundamental();
+		recordFundamental = new RecordFundamental(this);
 	}
 	
 	protected void bufferReady() {
@@ -52,7 +53,7 @@ public class AudioAnalyser {
 		magnitude = FFT.magnitudeSpectrum(windowedFrame);
 		peaks = PeakDetector.detectSpectralPeaks( magnitude, peakThreshold );
 		
-		if( peaks.length > 0) {			
+		if( peaks.length > 0) {
 			switch (method) {		
 			case TWM:
 				fundamentalFreqency = TwoWayMismatch.calculateFundamentalFrequency(f0Min, f0Max, peaks);
@@ -63,8 +64,7 @@ public class AudioAnalyser {
 			case HIGHEST_PEAK:
 				Peak maxPeak = peaks[0];
 				for (int i = 0; i < peaks.length; i++) {
-					if( peaks[i].amplitude > maxPeak.amplitude ) {
-						
+					if( peaks[i].amplitude > maxPeak.amplitude ) {						
 						maxPeak = peaks[i];
 					}				
 				}
@@ -72,7 +72,7 @@ public class AudioAnalyser {
 				break;
 			}
 		} else {
-			fundamentalFreqency = -1;
+			fundamentalFreqency = NO_FUNDAMENTAL;
 		}
 		
 		recordFundamental.add( fundamentalFreqency );
