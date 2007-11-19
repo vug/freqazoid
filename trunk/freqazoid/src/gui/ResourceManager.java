@@ -39,7 +39,7 @@ public class ResourceManager {
         display.displayThread.start();
     }
 
-    public JFrame getFrame() {
+    public JFrame getWindow() {
     	return this.window;
     }
     

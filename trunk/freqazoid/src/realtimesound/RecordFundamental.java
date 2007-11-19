@@ -69,7 +69,8 @@ public class RecordFundamental {
 				tf = t;
 				
 				out.format("%10.3f %10.3f %10.1f %n",ti,tf,freq);
-				System.out.println(ti + " - " + tf + ": " + freq);
+//				System.out.println(ti + " - " + tf + ": " + freq);
+				System.out.format("%10.3f %10.3f %10.1f %n",ti,tf,freq);
 				
 				freqPrev = freq;
 				ti=tf;		
@@ -82,7 +83,8 @@ public class RecordFundamental {
 		if ( freqPrev != AudioAnalyser.NO_FUNDAMENTAL && freq == AudioAnalyser.NO_FUNDAMENTAL ) {
 			tf = t;
 			out.format("%10.3f %10.3f %10.1f %n",ti,tf,freqPrev);
-			System.out.println(ti + " - " + tf + ": " + freqPrev);
+//			System.out.println(ti + " - " + tf + ": " + freqPrev);
+			System.out.format("%10.3f %10.3f %10.1f %n",ti,tf,freqPrev);
 			freqPrev = AudioAnalyser.NO_FUNDAMENTAL;
 		}
 		
