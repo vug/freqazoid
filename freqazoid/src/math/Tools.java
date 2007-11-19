@@ -4,6 +4,8 @@ public class Tools {
 	
 	public static final double TWO_PI = 2*Math.PI;
 	
+	public static final double LOG_OF_2_BASE_10 = 1/Math.log10(2);
+	
 	public static double log2(double x) {
 		return Math.log10(x)/Math.log10(2.0);
 	}
