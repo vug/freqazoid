@@ -184,7 +184,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		g2.setColor( ColorsAndStrokes.BACKGROUND );
 		g2.fillRect(0, 0, width, height);
 		
-		double y0 = width;
+		double y0 = height;
 		double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
 		double f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
 		double log102 = 1/Math.log10(2);
