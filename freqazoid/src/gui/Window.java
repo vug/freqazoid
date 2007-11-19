@@ -5,12 +5,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
-
-import sun.awt.WindowClosingListener;
-
 	
 @SuppressWarnings("serial")
-public class Window extends JFrame implements WindowListener{
+public class Window extends JFrame implements WindowListener {
 	
 	private ResourceManager rm;
 	
@@ -26,7 +23,6 @@ public class Window extends JFrame implements WindowListener{
 	}
 
 	public void windowActivated(WindowEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -40,22 +36,18 @@ public class Window extends JFrame implements WindowListener{
 	}
 
 	public void windowDeactivated(WindowEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void windowDeiconified(WindowEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void windowIconified(WindowEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void windowOpened(WindowEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 

@@ -115,7 +115,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 
 	public void actionPerformed(ActionEvent ae) {
 		if( ae.getSource() == itemAbout ) {
-			JOptionPane.showMessageDialog(rm.getFrame(), 
+			JOptionPane.showMessageDialog(rm.getWindow(), 
 					"Real-time implementation of Beauchamp's two-way mismatch algorithm\n" +
 					"(test version)\n"+
 					"written by Ugur Guney", "About", JOptionPane.INFORMATION_MESSAGE);
@@ -136,7 +136,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		} 
 		else if(ae.getSource() == itemOpenSoundFile) {
 			JFileChooser fileChooser = new JFileChooser();
-			int returnValue = fileChooser.showOpenDialog(rm.getFrame());
+			int returnValue = fileChooser.showOpenDialog(rm.getWindow());
 			if( returnValue == JFileChooser.APPROVE_OPTION ) {
 				rm.getAudioEngine().openFile( fileChooser.getSelectedFile() );
 			}
