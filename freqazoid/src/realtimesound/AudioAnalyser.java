@@ -5,6 +5,7 @@ import math.DFT;
 import math.FFT;
 import math.Peak;
 import math.PeakDetector;
+import math.Tools;
 //import math.Tools;
 import math.TwoWayMismatch;
 
@@ -52,6 +53,8 @@ public class AudioAnalyser {
 //		magnitude = Complex.abs( FFT.forward( Tools.makeComplex(windowedFrame)) );
 		magnitude = FFT.magnitudeSpectrum(windowedFrame);
 		peaks = PeakDetector.detectSpectralPeaks( magnitude, peakThreshold );
+		
+//		Tools.printArray(magnitude);
 		
 		if( peaks.length > 0) {
 			switch (method) {		

@@ -89,4 +89,11 @@ public class Tools {
 		}
 		return c;
 	}
+	
+	public static void printArray(double[] arr) {
+		for (double d : arr) {
+			System.out.format("%.4f ", d);
+		}
+		System.out.println();
+	}
 }

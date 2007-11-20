@@ -3,6 +3,9 @@ package math;
 import java.util.Vector;
 
 public class PeakDetector {
+	/*
+	 * tum pointlerin uzerinden ucer ucer gecerek peak'lerin tepelerini tespit et.
+	 */
 	
 	public static final Peak[] detectSpectralPeaks(double[] point, double threshold) {
 		Vector<Peak> peaks = new Vector<Peak>();
