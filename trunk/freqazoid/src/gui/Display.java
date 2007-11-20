@@ -28,6 +28,8 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	private boolean showPeaks;
 	private boolean antialiased;
 	
+	private int width, height;
+	
 	private BufferedImage backgroundFrequencyTracker;
 	private BufferedImage backgroundSpectroscope;
 	
@@ -43,6 +45,8 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		refreshRate = 25; // milliseconds
 		antialiased = true;
 		this.addComponentListener(this);
+		width = this.getWidth();
+		height = this.getHeight();
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -53,43 +57,50 @@ public class Display extends JPanel implements Runnable, ComponentListener {
         	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		}
         
-        int width = this.getWidth();
-        int height = this.getHeight();
+//        int width = this.getWidth();
+//        int height = this.getHeight();
         
-        double y0, l;
+        double y0, l, x0=10.0;
         
         switch (mode) {
 		case SPECTROSCOPE:
 			if( backgroundSpectroscope == null ) {
 				createBackgroundImages();
 			}
+			g2.drawImage(backgroundSpectroscope, 0, 0, null);
+			
 			double[] magnitude = rm.getAudioEngine().getAudioAnalyser().getMagnitudeSpectrum();			
-			y0 = height-1;
-			l=(double)width/(magnitude.length/2);
+			y0 = height-10;
+			l=(double)(width-2*x0)/(magnitude.length/2);
 			
 			g2.setColor( ColorsAndStrokes.GREEN );
 			
-//			for(int i=0; i<magnitude.length/2-1; i++) {		
-//	            double sample1 = 60*Math.log10(magnitude[i]+1);
-//	            double sample2 = 60*Math.log10(magnitude[i+1]+1);
-//	            
-//	            Line2D.Double line = new Line2D.Double(l*i, y0-sample1, l*(i+1), y0-sample2);
-//	            g2.draw(line);
-//			}
-			for (int i = 0; i < width; i++) {
-				int index = i*magnitude.length/width/2;
-				double sample1 = 60*Math.log10(magnitude[index]+1);
-				
-				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
+			double[] points = new double[magnitude.length/2];
+			for (int i = 0; i < points.length; i++) {
+//				points[i] = 60*Math.log10(magnitude[i]+1);
+				points[i] = 20*Math.log10(magnitude[i]/0.001);
+			}
+			for(int i=0; i<points.length-1; i++) {	            
+	            Line2D.Double line = new Line2D.Double(x0+l*i, y0-points[i], x0+l*(i+1), y0-points[i+1]);
 	            g2.draw(line);
 			}
+			
+//			for (int i = 0; i < width; i++) {
+//				int index = i*magnitude.length/2/width;
+//				
+////			double sample1 = 60*Math.log10(magnitude[index]+1);
+//				double sample1 = 20*Math.log10(magnitude[index]/0.0001);
+//				
+//				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
+//	            g2.draw(line);
+//			}
 				            
             if(showPeaks == true) {
             	g2.setColor( ColorsAndStrokes.RED );
             	Peak[] peaks = rm.getAudioEngine().getAudioAnalyser().getPeaks();
             	for(int n=0; n<peaks.length; n++) {
-            		Line2D.Double line1 = new Line2D.Double(peaks[n].frequency*l*magnitude.length/44100,0,
-            												peaks[n].frequency*l*magnitude.length/44100,y0);         		
+            		Line2D.Double line1 = new Line2D.Double(x0+peaks[n].frequency*l*magnitude.length/44100,0,
+            												x0+peaks[n].frequency*l*magnitude.length/44100,y0);         		
             		g2.draw(line1);
             	}
 //            	g2.setColor( Colors.BLUE );
@@ -98,7 +109,8 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //            	g2.draw(line1);
             	
             	g2.setColor( ColorsAndStrokes.YELLOW );
-            	double threshold = 60*Math.log10(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()+1);
+//            	double threshold = 60*Math.log10(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()+1);
+            	double threshold = 20*Math.log10(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()/0.001);
             	Line2D.Double line2 = new Line2D.Double(0,getHeight()-threshold,getWidth(),getHeight()-threshold);
             	g2.draw(line2);
             }
@@ -178,6 +190,36 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		int height = this.getHeight();
 		Graphics2D g2;
 		
+		backgroundSpectroscope = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		g2 = backgroundSpectroscope.createGraphics();
+		
+		g2.setColor( ColorsAndStrokes.BACKGROUND );
+		g2.fillRect(0, 0, width, height);
+		
+		// coordinate center
+		int ox = 10, oy = height - 10;
+		g2.setColor( ColorsAndStrokes.GRAY );
+		// x-axis, frequency-axis
+		g2.drawLine(ox, oy, width-10, oy);
+		int Nx = 22;
+		for(int i=1; i<=Nx; i++) {
+			int deltax = (width-2*10)/Nx; 
+			g2.drawLine(ox+i*deltax, oy-5, ox+i*deltax, oy+5);
+		}
+		g2.drawLine(ox,10,ox,oy);
+		// y-axis, amplitude-axis
+		int Ny = 10;
+		for(int i=1; i<=Ny; i++) {
+			int deltay = (height-2*10);
+			g2.drawLine(ox-5, oy-(i*deltay)/Ny, ox+5, oy-(i*deltay)/Ny);
+			if(i%2==0)g2.drawString(String.valueOf(i*10), 15, oy-(i*deltay)/Ny+4);
+		}
+		
+		g2.drawString("Magnitude vs. Frequency (dB-Hz)", 100, 20);
+		g2.drawString("22 KHz", width-ox-40, oy-10);
+		
+		
+		
 		backgroundFrequencyTracker = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g2 = backgroundFrequencyTracker.createGraphics();
 		
@@ -209,12 +251,6 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //		g2.drawString(String.valueOf(time).substring(0, 5)+"sec", getWidth()-100, getHeight()-5);
 		g2.drawString(String.valueOf(f0Min)+" Hz", 10, getHeight());
 		g2.drawString(String.valueOf(f0Max)+" Hz", 10, 10);
-		
-		backgroundSpectroscope = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		g2 = backgroundSpectroscope.createGraphics();
-		
-		g2.setColor( ColorsAndStrokes.BACKGROUND );
-		g2.fillRect(0, 0, width, height);
 	}
 
 	public int getMode() {
@@ -255,6 +291,10 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 
 	public void componentResized(ComponentEvent arg0) {
 		backgroundFrequencyTracker = null;
+		backgroundSpectroscope = null;
+		
+		width = this.getWidth();
+		height = this.getHeight();
 	}
 
 	public void componentShown(ComponentEvent arg0) {

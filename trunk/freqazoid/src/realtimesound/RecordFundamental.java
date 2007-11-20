@@ -34,8 +34,8 @@ public class RecordFundamental {
 			out = new PrintWriter(new FileWriter(analysisFile));
 			out.println(date);
 			out.println();
-			out.println("Note start and note end are in seconds");
-			out.println("F_0 is in Hz");
+			out.println("'Note Start' and 'Note End' values are in seconds");
+			out.println("'F_0' is in Hz");
 			out.println();
 			out.format("%10s %10s %10s %n","note start","note end","F_0");
 		} catch (IOException e) {
@@ -70,7 +70,7 @@ public class RecordFundamental {
 				
 				out.format("%10.3f %10.3f %10.1f %n",ti,tf,freq);
 //				System.out.println(ti + " - " + tf + ": " + freq);
-				System.out.format("%10.3f %10.3f %10.1f %n",ti,tf,freq);
+//				System.out.format("%10.3f %10.3f %10.1f %n",ti,tf,freq);
 				
 				freqPrev = freq;
 				ti=tf;		
@@ -84,7 +84,7 @@ public class RecordFundamental {
 			tf = t;
 			out.format("%10.3f %10.3f %10.1f %n",ti,tf,freqPrev);
 //			System.out.println(ti + " - " + tf + ": " + freqPrev);
-			System.out.format("%10.3f %10.3f %10.1f %n",ti,tf,freqPrev);
+//			System.out.format("%10.3f %10.3f %10.1f %n",ti,tf,freqPrev);
 			freqPrev = AudioAnalyser.NO_FUNDAMENTAL;
 		}
 		
