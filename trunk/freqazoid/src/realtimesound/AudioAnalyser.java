@@ -5,8 +5,6 @@ import math.DFT;
 import math.FFT;
 import math.Peak;
 import math.PeakDetector;
-import math.Tools;
-//import math.Tools;
 import math.TwoWayMismatch;
 
 public class AudioAnalyser {
@@ -26,10 +24,14 @@ public class AudioAnalyser {
 	
 	private double[] windowedFrame;
 	private double[] magnitude;
+	private double[] magnitudeHalf;
 	private Peak[] peaks;
 	private double f0Min;
 	private double f0Max;
 	private double fundamentalFreqency;
+	
+	private double[] errors1;
+	private double[] ftrials1;
 	
 	private double peakThreshold;
 	
@@ -39,9 +41,9 @@ public class AudioAnalyser {
 		windowSize = 2048;
 		numberOfHops = 2;
 		windowType = DFT.BLACKMANN;
-		peakThreshold = 5.0;
+		peakThreshold = 50.0;
 		fundamentalFreqency = 0.0;
-		f0Min = 220;
+		f0Min = 110;
 		f0Max = 880;		
 		
 		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);
@@ -52,7 +54,18 @@ public class AudioAnalyser {
 		windowedFrame = DFT.window( audioBuffer.getFrame(), windowType );
 //		magnitude = Complex.abs( FFT.forward( Tools.makeComplex(windowedFrame)) );
 		magnitude = FFT.magnitudeSpectrum(windowedFrame);
-		peaks = PeakDetector.detectSpectralPeaks( magnitude, peakThreshold );
+		
+		// only take the first half of the spectrum
+		magnitudeHalf = new double[magnitude.length/2];
+		for(int i=0; i<magnitude.length/2; i++) {
+			magnitudeHalf[i] = magnitude[i];
+		}
+		peaks = PeakDetector.detectSpectralPeaks( magnitudeHalf, peakThreshold );
+		
+//		for(int i=0; i<peaks.length; i++) {
+//			System.out.print(peaks[i].frequency + ", " + peaks[i].amplitude + "\n");
+//		}
+//		System.out.print("\n\n");
 		
 //		Tools.printArray(magnitude);
 		
@@ -60,6 +73,8 @@ public class AudioAnalyser {
 			switch (method) {		
 			case TWM:
 				fundamentalFreqency = TwoWayMismatch.calculateFundamentalFrequency(f0Min, f0Max, peaks);
+				ftrials1 = TwoWayMismatch.getFTrials1();
+				errors1 = TwoWayMismatch.getErrors1();
 				break;
 			case LEFT_MOST_PEAK:
 				fundamentalFreqency = peaks[0].frequency;
@@ -86,6 +101,14 @@ public class AudioAnalyser {
 //		}
 //		System.out.println("");
 //		System.out.println(fundamentalFreqency);
+	}
+	
+	public double[] getErrors1() {
+		return errors1;
+	}
+	
+	public double[] getTrialFrequencies1() {
+		return ftrials1;
 	}
 	
 	public double getFundamentalFrequency() {
