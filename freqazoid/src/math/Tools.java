@@ -8,6 +8,14 @@ public class Tools {
 	
 	public static double log2(double x) {
 		return Math.log10(x)/Math.log10(2.0);
+	}	
+
+	public static final double lin2dB(double lin) {
+		return 20*Math.log10(lin*1000);
+	}
+	
+	public static final double lin2dB2(double lin) {
+		return 20*Math.log10(lin+1);
 	}
 	
 	public static final double[] lowpass(double[] signal, int nPoints) {

@@ -232,6 +232,7 @@ public class AudioEngine implements Runnable {
         try {
 			inputFileStream = AudioSystem.getAudioInputStream(file);
 			inputFileFormat = AudioSystem.getAudioFileFormat(file);
+//			System.out.println( inputFileFormat.toString() );
 			
 //			System.out.println("mark supported? "+ inputFileStream.markSupported() );
 		} catch (UnsupportedAudioFileException e) {

@@ -19,6 +19,7 @@ public class ResourceManager {
     private Display display;
 	private Menu menuBar;
 	private StatusBar statusBar;
+//	private Plotter plotter;
     
     public ResourceManager(AudioEngine audioEngine) {
     	this.audioEngine = audioEngine;

@@ -583,17 +583,15 @@ public class Settings extends JFrame implements ActionListener {
 						{
 							textThreshold = new JTextField();
 							panelThresholdLevel.add(textThreshold);
-							textThreshold.setText("10");
+							textThreshold.setText(Double.toString(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()));
 							textThreshold.setPreferredSize(new java.awt.Dimension(56, 21));
 							textThreshold
 								.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent evt) {
 										//								System.out.println(Double.parseDouble( textThreshold.getText() ));
+										double threshold = Double.parseDouble(textThreshold.getText());
 										rm.getAudioEngine().getAudioAnalyser()
-											.setPeakThreshold(
-												Double
-													.parseDouble(textThreshold
-														.getText()));
+											.setPeakThreshold( threshold );
 									}
 								});
 						}

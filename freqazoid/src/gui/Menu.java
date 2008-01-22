@@ -33,6 +33,7 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private JRadioButtonMenuItem itemSpectroscope;
 	private JRadioButtonMenuItem itemFrequencyTracker;
 	private JCheckBoxMenuItem itemShowPeaks;
+	private JRadioButtonMenuItem itemTWMErrors;
 		
 	private JMenu menuOptions;	
 	private JCheckBoxMenuItem itemMuteMicrophone;
@@ -78,6 +79,11 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		groupView.add(itemFrequencyTracker);
 		menuView.add(itemFrequencyTracker);
 		menuView.add(itemShowPeaks);
+		itemTWMErrors = new JRadioButtonMenuItem("TWM Errors");
+		itemTWMErrors.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.CTRL_MASK));
+		itemTWMErrors.addActionListener(this);
+		groupView.add(itemTWMErrors);
+		menuView.add(itemTWMErrors);
 		
 		menuOptions = new JMenu("Options");
 		itemMuteMicrophone = new JCheckBoxMenuItem("Mute Mic");
@@ -152,6 +158,9 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		}
 		else if(ae.getSource() == itemFrequencyTracker) {
 			rm.getDisplay().setMode(Display.FREQUENCY_TRACKER);
+		}
+		else if(ae.getSource() == itemTWMErrors) {
+			rm.getDisplay().setMode(Display.TWM_ERROR);
 		}
 	}
 

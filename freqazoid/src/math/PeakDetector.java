@@ -11,14 +11,16 @@ public class PeakDetector {
 		Vector<Peak> peaks = new Vector<Peak>();
 		int N = point.length;
 		
+		for (int i = 0; i < point.length; i++) {
+			point[i] = Tools.lin2dB(point[i]);
+		}
+		
 		
 		for(int i=1; i<N-1; i++) {
-//			System.out.print(point[i]+" ");
-			if( point[i]>point[i-1] && point[i+1]<point[i] && point[i]>threshold){
-				peaks.add(new Peak( (i*44100.0)/point.length, point[i]));
+			if( point[i]>point[i-1] && point[i+1]<point[i]&& point[i]>threshold ){
+				peaks.add(new Peak( (i*22050.0)/point.length, point[i]));
 			}
 		}
-//		System.out.print("\n");
 		
 		//System.out.println(peaks.size());
 		peaks.trimToSize();
