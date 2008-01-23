@@ -66,6 +66,11 @@ public class Settings extends JFrame implements ActionListener {
 	private JTextField textMPp;
 	private JLabel labelMPp;
 	private JPanel panelMeasuredToPredicted;
+	private JTextField textNPointsInTheSpectrum;
+	private JLabel labelNPointsInTheSpectrum;
+	private JLabel labelNPointsInTheSpectrumPlot;
+	private JTextField textDuration;
+	private JLabel labelDuration;
 	private JTextField textBlockSize;
 	private JLabel labelBlockSize;
 	private JTextField textBufferSize;
@@ -345,49 +350,6 @@ public class Settings extends JFrame implements ActionListener {
 					}
 				}
 				{
-					panelDisplay = new JPanel();
-					tabbedPane1.addTab("Display", null, panelDisplay, null);
-					panelDisplay.setBounds(392, 112, 133, 84);
-					panelDisplay.setBorder(BorderFactory.createTitledBorder(
-						BorderFactory.createTitledBorder(""),
-						"Display",
-						TitledBorder.LEADING,
-						TitledBorder.TOP));
-					panelDisplay.setLayout(null);
-					{
-						textRefreshRate = new JTextField();
-						panelDisplay.add(textRefreshRate);
-						textRefreshRate.setText(Integer
-							.toString(displayRefreshRate));
-						textRefreshRate.setBounds(14, 28, 42, 21);
-						textRefreshRate.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent evt) {
-								String input = ((JTextField) evt.getSource())
-									.getText();
-								displayRefreshRate = Integer.parseInt(input);
-								rm.getDisplay().setRefreshRate(displayRefreshRate);
-							}
-						});
-					}
-					{
-						labelRefreshRate = new JLabel();
-						panelDisplay.add(labelRefreshRate);
-						labelRefreshRate.setText("Refresh Rate (ms)");
-						labelRefreshRate.setBounds(63, 28, 140, 21);
-					}
-					{
-						checkBoxAntiAlias = new JCheckBox("Anti-aliased lines", true);
-						panelDisplay.add(checkBoxAntiAlias);
-						checkBoxAntiAlias.setBounds(42, 56, 168, 21);
-						checkBoxAntiAlias
-							.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent evt) {
-								rm.getDisplay().setAntialiased( checkBoxAntiAlias.isSelected() );
-							}
-							});
-					}
-				}
-				{
 					panelTwoWayMismatch = new JPanel();
 					tabbedPane1.addTab(
 						"Two-Way Mismatch",
@@ -548,6 +510,7 @@ public class Settings extends JFrame implements ActionListener {
 								public void actionPerformed(ActionEvent evt) {
 									double f0Min = Double.parseDouble(textF0Min.getText());
 									rm.getAudioEngine().getAudioAnalyser().setF0Min(f0Min);
+									rm.getDisplay().refresh();
 								}
 							});
 						}
@@ -568,6 +531,7 @@ public class Settings extends JFrame implements ActionListener {
 								public void actionPerformed(ActionEvent evt) {
 									double f0Max = Double.parseDouble( textF0Max.getText() );
 									rm.getAudioEngine().getAudioAnalyser().setF0Max(f0Max);
+									rm.getDisplay().refresh();
 								}
 							});
 						}
@@ -654,6 +618,108 @@ public class Settings extends JFrame implements ActionListener {
 								}
 								});
 						}
+					}
+				}
+				{
+					panelDisplay = new JPanel();
+					tabbedPane1.addTab("Display", null, panelDisplay, null);
+					panelDisplay.setBounds(392, 112, 133, 84);
+					panelDisplay.setBorder(BorderFactory.createTitledBorder(
+						BorderFactory.createTitledBorder(""),
+						"Display",
+						TitledBorder.LEADING,
+						TitledBorder.TOP));
+					panelDisplay.setLayout(null);
+					{
+						textRefreshRate = new JTextField();
+						panelDisplay.add(textRefreshRate);
+						textRefreshRate.setText(Integer
+							.toString(displayRefreshRate));
+						textRefreshRate.setBounds(14, 28, 42, 21);
+						textRefreshRate.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								String input = ((JTextField) evt.getSource())
+									.getText();
+								displayRefreshRate = Integer.parseInt(input);
+								rm.getDisplay().setRefreshRate(
+									displayRefreshRate);
+							}
+						});
+					}
+					{
+						labelRefreshRate = new JLabel();
+						panelDisplay.add(labelRefreshRate);
+						labelRefreshRate.setText("Refresh Rate (ms)");
+						labelRefreshRate.setBounds(63, 28, 140, 21);
+					}
+					{
+						checkBoxAntiAlias = new JCheckBox(
+							"Anti-aliased lines",
+							true);
+						panelDisplay.add(checkBoxAntiAlias);
+						checkBoxAntiAlias.setBounds(42, 56, 168, 21);
+						checkBoxAntiAlias
+							.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									rm.getDisplay().setAntialiased(
+										checkBoxAntiAlias.isSelected());
+								}
+							});
+					}
+					{
+						labelDuration = new JLabel();
+						panelDisplay.add(labelDuration);
+						labelDuration.setText("duration");
+						labelDuration.setBounds(98, 91, 63, 21);
+					}
+					{
+						textDuration = new JTextField();
+						panelDisplay.add(textDuration);
+						textDuration.setText("23");
+						textDuration.setBounds(28, 84, 63, 28);
+						textDuration.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								String input = ((JTextField) evt.getSource())
+									.getText();
+								double duration = Double.parseDouble(input);
+								rm.getAudioEngine().getAudioAnalyser()
+									.getRecordFundamental().setDuration(
+										duration);
+								rm.getDisplay().refresh();
+							}
+						});
+					}
+					{
+						labelNPointsInTheSpectrumPlot = new JLabel();
+						panelDisplay.add(labelNPointsInTheSpectrumPlot);
+						labelNPointsInTheSpectrumPlot
+							.setText("# of Points in the Spectrum Plot");
+						labelNPointsInTheSpectrumPlot.setBounds(
+							294,
+							-28,
+							63,
+							28);
+					}
+					{
+						labelNPointsInTheSpectrum = new JLabel();
+						panelDisplay.add(labelNPointsInTheSpectrum);
+						labelNPointsInTheSpectrum.setText("# of Points in the Spectrum");
+						labelNPointsInTheSpectrum.setBounds(280, 21, 147, 14);
+					}
+					{
+						textNPointsInTheSpectrum = new JTextField();
+						panelDisplay.add(textNPointsInTheSpectrum);
+						textNPointsInTheSpectrum.setText(
+								Integer.toString(rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2)
+								);
+						textNPointsInTheSpectrum.setBounds(280, 42, 84, 21);
+						textNPointsInTheSpectrum
+							.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								rm.getDisplay().setNOfSpectralPoints(
+										Integer.parseInt(((JTextField)evt.getSource()).getText()));
+							}
+							});
 					}
 				}
 			}

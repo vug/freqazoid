@@ -41,9 +41,9 @@ public class AudioAnalyser {
 		windowSize = 2048;
 		numberOfHops = 2;
 		windowType = DFT.BLACKMANN;
-		peakThreshold = 50.0;
+		peakThreshold = 15.0;
 		fundamentalFreqency = 0.0;
-		f0Min = 110;
+		f0Min = 220;
 		f0Max = 880;		
 		
 		audioBuffer = new AudioBuffer(windowSize, numberOfHops, this);

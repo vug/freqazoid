@@ -6,16 +6,40 @@ public class Tools {
 	
 	public static final double LOG_OF_2_BASE_10 = 1/Math.log10(2);
 	
+	public static final String pitchName(int n) {
+		String pitch = "O";
+		switch(n) {
+		case 0: pitch="C"; break;
+		case 1: pitch="C#"; break;
+		case 2: pitch="D"; break;
+		case 3: pitch="D#"; break;
+		case 4: pitch="E"; break;
+		case 5: pitch="F"; break;
+		case 6: pitch="F#"; break;
+		case 7: pitch="G"; break;
+		case 8: pitch="G#"; break;
+		case 9: pitch="A"; break;
+		case 10: pitch="A#"; break;
+		case 11: pitch="B"; break;
+		}
+		return pitch;
+	}
+	
 	public static double log2(double x) {
 		return Math.log10(x)/Math.log10(2.0);
 	}	
 
-	public static final double lin2dB(double lin) {
+	public static final double lin2dB2(double lin) {
 		return 20*Math.log10(lin*1000);
 	}
 	
-	public static final double lin2dB2(double lin) {
-		return 20*Math.log10(lin+1);
+	public static final double lin2dB(double lin) {
+		return Math.log10(lin+1);
+	}
+	
+	public static double yScale = 100;
+	public static final double m2vMagnitude(double mag) {
+		return yScale*lin2dB(mag);
 	}
 	
 	public static final double[] lowpass(double[] signal, int nPoints) {

@@ -5,9 +5,9 @@ import java.awt.Color;
 
 public class ColorsAndStrokes {
 	
-	public static final Color BACKGROUND =  new Color(100, 100, 100);
-	public static final Color GRAY =  new Color(150, 150, 150);
-	public static final Color GREEN =  new Color(0, 255, 0);
+	public static final Color BACKGROUND =  new Color(150, 150, 150);
+	public static final Color GRAY =  new Color(200, 200, 200);
+	public static final Color GREEN =  new Color(0, 255, 100);
 	public static final Color RED =  new Color(255, 0, 0);
 	public static final Color YELLOW = new Color(255,255,0);
 	public static final Color BLUE = new Color(0,255,255);
