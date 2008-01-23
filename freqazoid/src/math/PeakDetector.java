@@ -12,7 +12,7 @@ public class PeakDetector {
 		int N = point.length;
 		
 		for (int i = 0; i < point.length; i++) {
-			point[i] = Tools.lin2dB(point[i]);
+			point[i] = Tools.m2vMagnitude(point[i]);
 		}
 		
 		

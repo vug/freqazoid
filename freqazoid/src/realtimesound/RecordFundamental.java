@@ -15,9 +15,10 @@ public class RecordFundamental {
 	private double freqPrev;
 	private double t,ti, tf;
 	private AudioAnalyser audioAnalyser;
+	private int nPoints = 500;
 	
 	public RecordFundamental(AudioAnalyser aa) {
-		record = new double[1000];
+		record = new double[nPoints];
 		head = 0;
 		this.audioAnalyser = aa;
 		
@@ -95,7 +96,7 @@ public class RecordFundamental {
 		head++;
 		if(head == record.length) {
 			head = 0;
-			record = new double[1000];
+			record = new double[nPoints];
 		}
 	}
 	
@@ -105,5 +106,15 @@ public class RecordFundamental {
 	
 	public void closeFile() {
 		if(out!=null) out.close();
+	}
+	
+	public void setDuration(double duration) {
+		nPoints = (int)(duration/((double)audioAnalyser.getWindowSize()/44100/audioAnalyser.getNumberOfHops()));		
+		record = new double[nPoints];
+		head = 0;
+	}
+	
+	public double getDuration() {
+		return nPoints*((double)audioAnalyser.getWindowSize()/44100)/audioAnalyser.getNumberOfHops();
 	}
 }
