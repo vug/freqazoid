@@ -33,6 +33,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	private int width, height;
 	
 	private int nSpectralPoints;
+	private double maxMagnitude;
 	
 	private BufferedImage imageFrequencyTrackerPlot;	
 	private BufferedImage backgroundFrequencyTracker;
@@ -54,6 +55,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		height = this.getHeight();
 		
 		nSpectralPoints = rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2;
+		maxMagnitude = 1.0;
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -256,7 +258,6 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		y0 = height-10;
 		x0 = 10;
 		
-//		nSpectralPoints = magnitude.length/2;
 		l=(double)(width-2*x0)/nSpectralPoints;
 		
 		g2.drawImage(backgroundSpectroscope, 0, 0, width, height, null);
@@ -264,22 +265,19 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		
 		double[] points = new double[nSpectralPoints];
 		for (int i = 0; i < nSpectralPoints; i++) {
-			points[i] = Tools.m2vMagnitude(magnitude[i]);
+			points[i] = Tools.lin2dB(magnitude[i])*y0/maxMagnitude;
 		}
 		for(int i=0; i<nSpectralPoints-1; i++) {	            
 		    Line2D.Double line = new Line2D.Double(x0+l*i, y0-points[i], x0+l*(i+1), y0-points[i+1]);
 		    g2.draw(line);
 		}
 		
-//			for (int i = 0; i < width; i++) {
-//				int index = i*magnitude.length/2/width;
-//				
-////			double sample1 = 60*Math.log10(magnitude[index]+1);
-//				double sample1 = 20*Math.log10(magnitude[index]/0.0001);
-//				
-//				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
-//	            g2.draw(line);
-//			}
+//		for (int i = 0; i < width; i++) {
+//			int index = i*nSpectralPoints/width;				
+//			double sample1 = Tools.m2vMagnitude(magnitude[index]);				
+//			Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
+//	           g2.draw(line);
+//		}
 			            
 		if(showPeaks == true) {
 			g2.setColor( ColorsAndStrokes.RED );
@@ -289,13 +287,16 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 														x0+peaks[n].frequency*l*magnitude.length/44100,y0);         		
 				g2.draw(line1);
 			}
-//            	g2.setColor( Colors.BLUE );
-//            	double f = rm.getAudioEngine().getAudioAnalyser().getFundamentalFrequency();
-//            	Line2D.Double line1 = new Line2D.Double(f*l,0,f*l,y0);
-//            	g2.draw(line1);
+            
+			g2.setColor( ColorsAndStrokes.BLUE );
+            double f = rm.getAudioEngine().getAudioAnalyser().getFundamentalFrequency();
+            Line2D.Double lineFund = new Line2D.Double(x0+f*l*magnitude.length/44100,0,x0+f*l*magnitude.length/44100,y0);
+//            Ellipse2D.Double circFund = new Ellipse2D.Double(x0+f*l*magnitude.length/44100-5, y0-5, 10, 10);
+            g2.draw(lineFund);
 			
 			g2.setColor( ColorsAndStrokes.YELLOW );
 			double threshold = rm.getAudioEngine().getAudioAnalyser().getPeakThreshold();
+			threshold = threshold*y0/maxMagnitude;
 			Line2D.Double line2 = new Line2D.Double(0,y0-threshold,getWidth(),y0-threshold);
 			g2.draw(line2);
 		}
@@ -330,11 +331,11 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		g2.setColor( ColorsAndStrokes.GRAY );
 		// x-axis, frequency-axis
 		g2.drawLine(ox, oy, width-10, oy);
-		int Nx = 22;
-		for(int i=1; i<=Nx; i++) {
-			int deltax = (width-2*10)/Nx; 
-			g2.drawLine(ox+i*deltax, oy-5, ox+i*deltax, oy+5);
-		}
+//		int Nx = 22;
+//		for(int i=1; i<=Nx; i++) {
+//			int deltax = (width-2*10)/Nx; 
+//			g2.drawLine(ox+i*deltax, oy-5, ox+i*deltax, oy+5);
+//		}
 		g2.drawLine(ox,10,ox,oy);
 		
 		// y-axis, amplitude-axis, dB
@@ -405,7 +406,17 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	
 	public void setNOfSpectralPoints(int N) {
 		nSpectralPoints = N;
-		System.out.println(nSpectralPoints);
 		refresh();
 	}
+
+	public double getMaximumMagnitude() {
+		return maxMagnitude;
+	}
+
+	public void setMaximumMagnitude(double maxMagnitude) {
+		this.maxMagnitude = maxMagnitude;
+		refresh();
+	}
+	
+	
 }
