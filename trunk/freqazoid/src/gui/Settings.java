@@ -1,5 +1,6 @@
 package gui;
 import java.awt.FlowLayout;
+import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -66,6 +67,8 @@ public class Settings extends JFrame implements ActionListener {
 	private JTextField textMPp;
 	private JLabel labelMPp;
 	private JPanel panelMeasuredToPredicted;
+	private JTextField jTextField1;
+	private JLabel textMaximumMagnitude;
 	private JTextField textNPointsInTheSpectrum;
 	private JLabel labelNPointsInTheSpectrum;
 	private JLabel labelNPointsInTheSpectrumPlot;
@@ -720,6 +723,24 @@ public class Settings extends JFrame implements ActionListener {
 										Integer.parseInt(((JTextField)evt.getSource()).getText()));
 							}
 							});
+					}
+					{
+						textMaximumMagnitude = new JLabel();
+						panelDisplay.add(textMaximumMagnitude);
+						textMaximumMagnitude.setText("Maximum Magnitude");
+						textMaximumMagnitude.setBounds(252, 84, 112, 21);
+					}
+					{
+						jTextField1 = new JTextField();
+						panelDisplay.add(jTextField1);
+						jTextField1.setText(Double.toString(rm.getDisplay().getMaximumMagnitude()));
+						jTextField1.setBounds(245, 112, 70, 21);
+						jTextField1.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								double max = Double.parseDouble(((JTextField)evt.getSource()).getText());
+								rm.getDisplay().setMaximumMagnitude(max);
+							}
+						});
 					}
 				}
 			}
