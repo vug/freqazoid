@@ -21,6 +21,8 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import sun.nio.cs.ext.ISCII91;
+
 public class AudioEngine implements Runnable {
 	
     private static final int SAMPLE_RATE = 44100;
@@ -46,6 +48,8 @@ public class AudioEngine implements Runnable {
     private AudioInputStream inputFileStream;
     private AudioFileFormat inputFileFormat;
     private File inputFile;
+    private int fileStatus;
+    public static final int PLAYING = 0, ENDED = 1;
     
     private boolean muteMicrophone;
     public boolean muteFile;
@@ -64,12 +68,16 @@ public class AudioEngine implements Runnable {
         muteFile = true;
         
         engineStatus = STOPPED;
+        fileStatus = ENDED;
         int frameSizeInBytes = BIT_DEPTH/8;
         int frameRate = SAMPLE_RATE;
         format = new  AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 SAMPLE_RATE, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, BIG_ENDIAN);
+        AudioFormat format2 = new  AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                22050, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, BIG_ENDIAN);
         
         System.out.println("audio format: "+format.toString());
+        System.out.println("conversion supported: "+AudioSystem.isConversionSupported(format, format2));
         
         // Find the Mixer's in the computer        
         mixerInfo = AudioSystem.getMixerInfo();
@@ -169,9 +177,16 @@ public class AudioEngine implements Runnable {
 //                	numBytesRead =  inputLine.read(dataFromMic, 0, dataFromMic.length);
                 	inputLine.read(dataFromMic, 0, dataFromMic.length);
                 	
-                	if ( !muteFile && inputFile != null ) {
+                	if ( fileStatus == PLAYING && inputFile != null ) {
                 		try {
-							inputFileStream.read(dataFromFile);
+							int position = inputFileStream.read(dataFromFile);
+							if( position == -1 ) {
+								inputFileStream.close();
+//								inputFile = null;
+								fileStatus = ENDED;
+								System.out.println("dosya bitti");
+								dataFromFile = new byte[blockSize*2];
+							}
                 		} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -231,8 +246,12 @@ public class AudioEngine implements Runnable {
 //        System.out.println("can read the file? "+ file.canRead() );
         try {
 			inputFileStream = AudioSystem.getAudioInputStream(file);
+			// for conversion...
+//			inputFileStream = AudioSystem.getAudioInputStream(format, inputFileStream);
 			inputFileFormat = AudioSystem.getAudioFileFormat(file);
-//			System.out.println( inputFileFormat.toString() );
+			System.out.println("duration: "+ inputFileFormat.getFrameLength()/inputFileFormat.getFormat().getSampleRate() );
+			System.out.println("sample rate: "+inputFileFormat.getFormat().getSampleRate());
+			System.out.println("type: "+inputFileFormat.getType());
 			
 //			System.out.println("mark supported? "+ inputFileStream.markSupported() );
 		} catch (UnsupportedAudioFileException e) {
@@ -241,7 +260,7 @@ public class AudioEngine implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(inputFileFormat.toString());
+		fileStatus = PLAYING;
     }
     
     public void reopenFile() {
