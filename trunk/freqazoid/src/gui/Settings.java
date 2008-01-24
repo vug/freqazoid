@@ -85,7 +85,7 @@ public class Settings extends JFrame implements ActionListener {
 	private JTextField textTotalRho;
 	private JLabel labelTotalRho;
 	private JPanel panelTotalError;
-	private JPanel panelThresholdLevel;
+	private JPanel panelNMaxPeaks;
 	private JLabel labelF0Max;
 	private JTextField textPMr;
 	private JLabel labelPMr;
@@ -97,7 +97,7 @@ public class Settings extends JFrame implements ActionListener {
 	private JTextField textF0Max;
 	private JTextField textF0Min;
 	private JCheckBox checkBoxAntiAlias;
-	private JTextField textThreshold;
+	private JTextField textNMaxPeaks;
 	private JPanel panelTwoWayMismatch;
 	private JTabbedPane tabbedPane1;
 	private int windowSize;
@@ -540,24 +540,24 @@ public class Settings extends JFrame implements ActionListener {
 						}
 					}
 					{
-						panelThresholdLevel = new JPanel();
+						panelNMaxPeaks = new JPanel();
 						FlowLayout panelThresholdLevelLayout = new FlowLayout();
 						panelThresholdLevelLayout.setAlignment(FlowLayout.LEFT);
-						panelThresholdLevel.setLayout(panelThresholdLevelLayout);
-						panelTwoWayMismatch.add(panelThresholdLevel);
-						panelThresholdLevel.setBounds(7, 7, 217, 56);
-						panelThresholdLevel.setBorder(BorderFactory.createTitledBorder("Threshold Level"));
+						panelNMaxPeaks.setLayout(panelThresholdLevelLayout);
+						panelTwoWayMismatch.add(panelNMaxPeaks);
+						panelNMaxPeaks.setBounds(7, 7, 217, 56);
+						panelNMaxPeaks.setBorder(BorderFactory.createTitledBorder("Max Number of Peaks"));
 						{
-							textThreshold = new JTextField();
-							panelThresholdLevel.add(textThreshold);
-							textThreshold.setText(Double.toString(PeakDetector.getPeakThreshold()));
-							textThreshold.setPreferredSize(new java.awt.Dimension(56, 21));
-							textThreshold
+							textNMaxPeaks = new JTextField();
+							panelNMaxPeaks.add(textNMaxPeaks);
+							textNMaxPeaks.setText(Double.toString(PeakDetector.getNMaxPeaks()));
+							textNMaxPeaks.setPreferredSize(new java.awt.Dimension(56, 21));
+							textNMaxPeaks
 								.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent evt) {
 										//								System.out.println(Double.parseDouble( textThreshold.getText() ));
-										double threshold = Double.parseDouble(textThreshold.getText());
-										PeakDetector.setPeakThreshold( threshold );
+										int maxPeaks = Integer.parseInt(textNMaxPeaks.getText());
+										PeakDetector.setNMaxPeaks(maxPeaks);
 									}
 								});
 						}
