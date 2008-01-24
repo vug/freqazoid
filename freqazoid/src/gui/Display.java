@@ -47,6 +47,10 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	private int spectroscopeOldNSpectralPoints;
 	private double spectroscopeMaxMagnitude;
 	private double spectroscopeOldMaxMagnitude;
+	private double spectroscopeThreshold;
+	private double spectroscopeOldThreshold;
+	private double spectroscopeThresholdStriffness;
+	private double spectroscopeOldThresholdStriffness;
 	
 	private double f0Min;
 	private double f0OldMin;
@@ -338,11 +342,11 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 			
             // threshold line
 			g2.setColor( ColorsAndStrokes.YELLOW );
-			double threshold = PeakDetector.getPeakThreshold();
-			threshold = threshold*y0/spectroscopeMaxMagnitude;
-			line.setLine(0,y0-threshold,getWidth(),y0-threshold);
-			g2.draw(line);
-			
+			spectroscopeThreshold = PeakDetector.getPeakThreshold();
+//			threshold = threshold*y0/spectroscopeMaxMagnitude;
+//			line.setLine(0,y0-threshold,getWidth(),y0-threshold);
+//			g2.draw(line);
+			double threshold;
 			for(int i=0; i<spectrosopceNSpectralPoints; i++) {
 				double freq = i*44100/magnitude.length;
 				threshold =	PeakDetector.threshold(freq);
@@ -474,29 +478,30 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	}
 
 	public void mouseClicked(MouseEvent me) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void mousePressed(MouseEvent me) {
 		// TODO Auto-generated method stub		
 		mousePressedPoint = me.getPoint();
+		
 		oscilloscopeOldMaxAmplitude = oscilloscopeMaxAmplitude;
 		spectroscopeOldMaxMagnitude = spectroscopeMaxMagnitude;
 		spectroscopeOldNSpectralPoints = spectrosopceNSpectralPoints;
+		spectroscopeOldThreshold = spectroscopeThreshold;
+		spectroscopeOldThresholdStriffness = PeakDetector.getPeakThresholdStiffness();
+		
 		f0OldMin = f0Min;
 		f0OldMax = f0Max;
-		freqTrackerOldDuration = freqTrackerDuration;
+		freqTrackerOldDuration = freqTrackerDuration;		
 //		System.out.println("p: "+mousePressedPoint.x +", "+mousePressedPoint.y);		
 	}
 
@@ -518,21 +523,30 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 				backgroundSpectroscope = null;
 				spectroscopeMaxMagnitude = spectroscopeOldMaxMagnitude*Math.exp(deltaY);
 //				System.out.println(spectroscopeMaxMagnitude);
+			} else if( mode == FREQUENCY_TRACKER ) {
+				backgroundFrequencyTracker = null;
+				rm.getAudioEngine().getAudioAnalyser().setF0Max( f0OldMax*Math.exp(-deltaY) );
+			}
+		} else if((me.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) == MouseEvent.SHIFT_DOWN_MASK) {
+			if( mode == SPECTROSCOPE ) {
+				backgroundSpectroscope = null;
 				int nNewPoints = spectroscopeOldNSpectralPoints+(int)(deltaX*1000);
 				if(nNewPoints < rm.getAudioEngine().getAudioAnalyser().getMagnitudeSpectrum().length/2 &&
 					nNewPoints > 0) {
 					spectrosopceNSpectralPoints = nNewPoints;
 				}
-//				System.out.println(spectrosopceNSpectralPoints);				
-			} else if( mode == FREQUENCY_TRACKER ) {
-				backgroundFrequencyTracker = null;
-				rm.getAudioEngine().getAudioAnalyser().setF0Max( f0OldMax*Math.exp(-deltaY) );
-//				rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getDuration();
-				rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().setDuration( freqTrackerOldDuration+(deltaX*5) );
+//				System.out.println(spectrosopceNSpectralPoints);
+				} else if (mode == FREQUENCY_TRACKER ) {
+					backgroundFrequencyTracker = null;
+					rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().setDuration( freqTrackerOldDuration+(deltaX*5) );				
 			}
 		}
-		if( (me.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != MouseEvent.CTRL_DOWN_MASK ) {
-			if( mode == FREQUENCY_TRACKER ) {
+		// no button pressed
+		else {
+			if( mode == SPECTROSCOPE ) {
+				PeakDetector.setPeakThreshold( spectroscopeOldThreshold-deltaY);
+				PeakDetector.setPeakThresholdStiffness( spectroscopeOldThresholdStriffness-5*deltaX);
+			} else if( mode == FREQUENCY_TRACKER ) {
 				backgroundFrequencyTracker = null;
 				rm.getAudioEngine().getAudioAnalyser().setF0Max( f0OldMax*Math.exp(-deltaY) );
 				rm.getAudioEngine().getAudioAnalyser().setF0Min( f0OldMin*Math.exp(-deltaY) );
@@ -541,7 +555,6 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	
