@@ -15,8 +15,10 @@ public class StatusBar extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 4971656319853172047L;
 	private JLabel labelWidthDuration;
 	private JLabel labelHopSize;
-	private JButton buttonPlayPause;
+	private JButton buttonStart;
 	private JButton buttonStop;
+	private JButton buttonFreeze;
+	private JButton buttonClear;
 	private ResourceManager rm;
 	
 	public StatusBar(ResourceManager rm) {
@@ -37,15 +39,25 @@ public class StatusBar extends JPanel implements ActionListener {
 		//this.setMaximumSize(new Dimension(1000,20));
 		//this.setPreferredSize(new Dimension(10,20));
 		//labelWidthDuration.setAlignmentX(Component.);
-		buttonPlayPause = new JButton("Play");		
-		buttonPlayPause.setPreferredSize(new Dimension(60,10));
-		buttonPlayPause.addActionListener(this);
-		this.add(buttonPlayPause);
+		buttonStart = new JButton("Start");		
+		buttonStart.setPreferredSize(new Dimension(65,10));
+		buttonStart.addActionListener(this);
+		this.add(buttonStart);
 		
 		buttonStop = new JButton("Stop");		
 		buttonStop.setPreferredSize(new Dimension(60,10));
 		buttonStop.addActionListener(this);
 		this.add(buttonStop);
+		
+		buttonFreeze = new JButton("Freeze");
+		buttonFreeze.setPreferredSize(new Dimension(80,10));
+		buttonFreeze.addActionListener(this);
+		this.add(buttonFreeze);
+		
+		buttonClear = new JButton("Clear");
+		buttonClear.setPreferredSize(new Dimension(60,10));
+		buttonClear.addActionListener(this);
+		this.add(buttonClear);
 		
 		this.add(Box.createHorizontalGlue());
 		this.add(labelHopSize);
@@ -53,12 +65,15 @@ public class StatusBar extends JPanel implements ActionListener {
 	}
 	public void actionPerformed(ActionEvent ae) {
 		JButton source = (JButton) ae.getSource();
-		if(source == buttonPlayPause) {
+		if(source == buttonStart) {
 			rm.getAudioEngine().reopenFile();
 			rm.getAudioEngine().muteFile = false;
 		} else if(source == buttonStop) {
-			rm.getAudioEngine().muteFile = true;
-			
+			rm.getAudioEngine().muteFile = true;			
+		} else if(source == buttonFreeze) {
+			rm.getAudioEngine().pauseEngine();
+		} else if(source == buttonClear) {
+			rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().reset();
 		}
 	}
 
