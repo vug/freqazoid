@@ -95,8 +95,7 @@ public class RecordFundamental {
 		record[head] = freq;
 		head++;
 		if(head == record.length) {
-			head = 0;
-			record = new double[nPoints];
+			reset();
 		}
 	}
 	
@@ -108,8 +107,16 @@ public class RecordFundamental {
 		if(out!=null) out.close();
 	}
 	
+	public int getHeadPoisition() {
+		return head;
+	}
+	
 	public void setDuration(double duration) {
 		nPoints = (int)(duration/((double)audioAnalyser.getWindowSize()/44100/audioAnalyser.getNumberOfHops()));		
+		reset();
+	}
+	
+	public void reset() {
 		record = new double[nPoints];
 		head = 0;
 	}
