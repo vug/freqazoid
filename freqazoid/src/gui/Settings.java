@@ -1,6 +1,5 @@
 package gui;
 import java.awt.FlowLayout;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -22,6 +21,7 @@ import javax.swing.border.TitledBorder;
 import realtimesound.AudioAnalyser;
 
 import math.DFT;
+import math.PeakDetector;
 import math.TwoWayMismatch;
 
 /**
@@ -550,15 +550,14 @@ public class Settings extends JFrame implements ActionListener {
 						{
 							textThreshold = new JTextField();
 							panelThresholdLevel.add(textThreshold);
-							textThreshold.setText(Double.toString(rm.getAudioEngine().getAudioAnalyser().getPeakThreshold()));
+							textThreshold.setText(Double.toString(PeakDetector.getPeakThreshold()));
 							textThreshold.setPreferredSize(new java.awt.Dimension(56, 21));
 							textThreshold
 								.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent evt) {
 										//								System.out.println(Double.parseDouble( textThreshold.getText() ));
 										double threshold = Double.parseDouble(textThreshold.getText());
-										rm.getAudioEngine().getAudioAnalyser()
-											.setPeakThreshold( threshold );
+										PeakDetector.setPeakThreshold( threshold );
 									}
 								});
 						}
