@@ -33,15 +33,12 @@ public class AudioAnalyser {
 	private double[] errors1;
 	private double[] ftrials1;
 	
-	private double peakThreshold;
-	
 	public static final int NO_PEAK = -1;
 	
 	public AudioAnalyser() {
 		windowSize = 2048;
 		numberOfHops = 2;
 		windowType = DFT.BLACKMANN;
-		peakThreshold = 0.2;
 		fundamentalFreqency = 0.0;
 		f0Min = 220;
 		f0Max = 880;		
@@ -60,7 +57,7 @@ public class AudioAnalyser {
 		for(int i=0; i<magnitude.length/2; i++) {
 			magnitudeHalf[i] = magnitude[i];
 		}
-		peaks = PeakDetector.detectSpectralPeaks( magnitudeHalf, peakThreshold );
+		peaks = PeakDetector.detectSpectralPeaks( magnitudeHalf, PeakDetector.getPeakThreshold());
 		
 //		for(int i=0; i<peaks.length; i++) {
 //			System.out.print(peaks[i].frequency + ", " + peaks[i].amplitude + "\n");
@@ -161,14 +158,6 @@ public class AudioAnalyser {
 	
 	public Peak[] getPeaks() {
 		return peaks;
-	}
-
-	public double getPeakThreshold() {
-		return peakThreshold;
-	}
-
-	public void setPeakThreshold(double peakThreshold) {
-		this.peakThreshold = peakThreshold;
 	}
 
 	public RecordFundamental getRecordFundamental() {
