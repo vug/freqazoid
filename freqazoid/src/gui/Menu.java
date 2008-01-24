@@ -71,14 +71,15 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		itemSpectroscope.addActionListener(this);
 		groupView.add(itemSpectroscope);
 		menuView.add(itemSpectroscope);
-		itemShowPeaks = new JCheckBoxMenuItem("Show Peaks");
+		itemShowPeaks = new JCheckBoxMenuItem("Spectroscope with Peaks");
+		itemShowPeaks.setSelected(rm.getDisplay().getShowPeaks());
 		itemShowPeaks.addItemListener(this);
+		menuView.add(itemShowPeaks);
 		itemFrequencyTracker = new JRadioButtonMenuItem("Frequency Tracker");
 		itemFrequencyTracker.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
 		itemFrequencyTracker.addActionListener(this);
 		groupView.add(itemFrequencyTracker);
 		menuView.add(itemFrequencyTracker);
-		menuView.add(itemShowPeaks);
 		itemTWMErrors = new JRadioButtonMenuItem("TWM Errors");
 		itemTWMErrors.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.CTRL_MASK));
 		itemTWMErrors.addActionListener(this);
