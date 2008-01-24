@@ -3,20 +3,23 @@ package gui;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
 import math.Peak;
 import math.PeakDetector;
 import math.Tools;
 
-public class Display extends JPanel implements Runnable, ComponentListener {
+public class Display extends JPanel implements Runnable, ComponentListener, MouseInputListener {
 	
 	private static final long serialVersionUID = -5114358819176793973L;
 	private ResourceManager rm;
@@ -29,17 +32,35 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	
 	private int refreshRate;
 	
-	private boolean showPeaks;
 	private boolean antialiased;
 	
 	private int width, height;
 	
-	private int nSpectralPoints;
-	private double maxMagnitude;
+	private Line2D.Double line;
+	private double[] amplitude;
+	private double oscilloscopeMaxAmplitude;
+	private double oscilloscopeOldMaxAmplitude;
+	double y0;
+	
+	private boolean showPeaks;
+	private int spectrosopceNSpectralPoints;
+	private int spectroscopeOldNSpectralPoints;
+	private double spectroscopeMaxMagnitude;
+	private double spectroscopeOldMaxMagnitude;
+	
+	private double f0Min;
+	private double f0OldMin;
+	private double f0Max;	
+	private double f0OldMax;
+	private double freqTrackerDuration;
+	private double freqTrackerOldDuration;
 	
 	private BufferedImage imageFrequencyTrackerPlot;	
 	private BufferedImage backgroundFrequencyTracker;
 	private BufferedImage backgroundSpectroscope;
+	
+	private Point mousePressedPoint;
+	private Point mouseDraggedPoint;
 	
 	protected Thread displayThread;
 		
@@ -47,7 +68,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		super();
 		this.rm = rm;
 		mode = SPECTROSCOPE;
-		showPeaks = true;
+		showPeaks = false;
 		this.setBackground(ColorsAndStrokes.BACKGROUND);
 		displayThread = new Thread(this);
 		refreshRate = 50; // milliseconds
@@ -55,9 +76,15 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		this.addComponentListener(this);
 		width = this.getWidth();
 		height = this.getHeight();
+		line = new Line2D.Double(0,0,10,10);
+
+		spectrosopceNSpectralPoints = rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2;
+		spectroscopeMaxMagnitude = 1.0;
+		oscilloscopeMaxAmplitude = 0.1;
 		
-		nSpectralPoints = rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2;
-		maxMagnitude = 1.0;
+		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
+		
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -116,12 +143,11 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 				double e1 = errors[i];
 				double e2 = errors[i+1];
 				
-				g2.draw( new Line2D.Double(
-						width*(ftrials[i]-f0Min)/xlength,
+				line.setLine(width*(ftrials[i]-f0Min)/xlength,
 						height-height*(e1-y0Min)/ylength,
 						width*(ftrials[i+1]-f0Min)/xlength,
-						height-height*(e2-y0Min)/ylength
-				));
+						height-height*(e2-y0Min)/ylength);
+				g2.draw(line);
 				
 				g2.draw(new Ellipse2D.Double(
 						width*(ftrials[i]-f0Min)/xlength,
@@ -144,14 +170,14 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		}
 		g2.drawImage(backgroundFrequencyTracker, 0, 0, null);
 		
-		double y0 = imageFrequencyTrackerPlot.getHeight();
+		y0 = imageFrequencyTrackerPlot.getHeight();
 		double[] freqs = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getRecord();
 		int headPosition = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getHeadPoisition();
 		
 		double l=(double)imageFrequencyTrackerPlot.getWidth()/freqs.length;
 		
-		double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
-		double f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
+		f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
+		f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
 		
 		double ylength = 12*Tools.LOG_OF_2_BASE_10*Math.log10(f0Max/f0Min); 
 		
@@ -161,14 +187,15 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 			{
 				double pitch1 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i]/f0Min);
 				double pitch2 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i+1]/f0Min);
-				Line2D.Double line = new Line2D.Double(l*i, y0-y0*pitch1/ylength, l*(i+1), y0-y0*pitch2/ylength);
+				line.setLine(l*i, y0-y0*pitch1/ylength, l*(i+1), y0-y0*pitch2/ylength);
 				g2.setColor( ColorsAndStrokes.GREEN );
 				g2.draw(line);
 			}
 		}
 		g2.setColor( ColorsAndStrokes.YELLOW );
-		Line2D.Double positionIndicator  = new Line2D.Double(l*headPosition, 0, l*headPosition, y0);
-		g2.draw(positionIndicator);
+		// position indicator
+		line.setLine(l*headPosition, 0, l*headPosition, y0);
+		g2.draw(line);
 	}
 	
 	private void createFrequencyTrackerBackground(int width, int height) {
@@ -180,7 +207,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		g2.setColor( ColorsAndStrokes.BACKGROUND );
 		g2.fillRect(0, 0, width, height);
 		
-		double y0 = height;
+		y0 = height;
 		double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
 		double f0Max = rm.getAudioEngine().getAudioAnalyser().getF0Max();
 		
@@ -206,8 +233,9 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		
 		g2.setColor( ColorsAndStrokes.GRAY );
 		
-		Line2D.Double xAxis = new Line2D.Double(0.0, height-1, width, height-1);			
-		g2.draw(xAxis);		
+		// x-axis
+		line.setLine(0.0, height-1, width, height-1);			
+		g2.draw(line);		
 		
 		g2.setStroke( ColorsAndStrokes.DASHED );
 		int nSemiTones = (int)Math.floor(12*log102*Math.log10(f0Max/f0Min));
@@ -216,7 +244,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 			double f = fC0*Math.pow(2, (nMin+i)/12.0);
 			double pitch = 12*Tools.LOG_OF_2_BASE_10*Math.log10(f/f0Min);
 			g2.setColor( ColorsAndStrokes.GRAY );
-			Line2D.Double line = new Line2D.Double(0, y0-y0*pitch/ylength, width, y0-y0*pitch/ylength);			
+			line.setLine(0, y0-y0*pitch/ylength, width, y0-y0*pitch/ylength);			
 			g2.draw(line);
 			g2.setColor( ColorsAndStrokes.WHITE );
 			g2.setFont(new Font("Dialog", Font.PLAIN, 10));
@@ -225,9 +253,9 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 			}
 		}
 		
-		double duration = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getDuration();		
-		for(int i=1; i<=(int)duration; i++) {
-			Line2D.Double line = new Line2D.Double(i*width/duration, 0, i*width/duration, height);
+		freqTrackerDuration = rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getDuration();		
+		for(int i=1; i<=(int)freqTrackerDuration; i++) {
+			line.setLine(i*width/freqTrackerDuration, 0, i*width/freqTrackerDuration, height);
 			g2.draw(line);
 		}
 	}
@@ -235,7 +263,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 
 	private void drawOscilloscope(Graphics2D g2) {
 		double y0;
-		double[] amplitude = rm.getAudioEngine().getAudioAnalyser().getCurrentFrame();
+		amplitude = rm.getAudioEngine().getAudioAnalyser().getCurrentFrame();
 		y0 = this.getHeight()/2;
 //			l=(double)this.getWidth()/amplitude.length;
 //	        for(int i=0; i<amplitude.length-1; i++) {           
@@ -243,13 +271,14 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //	            g2.setColor( ColorsAndStrokes.GREEN );
 //	            g2.draw(line);
 //	        }     
+		int index, index2;
 		g2.setColor( ColorsAndStrokes.GREEN );
 		for (int i = 0; i < width-1; i++) {
-			int index = i*amplitude.length/width;
-			int index2 = (i+1)*amplitude.length/width;
+			index = i*amplitude.length/width;
+			index2 = (i+1)*amplitude.length/width;
 //				double sample1 = 60*Math.log10(magnitude[index]+1);
 			
-			Line2D.Double line = new Line2D.Double(i, y0-y0*amplitude[index], i+1, y0-y0*amplitude[index2]);
+			line.setLine(i, y0-y0*amplitude[index]/oscilloscopeMaxAmplitude, i+1, y0-y0*amplitude[index2]/oscilloscopeMaxAmplitude);
 //				Line2D.Double line = new Line2D.Double(i, y0, i, y0-sample1);	            
 		    g2.draw(line);
 		}
@@ -257,7 +286,6 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 
 
 	private void drawSpectroscope(Graphics2D g2) {
-		double y0;
 		double l;
 		double x0;
 		
@@ -269,17 +297,17 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		y0 = height-10;
 		x0 = 10;
 		
-		l=(double)(width-2*x0)/nSpectralPoints;
+		l=(double)(width-2*x0)/spectrosopceNSpectralPoints;
 		
 		g2.drawImage(backgroundSpectroscope, 0, 0, width, height, null);
 		g2.setColor( ColorsAndStrokes.GREEN );
 		
-		double[] points = new double[nSpectralPoints];
-		for (int i = 0; i < nSpectralPoints; i++) {
-			points[i] = Tools.lin2dB(magnitude[i])*y0/maxMagnitude;
+		double[] points = new double[spectrosopceNSpectralPoints];
+		for (int i = 0; i < spectrosopceNSpectralPoints; i++) {
+			points[i] = Tools.lin2dB(magnitude[i])*y0/spectroscopeMaxMagnitude;
 		}
-		for(int i=0; i<nSpectralPoints-1; i++) {	            
-		    Line2D.Double line = new Line2D.Double(x0+l*i, y0-points[i], x0+l*(i+1), y0-points[i+1]);
+		for(int i=0; i<spectrosopceNSpectralPoints-1; i++) {	            
+		    line.setLine(x0+l*i, y0-points[i], x0+l*(i+1), y0-points[i+1]);
 		    g2.draw(line);
 		}
 		
@@ -297,27 +325,29 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 //				Line2D.Double line1 = new Line2D.Double(x0+peaks[n].frequency*l*magnitude.length/44100,0,
 //														x0+peaks[n].frequency*l*magnitude.length/44100,y0);         		
 //				g2.draw(line1);
-				Ellipse2D.Double circle = new Ellipse2D.Double(x0+peaks[n].frequency*l*magnitude.length/44100-2, y0-Tools.lin2dB(peaks[n].amplitude)*y0/maxMagnitude-2, 4, 4);
+				Ellipse2D.Double circle = new Ellipse2D.Double(x0+peaks[n].frequency*l*magnitude.length/44100-2, y0-Tools.lin2dB(peaks[n].amplitude)*y0/spectroscopeMaxMagnitude-2, 4, 4);
 				g2.fill(circle);
 			}
             
 			g2.setColor( ColorsAndStrokes.BLUE );
             double f = rm.getAudioEngine().getAudioAnalyser().getFundamentalFrequency();
-            Line2D.Double lineFund = new Line2D.Double(x0+f*l*magnitude.length/44100,0,x0+f*l*magnitude.length/44100,y0);
+            // fundamental
+            line.setLine(x0+f*l*magnitude.length/44100,0,x0+f*l*magnitude.length/44100,y0);
 //            Ellipse2D.Double circFund = new Ellipse2D.Double(x0+f*l*magnitude.length/44100-5, y0-5, 10, 10);
-            g2.draw(lineFund);
+            g2.draw(line);
 			
+            // threshold line
 			g2.setColor( ColorsAndStrokes.YELLOW );
 			double threshold = PeakDetector.getPeakThreshold();
-			threshold = threshold*y0/maxMagnitude;
-			Line2D.Double line2 = new Line2D.Double(0,y0-threshold,getWidth(),y0-threshold);
-			g2.draw(line2);
+			threshold = threshold*y0/spectroscopeMaxMagnitude;
+			line.setLine(0,y0-threshold,getWidth(),y0-threshold);
+			g2.draw(line);
 			
-			for(int i=0; i<nSpectralPoints; i++) {
+			for(int i=0; i<spectrosopceNSpectralPoints; i++) {
 				double freq = i*44100/magnitude.length;
 				threshold =	PeakDetector.threshold(freq);
-				line2 = new Line2D.Double(x0+l*i, y0-threshold*y0/maxMagnitude, x0+l*(i+1), y0-threshold*y0/maxMagnitude);
-				g2.draw(line2);
+				line.setLine(x0+l*i, y0-threshold*y0/spectroscopeMaxMagnitude, x0+l*(i+1), y0-threshold*y0/spectroscopeMaxMagnitude);
+				g2.draw(line);
 			}
 		}
 	}
@@ -368,7 +398,7 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 		}
 		
 		g2.drawString("Magnitude vs. Frequency (dB-Hz)", 100, 20);
-		double fmax = 44100*nSpectralPoints/(rm.getAudioEngine().getAudioAnalyser().getWindowSize());
+		double fmax = 44100*spectrosopceNSpectralPoints/(rm.getAudioEngine().getAudioAnalyser().getWindowSize());
 		g2.drawString(Double.toString(fmax)+" Hz", width-ox-40, oy-10);	
 	}	
 	
@@ -430,17 +460,89 @@ public class Display extends JPanel implements Runnable, ComponentListener {
 	}
 	
 	public void setNOfSpectralPoints(int N) {
-		nSpectralPoints = N;
+		spectrosopceNSpectralPoints = N;
 		refresh();
 	}
 
 	public double getMaximumMagnitude() {
-		return maxMagnitude;
+		return spectroscopeMaxMagnitude;
 	}
 
 	public void setMaximumMagnitude(double maxMagnitude) {
-		this.maxMagnitude = maxMagnitude;
+		this.spectroscopeMaxMagnitude = maxMagnitude;
 		refresh();
+	}
+
+	public void mouseClicked(MouseEvent me) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mousePressed(MouseEvent me) {
+		// TODO Auto-generated method stub		
+		mousePressedPoint = me.getPoint();
+		oscilloscopeOldMaxAmplitude = oscilloscopeMaxAmplitude;
+		spectroscopeOldMaxMagnitude = spectroscopeMaxMagnitude;
+		spectroscopeOldNSpectralPoints = spectrosopceNSpectralPoints;
+		f0OldMin = f0Min;
+		f0OldMax = f0Max;
+		freqTrackerOldDuration = freqTrackerDuration;
+//		System.out.println("p: "+mousePressedPoint.x +", "+mousePressedPoint.y);		
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseDragged(MouseEvent me) {
+		mouseDraggedPoint = me.getPoint();		
+		double deltaY = (double)(mouseDraggedPoint.y - mousePressedPoint.y)/getHeight();
+		double deltaX = (double)(mouseDraggedPoint.x - mousePressedPoint.x)/getWidth();
+		
+		if((me.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+			if( mode == OSCILLOSCOPE ) {
+				oscilloscopeMaxAmplitude = oscilloscopeOldMaxAmplitude*Math.exp(deltaY);
+//				System.out.println(oscilloscopeMaxAmplitude);
+			} else if( mode == SPECTROSCOPE ) {
+				backgroundSpectroscope = null;
+				spectroscopeMaxMagnitude = spectroscopeOldMaxMagnitude*Math.exp(deltaY);
+//				System.out.println(spectroscopeMaxMagnitude);
+				int nNewPoints = spectroscopeOldNSpectralPoints+(int)(deltaX*1000);
+				if(nNewPoints < rm.getAudioEngine().getAudioAnalyser().getMagnitudeSpectrum().length/2 &&
+					nNewPoints > 0) {
+					spectrosopceNSpectralPoints = nNewPoints;
+				}
+//				System.out.println(spectrosopceNSpectralPoints);				
+			} else if( mode == FREQUENCY_TRACKER ) {
+				backgroundFrequencyTracker = null;
+				rm.getAudioEngine().getAudioAnalyser().setF0Max( f0OldMax*Math.exp(-deltaY) );
+//				rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().getDuration();
+				rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().setDuration( freqTrackerOldDuration+(deltaX*5) );
+			}
+		}
+		if( (me.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != MouseEvent.CTRL_DOWN_MASK ) {
+			if( mode == FREQUENCY_TRACKER ) {
+				backgroundFrequencyTracker = null;
+				rm.getAudioEngine().getAudioAnalyser().setF0Max( f0OldMax*Math.exp(-deltaY) );
+				rm.getAudioEngine().getAudioAnalyser().setF0Min( f0OldMin*Math.exp(-deltaY) );
+			}
+		}
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
