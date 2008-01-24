@@ -1,5 +1,7 @@
 package math;
 
+import realtimesound.AudioAnalyser;
+
 public class TwoWayMismatch {
 	
 	private static double pmP = 0.5;
@@ -15,6 +17,8 @@ public class TwoWayMismatch {
 	
 	private static double[] errors2;
 	private static double[] ftrials2;
+	
+	private static double errorThreshold = 0.5; 
 	
 	public static double calculateFundamentalFrequency(double f0Min, double f0Max, Peak[] peaks) {
 		
@@ -72,8 +76,12 @@ public class TwoWayMismatch {
 			}
 		}
 		
-//		System.out.println(index + ", " + ftrials[index]);
-		return ftrials2[index];
+//		System.out.println(errors2[index]+ ", " + ftrials2[index]);
+		if( errors2[index] < errorThreshold ) {
+			return ftrials2[index];
+		} else {
+			return AudioAnalyser.NO_FUNDAMENTAL;
+		}
 	}
 	
 	public static double[] getErrors1() {
@@ -82,6 +90,22 @@ public class TwoWayMismatch {
 	
 	public static double[] getFTrials1() {
 		return ftrials1;
+	}
+	
+	public static double[] getErrors2() {
+		return errors2;
+	}
+	
+	public static double[] getFTrials2() {
+		return ftrials2;
+	}
+
+	public static double getErrorThreshold() {
+		return errorThreshold;
+	}
+
+	public static void setErrorThreshold(double errorThreshold) {
+		TwoWayMismatch.errorThreshold = errorThreshold;
 	}
 
 	private static double calculateTotalError(double f0Trial, Peak[] peaks) {

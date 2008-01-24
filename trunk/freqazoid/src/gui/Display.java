@@ -18,6 +18,7 @@ import javax.swing.event.MouseInputListener;
 import math.Peak;
 import math.PeakDetector;
 import math.Tools;
+import math.TwoWayMismatch;
 
 public class Display extends JPanel implements Runnable, ComponentListener, MouseInputListener {
 	
@@ -49,7 +50,6 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	private double spectroscopeOldMaxMagnitude;
 	private double spectroscopeThreshold;
 	private double spectroscopeOldThreshold;
-	private double spectroscopeThresholdStriffness;
 	private double spectroscopeOldThresholdStriffness;
 	
 	private double f0Min;
@@ -58,6 +58,9 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	private double f0OldMax;
 	private double freqTrackerDuration;
 	private double freqTrackerOldDuration;
+	
+	private double twmErrorThreshold;
+	private double twmOldErrorThreshold;
 	
 	private BufferedImage imageFrequencyTrackerPlot;	
 	private BufferedImage backgroundFrequencyTracker;
@@ -128,38 +131,54 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		double xlength = f0Max-f0Min;
 		double ylength = 10;
 		
-		double[] ftrials = rm.getAudioEngine().getAudioAnalyser().getTrialFrequencies1();
-		double[] errors = rm.getAudioEngine().getAudioAnalyser().getErrors1();
+//		double[] ftrials = rm.getAudioEngine().getAudioAnalyser().getTrialFrequencies1();
+//		double[] errors = rm.getAudioEngine().getAudioAnalyser().getErrors1();
+		double[] ftrials1 = TwoWayMismatch.getFTrials1();
+		double[] errors1 = TwoWayMismatch.getErrors1();
+		double[] ftrials2 = TwoWayMismatch.getFTrials2();
+		double[] errors2 = TwoWayMismatch.getErrors2();
 		
 		double width = this.getWidth();
 		double height = this.getHeight();
 		
 		g2.setColor( ColorsAndStrokes.GREEN );
-		if(ftrials != null) {
+		if(ftrials1 != null) {
 //			for(int i=0; i<ftrials.length; i++) {
 //				System.out.print(ftrials[i]+" "+errors[i]+", ");
 //			}
 //			System.out.println();
 			
-			for(int i=0; i<ftrials.length-1; i++) {
+			for(int i=0; i<ftrials1.length-1; i++) {
 //				double e1 = Math.exp( -errors[i] );
 //				double e2 = Math.exp( -errors[i+1] );
-				double e1 = errors[i];
-				double e2 = errors[i+1];
+				double e1 = errors1[i];
+				double e2 = errors1[i+1];
 				
-				line.setLine(width*(ftrials[i]-f0Min)/xlength,
+				line.setLine(width*(ftrials1[i]-f0Min)/xlength,
 						height-height*(e1-y0Min)/ylength,
-						width*(ftrials[i+1]-f0Min)/xlength,
+						width*(ftrials1[i+1]-f0Min)/xlength,
 						height-height*(e2-y0Min)/ylength);
 				g2.draw(line);
+			}
+			
+			g2.setColor( ColorsAndStrokes.WHITE );
+			for(int i=0; i<ftrials2.length-1; i++) {
+				double e1 = errors2[i];
+				double e2 = errors2[i+1];
 				
-				g2.draw(new Ellipse2D.Double(
-						width*(ftrials[i]-f0Min)/xlength,
-						height-height*(errors[i])/ylength,
-						5,
-						5));
-			}			
+				line.setLine(width*(ftrials2[i]-f0Min)/xlength,
+						height-height*(e1-y0Min)/ylength,
+						width*(ftrials2[i+1]-f0Min)/xlength,
+						height-height*(e2-y0Min)/ylength);
+				g2.draw(line);
+			}
 		}
+		
+		g2.setColor( ColorsAndStrokes.YELLOW );
+		twmErrorThreshold = TwoWayMismatch.getErrorThreshold();
+		line.setLine(0,height-height*(twmErrorThreshold-y0Min)/ylength,
+				width,height-height*(twmErrorThreshold-y0Min)/ylength);
+		g2.draw(line);
 	}
 
 
@@ -501,7 +520,9 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		
 		f0OldMin = f0Min;
 		f0OldMax = f0Max;
-		freqTrackerOldDuration = freqTrackerDuration;		
+		freqTrackerOldDuration = freqTrackerDuration;
+		
+		twmOldErrorThreshold = twmErrorThreshold;
 //		System.out.println("p: "+mousePressedPoint.x +", "+mousePressedPoint.y);		
 	}
 
@@ -550,6 +571,11 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 				backgroundFrequencyTracker = null;
 				rm.getAudioEngine().getAudioAnalyser().setF0Max( f0OldMax*Math.exp(-deltaY) );
 				rm.getAudioEngine().getAudioAnalyser().setF0Min( f0OldMin*Math.exp(-deltaY) );
+			} else if( mode == TWM_ERROR ) {
+				double newThreshold = twmOldErrorThreshold - deltaY;
+				if(newThreshold > 0.0 ) {
+					TwoWayMismatch.setErrorThreshold( twmOldErrorThreshold - deltaY );
+				}
 			}
 		}
 	}
