@@ -18,7 +18,7 @@ public class TwoWayMismatch {
 	private static double[] errors2;
 	private static double[] ftrials2;
 	
-	private static double errorThreshold = 0.5; 
+	private static double errorThreshold = 7.0; 
 	
 	public static double calculateFundamentalFrequency(double f0Min, double f0Max, Peak[] peaks) {
 		

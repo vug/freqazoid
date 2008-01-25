@@ -23,10 +23,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioEngine implements Runnable {
 	
-    private static final int SAMPLE_RATE = 44100;
-    private static final int BIT_DEPTH = 16;
-    private static final int N_CHANNELS = 1;
-    private static final boolean BIG_ENDIAN = false;
+    public static final int SAMPLE_RATE = 44100;
+    public static final int NYQUIST_FREQUENCY = SAMPLE_RATE / 2;
+    public static final int BIT_DEPTH = 16;
+    public  static final int N_CHANNELS = 1;
+    public static final boolean BIG_ENDIAN = false;
     private AudioFormat format;
     
     private int bufferSize = 4096;    
@@ -182,7 +183,7 @@ public class AudioEngine implements Runnable {
 								inputFileStream.close();
 //								inputFile = null;
 								fileStatus = ENDED;
-								System.out.println("dosya bitti");
+								System.out.println("end of file");
 								dataFromFile = new byte[blockSize*2];
 							}
                 		} catch (IOException e) {

@@ -30,9 +30,6 @@ public class AudioAnalyser {
 	private double f0Max;
 	private double fundamentalFreqency;
 	
-	private double[] errors1;
-	private double[] ftrials1;
-	
 	public static final int NO_PEAK = -1;
 	
 	public AudioAnalyser() {
@@ -70,8 +67,6 @@ public class AudioAnalyser {
 			switch (method) {		
 			case TWM:
 				fundamentalFreqency = TwoWayMismatch.calculateFundamentalFrequency(f0Min, f0Max, peaks);
-				ftrials1 = TwoWayMismatch.getFTrials1();
-				errors1 = TwoWayMismatch.getErrors1();
 				break;
 			case LEFT_MOST_PEAK:
 				fundamentalFreqency = peaks[0].frequency;
@@ -98,14 +93,6 @@ public class AudioAnalyser {
 //		}
 //		System.out.println("");
 //		System.out.println(fundamentalFreqency);
-	}
-	
-	public double[] getErrors1() {
-		return errors1;
-	}
-	
-	public double[] getTrialFrequencies1() {
-		return ftrials1;
 	}
 	
 	public double getFundamentalFrequency() {
