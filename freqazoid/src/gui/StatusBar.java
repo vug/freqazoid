@@ -26,19 +26,10 @@ public class StatusBar extends JPanel implements ActionListener {
 		
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		this.rm = rm;
-		int windowSize = rm.getAudioEngine().getAudioAnalyser().getWindowSize(); 
-		String duration = Double.toString((double)windowSize/44.1).substring(0,3);
-		labelWidthDuration = new JLabel(duration+" msec");
+		this.rm = rm;		
+		labelWidthDuration = new JLabel("...");
+		labelHopSize = new JLabel("...");
 		
-		duration = Double.toString(((double)windowSize/rm.getAudioEngine().getAudioAnalyser().getNumberOfHops()/44.1)).substring(0, 3);
-		labelHopSize = new JLabel(duration+" msec ");
-		
-		//labelWidthDuration.setPreferredSize(new Dimension(80,10));
-//		labelWidthDuration.setBackground(Color.MAGENTA);
-		//this.setMaximumSize(new Dimension(1000,20));
-		//this.setPreferredSize(new Dimension(10,20));
-		//labelWidthDuration.setAlignmentX(Component.);
 		buttonStart = new JButton("Start");		
 		buttonStart.setPreferredSize(new Dimension(65,10));
 		buttonStart.addActionListener(this);
@@ -55,7 +46,7 @@ public class StatusBar extends JPanel implements ActionListener {
 		this.add(buttonFreeze);
 		
 		buttonClear = new JButton("Clear");
-		buttonClear.setPreferredSize(new Dimension(60,10));
+		buttonClear.setPreferredSize(new Dimension(70,10));
 		buttonClear.addActionListener(this);
 		this.add(buttonClear);
 		

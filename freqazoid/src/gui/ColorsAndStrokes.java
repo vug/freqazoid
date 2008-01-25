@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 
 public class ColorsAndStrokes {
 	
@@ -12,6 +13,7 @@ public class ColorsAndStrokes {
 	public static final Color RED =  new Color(255, 0, 0);
 	public static final Color YELLOW = new Color(255,255,0);
 	public static final Color BLUE = new Color(0,255,255);
+	public static final Font FONT1 = new Font("Dialog", Font.PLAIN, 10);
 	
 	private final static float dash1[] = {2.0f, 4.0f};
 	public static final BasicStroke DASHED = new BasicStroke(1.0f, 

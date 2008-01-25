@@ -67,13 +67,7 @@ public class Settings extends JFrame implements ActionListener {
 	private JTextField textMPp;
 	private JLabel labelMPp;
 	private JPanel panelMeasuredToPredicted;
-	private JTextField jTextField1;
-	private JLabel textMaximumMagnitude;
-	private JTextField textNPointsInTheSpectrum;
-	private JLabel labelNPointsInTheSpectrum;
 	private JLabel labelNPointsInTheSpectrumPlot;
-	private JTextField textDuration;
-	private JLabel labelDuration;
 	private JTextField textBlockSize;
 	private JLabel labelBlockSize;
 	private JTextField textBufferSize;
@@ -550,7 +544,7 @@ public class Settings extends JFrame implements ActionListener {
 						{
 							textNMaxPeaks = new JTextField();
 							panelNMaxPeaks.add(textNMaxPeaks);
-							textNMaxPeaks.setText(Double.toString(PeakDetector.getNMaxPeaks()));
+							textNMaxPeaks.setText(Integer.toString(PeakDetector.getNMaxPeaks()));
 							textNMaxPeaks.setPreferredSize(new java.awt.Dimension(56, 21));
 							textNMaxPeaks
 								.addActionListener(new ActionListener() {
@@ -669,29 +663,6 @@ public class Settings extends JFrame implements ActionListener {
 							});
 					}
 					{
-						labelDuration = new JLabel();
-						panelDisplay.add(labelDuration);
-						labelDuration.setText("duration");
-						labelDuration.setBounds(98, 91, 63, 21);
-					}
-					{
-						textDuration = new JTextField();
-						panelDisplay.add(textDuration);
-						textDuration.setText("23");
-						textDuration.setBounds(28, 84, 63, 28);
-						textDuration.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent evt) {
-								String input = ((JTextField) evt.getSource())
-									.getText();
-								double duration = Double.parseDouble(input);
-								rm.getAudioEngine().getAudioAnalyser()
-									.getRecordFundamental().setDuration(
-										duration);
-								rm.getDisplay().refresh();
-							}
-						});
-					}
-					{
 						labelNPointsInTheSpectrumPlot = new JLabel();
 						panelDisplay.add(labelNPointsInTheSpectrumPlot);
 						labelNPointsInTheSpectrumPlot
@@ -701,45 +672,6 @@ public class Settings extends JFrame implements ActionListener {
 							-28,
 							63,
 							28);
-					}
-					{
-						labelNPointsInTheSpectrum = new JLabel();
-						panelDisplay.add(labelNPointsInTheSpectrum);
-						labelNPointsInTheSpectrum.setText("# of Points in the Spectrum");
-						labelNPointsInTheSpectrum.setBounds(280, 21, 147, 14);
-					}
-					{
-						textNPointsInTheSpectrum = new JTextField();
-						panelDisplay.add(textNPointsInTheSpectrum);
-						textNPointsInTheSpectrum.setText(
-								Integer.toString(rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2)
-								);
-						textNPointsInTheSpectrum.setBounds(280, 42, 84, 21);
-						textNPointsInTheSpectrum
-							.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent evt) {
-								rm.getDisplay().setNOfSpectralPoints(
-										Integer.parseInt(((JTextField)evt.getSource()).getText()));
-							}
-							});
-					}
-					{
-						textMaximumMagnitude = new JLabel();
-						panelDisplay.add(textMaximumMagnitude);
-						textMaximumMagnitude.setText("Maximum Magnitude");
-						textMaximumMagnitude.setBounds(252, 84, 112, 21);
-					}
-					{
-						jTextField1 = new JTextField();
-						panelDisplay.add(jTextField1);
-						jTextField1.setText(Double.toString(rm.getDisplay().getMaximumMagnitude()));
-						jTextField1.setBounds(245, 112, 70, 21);
-						jTextField1.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent evt) {
-								double max = Double.parseDouble(((JTextField)evt.getSource()).getText());
-								rm.getDisplay().setMaximumMagnitude(max);
-							}
-						});
 					}
 				}
 			}
