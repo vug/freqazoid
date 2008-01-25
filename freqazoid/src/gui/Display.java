@@ -30,6 +30,10 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	public static final int FREQUENCY_TRACKER = 2;
 	public static final int TWM_ERROR = 3;
 	
+	// Frequency Tracker Plot Modes
+	public static final int TO_SCREEN = 0;
+	public static final int TO_FILE = 1;
+	
 	private int refreshRate;
 	
 	private boolean antialiased;
@@ -115,7 +119,7 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 			drawOscilloscope(g2);	        
 			break;
 		case FREQUENCY_TRACKER:
-			createFrequencyTrackerPlot();
+			createFrequencyTrackerPlot(getWidth(), getHeight()-20, TO_SCREEN);
 			g2.drawImage(imageFrequencyTrackerPlot, 0, 5, null);
 			break;
 		case TWM_ERROR:
@@ -214,14 +218,14 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 	}
 
 
-	private void createFrequencyTrackerPlot() {
+	private BufferedImage createFrequencyTrackerPlot(int width, int height, int plotMode) {
 		if(imageFrequencyTrackerPlot==null) {
-			imageFrequencyTrackerPlot = new BufferedImage(getWidth(),getHeight()-20,BufferedImage.TYPE_INT_RGB);
+			imageFrequencyTrackerPlot = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 		}
 		Graphics2D g2 = (Graphics2D)imageFrequencyTrackerPlot.getGraphics();
 		
 		if( backgroundFrequencyTracker == null ) {
-			createFrequencyTrackerBackground(imageFrequencyTrackerPlot.getWidth(), imageFrequencyTrackerPlot.getHeight());
+			createFrequencyTrackerBackground(imageFrequencyTrackerPlot.getWidth(), imageFrequencyTrackerPlot.getHeight(), plotMode);
 		}
 		g2.drawImage(backgroundFrequencyTracker, 0, 0, null);
 		
@@ -237,31 +241,39 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		double ylength = 12*Tools.LOG_OF_2_BASE_10*Math.log10(f0Max/f0Min); 
 		
 		g2.setStroke( ColorsAndStrokes.NORMAL );
+		g2.setColor( ColorsAndStrokes.GREEN );
 		for(int i=0; i<freqs.length-1; i++) {
 			if(freqs[i] > f0Min && freqs[i+1] > f0Min)
 			{
 				double pitch1 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i]/f0Min);
 				double pitch2 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i+1]/f0Min);
 				line.setLine(l*i, y0-y0*pitch1/ylength, l*(i+1), y0-y0*pitch2/ylength);
-				g2.setColor( ColorsAndStrokes.GREEN );
 				g2.draw(line);
 			}
 		}
 		
 		// position indicator
-		g2.setColor( ColorsAndStrokes.YELLOW );
-		line.setLine(l*headPosition, 0, l*headPosition, y0);
-		g2.draw(line);
+		if(plotMode == TO_SCREEN) {
+			g2.setColor( ColorsAndStrokes.YELLOW );
+			line.setLine(l*headPosition, 0, l*headPosition, y0);
+			g2.draw(line);
+		}
+		return imageFrequencyTrackerPlot;
 	}
 	
-	private void createFrequencyTrackerBackground(int width, int height) {
+	private void createFrequencyTrackerBackground(int width, int height, int plotMode) {
 		Graphics2D g2;
 		
 		backgroundFrequencyTracker = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		g2 = backgroundFrequencyTracker.createGraphics();
 		
-		g2.setColor( ColorsAndStrokes.BACKGROUND );
+		if(plotMode == TO_SCREEN) {
+			g2.setColor( ColorsAndStrokes.BACKGROUND );
+		} else if (plotMode == TO_FILE) {
+			g2.setColor( ColorsAndStrokes.WHITE );
+		}
 		g2.fillRect(0, 0, width, height);
+		
 		
 		double y0 = height;
 		double f0Min = rm.getAudioEngine().getAudioAnalyser().getF0Min();
@@ -287,7 +299,12 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		
 		double log102 = 1/Math.log10(2);
 		
-		g2.setColor( ColorsAndStrokes.GRAY );
+		if(plotMode == TO_SCREEN) {
+			g2.setColor( ColorsAndStrokes.GRAY );
+		} else if (plotMode == TO_FILE) {
+			g2.setColor( ColorsAndStrokes.BLACK );
+		}
+		
 		
 		// x-axis
 		line.setLine(0.0, height-1, width, height-1);			
@@ -299,10 +316,20 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		for(int i=0; i<nSemiTones; i++) {
 			double f = fC0*Math.pow(2, (nMin+i)/12.0);
 			double pitch = 12*Tools.LOG_OF_2_BASE_10*Math.log10(f/f0Min);
-			g2.setColor( ColorsAndStrokes.GRAY );
+			
+			if(plotMode == TO_SCREEN) {
+				g2.setColor( ColorsAndStrokes.GRAY );
+			} else if (plotMode == TO_FILE) {
+				g2.setColor( ColorsAndStrokes.BLACK );
+			}
 			line.setLine(0, y0-y0*pitch/ylength, width, y0-y0*pitch/ylength);			
 			g2.draw(line);
-			g2.setColor( ColorsAndStrokes.WHITE );
+			if(plotMode == TO_SCREEN) {
+				g2.setColor( ColorsAndStrokes.WHITE );
+			} else if (plotMode == TO_FILE) {
+				g2.setColor( ColorsAndStrokes.BLACK );
+			}
+			
 			g2.setFont(ColorsAndStrokes.FONT1);
 			if(pitchNames[i]!=null) {				
 				g2.drawString(pitchNames[i], 0, (int)(y0-y0*pitch/ylength)+5);
@@ -437,7 +464,16 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 			g2.draw(line);
 			g2.drawString(Integer.toString(n), (int)(x+x0)-4, (int)y0+10);
 		}
-	}	
+	}
+	
+	public BufferedImage getFrequencyTrackerPlot(int width, int height) {
+		imageFrequencyTrackerPlot = null;
+		backgroundFrequencyTracker = null;
+		BufferedImage PlotToFile = createFrequencyTrackerPlot(width, height, TO_FILE);
+		imageFrequencyTrackerPlot = null;
+		backgroundFrequencyTracker = null;
+		return PlotToFile;
+	}
 	
 	public int getMode() {
 		return mode;

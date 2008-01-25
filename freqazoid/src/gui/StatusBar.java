@@ -3,7 +3,10 @@ package gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -19,6 +22,7 @@ public class StatusBar extends JPanel implements ActionListener {
 	private JButton buttonStop;
 	private JButton buttonFreeze;
 	private JButton buttonClear;
+	private JButton buttonSave;
 	private ResourceManager rm;
 	
 	public StatusBar(ResourceManager rm) {
@@ -50,6 +54,11 @@ public class StatusBar extends JPanel implements ActionListener {
 		buttonClear.addActionListener(this);
 		this.add(buttonClear);
 		
+		buttonSave = new JButton("Save");
+		buttonSave.setPreferredSize(new Dimension(70,10));
+		buttonSave.addActionListener(this);
+		this.add(buttonSave);
+		
 		this.add(Box.createHorizontalGlue());
 		this.add(labelHopSize);
 		this.add(labelWidthDuration);
@@ -65,6 +74,15 @@ public class StatusBar extends JPanel implements ActionListener {
 			rm.getAudioEngine().pauseEngine();
 		} else if(source == buttonClear) {
 			rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().reset();
+		} else if(source == buttonSave) {
+			File imageFile = new File("record.png");
+			try {
+				ImageIO.write(rm.getDisplay().getFrequencyTrackerPlot(800,600), "png", imageFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().recordToAFile("record.csv");
 		}
 	}
 
