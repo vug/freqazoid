@@ -124,4 +124,21 @@ public class RecordFundamental {
 	public double getDuration() {
 		return nPoints*((double)audioAnalyser.getWindowSize()/44100)/audioAnalyser.getNumberOfHops();
 	}
+	
+	public void recordToAFile(String fileName) {
+		File textFile = new File(fileName);
+		double time = 0;
+		double deltaTime = getDuration()/record.length;
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(textFile));
+			for (int i = 0; i < record.length; i++) {
+				out.format("%5.3f, %5.1f\n", time, record[i]);
+				time += deltaTime;
+			}
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
