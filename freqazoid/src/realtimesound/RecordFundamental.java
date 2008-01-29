@@ -12,7 +12,7 @@ public class RecordFundamental {
 	private int head;
 	private File analysisFile;
 	private PrintWriter out;
-	private double freqPrev;
+	private double freqPrev, freqPrev2;
 	private double t,ti, tf;
 	private AudioAnalyser audioAnalyser;
 	private int nPoints = 500;
@@ -23,6 +23,7 @@ public class RecordFundamental {
 		this.audioAnalyser = aa;
 		
 		freqPrev=AudioAnalyser.NO_FUNDAMENTAL;
+		freqPrev2=AudioAnalyser.NO_FUNDAMENTAL;
 		t  = 0.0;
 		ti = 0.0;
 		tf = 0.0;
@@ -92,11 +93,19 @@ public class RecordFundamental {
 		// increase the time by one hop size in seconds		
 		t += (double)audioAnalyser.getWindowSize()/44100/audioAnalyser.getNumberOfHops();
 		
-		record[head] = freq;
+		
+		// deglitching
+		double maxInterval = 4;
+		if(freqPrev2 != AudioAnalyser.NO_FUNDAMENTAL && freq/freqPrev2 > maxInterval) {
+			record[head] = AudioAnalyser.NO_FUNDAMENTAL;
+		} else {
+			record[head] = freq;
+		}
 		head++;
 		if(head == record.length) {
 			reset();
 		}
+		freqPrev2 = freq;
 	}
 	
 	public double[] getRecord() {

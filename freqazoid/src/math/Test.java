@@ -25,15 +25,21 @@ public class Test {
 //		
 //		System.out.println("db: " + Math.log10(0.09*100+1));
 		
-		for(int i=0; i<8; i++) {
-			int j =	FFT.bitReverse(i);
-			System.out.println(i + "-> " + j);
-		}
+//		for(int i=0; i<8; i++) {
+//			int j =	FFT.bitReverse(i);
+//			System.out.println(i + "-> " + j);
+//		}
 		
 //		System.out.println( FFT.toBinary(6) );
 		
 //		int x = 2&2;
 //		System.out.println( x );
+		
+		String str = null;
+		if( str!=null && str.length()>0 && str.substring(0, 3).equalsIgnoreCase("ugu") ) {
+			System.out.println("bikbik");
+		}
+		
 	}
 
 }

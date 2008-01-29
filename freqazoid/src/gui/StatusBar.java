@@ -23,6 +23,7 @@ public class StatusBar extends JPanel implements ActionListener {
 	private JButton buttonFreeze;
 	private JButton buttonClear;
 	private JButton buttonSave;
+	private JButton buttonDeglitch;
 	private ResourceManager rm;
 	
 	public StatusBar(ResourceManager rm) {
@@ -54,6 +55,11 @@ public class StatusBar extends JPanel implements ActionListener {
 		buttonClear.addActionListener(this);
 		this.add(buttonClear);
 		
+		buttonDeglitch = new JButton("Deglitch");
+		buttonDeglitch.setPreferredSize(new Dimension(75,10));
+		buttonDeglitch.addActionListener(this);
+		this.add(buttonDeglitch);
+		
 		buttonSave = new JButton("Save");
 		buttonSave.setPreferredSize(new Dimension(70,10));
 		buttonSave.addActionListener(this);
@@ -74,6 +80,8 @@ public class StatusBar extends JPanel implements ActionListener {
 			rm.getAudioEngine().pauseEngine();
 		} else if(source == buttonClear) {
 			rm.getAudioEngine().getAudioAnalyser().getRecordFundamental().reset();
+		} else if(source == buttonDeglitch) {
+//			System.out.println("deglitch");
 		} else if(source == buttonSave) {
 			File imageFile = new File("record.png");
 			try {

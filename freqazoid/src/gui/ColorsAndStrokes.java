@@ -22,6 +22,7 @@ public class ColorsAndStrokes {
 			BasicStroke.JOIN_MITER,
 			10.0f, dash1, 0.0f);
 	public static final BasicStroke NORMAL = new BasicStroke();
+	public static final BasicStroke THICK = new BasicStroke(2.0f, BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER);
 	
 	public static Color[] colorGradient;
 	private int nColors;

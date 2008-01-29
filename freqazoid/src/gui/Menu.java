@@ -35,7 +35,8 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 	private JCheckBoxMenuItem itemShowPeaks;
 	private JRadioButtonMenuItem itemTWMErrors;
 		
-	private JMenu menuOptions;	
+	private JMenu menuOptions;
+	private JMenuItem itemSelectAudioDevices;
 	private JCheckBoxMenuItem itemMuteMicrophone;
 	private JCheckBoxMenuItem itemMuteSpeaker;
 	private JCheckBoxMenuItem itemPause;
@@ -87,6 +88,10 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 		menuView.add(itemTWMErrors);
 		
 		menuOptions = new JMenu("Options");
+		itemSelectAudioDevices = new JMenuItem("Select Audio Devices");
+		itemSelectAudioDevices.addActionListener(this);
+		menuOptions.add(itemSelectAudioDevices);
+		menuOptions.addSeparator();
 		itemMuteMicrophone = new JCheckBoxMenuItem("Mute Mic");
 		itemMuteMicrophone.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,ActionEvent.CTRL_MASK));
 //		itemMuteMicrophone.setSelected(rm.getAudioEngine().get)
@@ -147,6 +152,9 @@ public class Menu extends JMenuBar implements ActionListener, ItemListener {
 			if( returnValue == JFileChooser.APPROVE_OPTION ) {
 				rm.getAudioEngine().openFile( fileChooser.getSelectedFile() );
 			}
+		}
+		else if(ae.getSource() == itemSelectAudioDevices) {
+			rm.getAudioEngine().selectInputAndOutputLine();
 		}
 		else if(ae.getSource() == itemSettings) {
 			rm.getSettings().setVisible(true);

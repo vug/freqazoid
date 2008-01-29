@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
@@ -80,7 +81,7 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		super();
 		this.rm = rm;
 		mode = SPECTROSCOPE;
-		showPeaks = false;
+		showPeaks = true;
 		this.setBackground(ColorsAndStrokes.BACKGROUND);
 		displayThread = new Thread(this);
 		refreshRate = 50; // milliseconds
@@ -90,7 +91,8 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		height = this.getHeight();
 		line = new Line2D.Double(0,0,10,10);
 
-		spectroscopeNSpectralPoints = rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2;
+//		spectroscopeNSpectralPoints = rm.getAudioEngine().getAudioAnalyser().getWindowSize()/2;
+		spectroscopeNSpectralPoints = rm.getAudioEngine().getAudioAnalyser().getWindowSize()/4;
 		spectroscopeMaxMagnitude = 1.0;
 		oscilloscopeMaxAmplitude = 0.1;
 		twmMaxError = 10.0;
@@ -241,13 +243,18 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		double ylength = 12*Tools.LOG_OF_2_BASE_10*Math.log10(f0Max/f0Min); 
 		
 		g2.setStroke( ColorsAndStrokes.NORMAL );
-		g2.setColor( ColorsAndStrokes.GREEN );
+		if(plotMode == TO_SCREEN) {
+			g2.setColor( ColorsAndStrokes.GREEN );
+		} else if (plotMode == TO_FILE) {
+			g2.setColor( ColorsAndStrokes.BLACK );
+		}
 		for(int i=0; i<freqs.length-1; i++) {
 			if(freqs[i] > f0Min && freqs[i+1] > f0Min)
 			{
 				double pitch1 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i]/f0Min);
 				double pitch2 = 12*Tools.LOG_OF_2_BASE_10*Math.log10(freqs[i+1]/f0Min);
 				line.setLine(l*i, y0-y0*pitch1/ylength, l*(i+1), y0-y0*pitch2/ylength);
+				g2.drawOval((int)(i*l)-1, (int)(y0-y0*pitch1/ylength)-1, 2, 2);
 				g2.draw(line);
 			}
 		}
@@ -588,7 +595,10 @@ public class Display extends JPanel implements Runnable, ComponentListener, Mous
 		double deltaY = (double)(mouseDraggedPoint.y - mousePressedPoint.y)/getHeight();
 		double deltaX = (double)(mouseDraggedPoint.x - mousePressedPoint.x)/getWidth();
 		
-		if((me.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+		int ctrlMask = MouseEvent.CTRL_DOWN_MASK;
+		int mask1 = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		if((me.getModifiersEx() & (mask1 | ctrlMask)) == mask1 ||
+			(me.getModifiersEx() & (mask1 | ctrlMask)) == ctrlMask ) {
 			if( mode == OSCILLOSCOPE ) {
 				oscilloscopeMaxAmplitude = oscilloscopeOldMaxAmplitude*Math.exp(deltaY);
 //				System.out.println(oscilloscopeMaxAmplitude);
