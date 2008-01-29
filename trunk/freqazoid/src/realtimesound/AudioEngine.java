@@ -6,6 +6,8 @@
  */
 package realtimesound;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -20,6 +22,15 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class AudioEngine implements Runnable {
 	
@@ -35,6 +46,8 @@ public class AudioEngine implements Runnable {
     private SourceDataLine outputLine;  
     private Mixer.Info[] inputInfos;
     private Mixer.Info[] outputInfos;
+    private String[] inputNames;
+    private String[] outputNames;
     
     private int blockSize = 512;
     
@@ -60,6 +73,8 @@ public class AudioEngine implements Runnable {
     private DataLine.Info sourceInfo;
     private DataLine.Info targetInfo;
     
+    private int cont = 1;
+    
     public AudioEngine() {
     	
     	muteSpeaker = false;
@@ -75,8 +90,8 @@ public class AudioEngine implements Runnable {
         AudioFormat format2 = new  AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 22050, BIT_DEPTH, N_CHANNELS, frameSizeInBytes, frameRate, BIG_ENDIAN);
         
-        System.out.println("audio format: "+format.toString());
-        System.out.println("conversion supported: "+AudioSystem.isConversionSupported(format, format2));
+//        System.out.println("audio format: "+format.toString());
+//        System.out.println("conversion supported: "+AudioSystem.isConversionSupported(format, format2));
         
         // Find the Mixer's in the computer        
         mixerInfo = AudioSystem.getMixerInfo();
@@ -86,7 +101,9 @@ public class AudioEngine implements Runnable {
         
         for(int i=0; i<mixerInfo.length; i++) {
         	Mixer mixer = AudioSystem.getMixer(mixerInfo[i]);
-        	if ( !mixerInfo[i].getName().substring(0, 4).equalsIgnoreCase("port") )
+        	if ( mixerInfo[i].getName()!=null &&
+        			mixerInfo[i].getName().length()>3 &&
+        			!mixerInfo[i].getName().substring(0, 4).equalsIgnoreCase("port") )
         	{
         		if( mixer.getTargetLineInfo().length > 0 ) {
         			inputInfosVector.add(mixerInfo[i]);
@@ -99,42 +116,35 @@ public class AudioEngine implements Runnable {
         inputInfosVector.trimToSize();
         inputInfos = new Mixer.Info[inputInfosVector.size()];
         inputInfos = inputInfosVector.toArray(inputInfos);
+        inputNames = new String[inputInfos.length+1];
+    	for (int i = 0; i < inputInfos.length; i++) {
+			inputNames[i] = inputInfos[i].getName();
+		}
+    	inputNames[inputNames.length-1] = "No Input";
         
         outputInfosVector.trimToSize();
         outputInfos = new Mixer.Info[outputInfosVector.size()];
-        outputInfos = outputInfosVector.toArray(outputInfos);      
-        
-        targetInfo = new DataLine.Info(TargetDataLine.class, format);        
+        outputInfos = outputInfosVector.toArray(outputInfos);
+        outputNames = new String[outputInfos.length+1];
+    	for (int i = 0; i < outputInfos.length; i++) {
+			outputNames[i] = outputInfos[i].getName();
+		}
+    	outputNames[outputNames.length-1] = "No Output";
+    	
+    	targetInfo = new DataLine.Info(TargetDataLine.class, format);        
         sourceInfo = new DataLine.Info(SourceDataLine.class, format);
         
-        if(AudioSystem.isLineSupported(targetInfo)) {
-//            System.out.println("input format is supported by the system");
-            try {
-//                System.out.println("trying to open an input line...");
-                inputLine = (TargetDataLine) AudioSystem.getLine(targetInfo);
-//                inputLine = (TargetDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[3] ).getLine(targetInfo);
-                System.out.println(inputLine.getLineInfo().toString());
-                inputLine.open(format, bufferSize);
-//                System.out.println("Input line opened with a buffer size: "
-//                        + inputLine.getBufferSize());
-            } catch (LineUnavailableException ex) {
-                ex.printStackTrace();
-            }            
+        selectInputAndOutputLine();
+        if(cont == 0) {
+        	System.exit(0);
         }
         
-        if(AudioSystem.isLineSupported(sourceInfo)) {
-//            System.out.println("output format supported by the system");
-            try {
-//                System.out.println("trying to open an output line...");
-                outputLine = (SourceDataLine) AudioSystem.getLine(sourceInfo);
-//                outputLine = (SourceDataLine) AudioSystem.getMixer( AudioSystem.getMixerInfo()[0] ).getLine(sourceInfo);
-                outputLine.open(format, bufferSize);
-//                System.out.println("Output line opened with a buffer size: "
-//                        + inputLine.getBufferSize());
-            } catch (LineUnavailableException ex) {
-                ex.printStackTrace();
-            }            
-        }
+        try {
+			inputLine.open(format, bufferSize);
+			outputLine.open(format, bufferSize);
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
         
         audioAnalyser = new AudioAnalyser();
         audioThread = new Thread(this);
@@ -183,7 +193,7 @@ public class AudioEngine implements Runnable {
 								inputFileStream.close();
 //								inputFile = null;
 								fileStatus = ENDED;
-								System.out.println("end of file");
+//								System.out.println("end of file");
 								dataFromFile = new byte[blockSize*2];
 							}
                 		} catch (IOException e) {
@@ -225,13 +235,15 @@ public class AudioEngine implements Runnable {
                 case STOPPING:
                     //inputLine.drain();
                 	//outLine.drain();
-                    System.out.println("stopping lines");
-                    inputLine.stop();
-                    outputLine.stop();
-                    System.out.println("closing lines");
-                    inputLine.close();
-                    outputLine.close();
-                    System.out.println("Engine stopped.");
+                	if(inputLine != null) {
+                		inputLine.stop();
+                		inputLine.close();
+                	}
+                    if(outputLine != null) {
+                    	outputLine.stop();
+                    	outputLine.close();
+                    }              
+                    
                     engineStatus = STOPPED;
                     break;
                 case STOPPED:
@@ -248,13 +260,13 @@ public class AudioEngine implements Runnable {
 			// for conversion...
 //			inputFileStream = AudioSystem.getAudioInputStream(format, inputFileStream);
 			inputFileFormat = AudioSystem.getAudioFileFormat(file);
-			System.out.println("duration: "+ inputFileFormat.getFrameLength()/inputFileFormat.getFormat().getSampleRate() );
-			System.out.println("sample rate: "+inputFileFormat.getFormat().getSampleRate());
-			System.out.println("type: "+inputFileFormat.getType());
+//			System.out.println("duration: "+ inputFileFormat.getFrameLength()/inputFileFormat.getFormat().getSampleRate() );
+//			System.out.println("sample rate: "+inputFileFormat.getFormat().getSampleRate());
+//			System.out.println("type: "+inputFileFormat.getType());
 			
 //			System.out.println("mark supported? "+ inputFileStream.markSupported() );
 		} catch (UnsupportedAudioFileException e) {
-			System.out.println("unsupported file format");
+//			System.out.println("unsupported file format");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -281,13 +293,13 @@ public class AudioEngine implements Runnable {
             engineStatus = PAUSED;
             // Tikkayt, drain read edilmemisse beele bekliyor...            
             //inputLine.drain();
-            System.out.println("pausing");
+//            System.out.println("pausing");
             inputLine.stop();
             //inputLine.close();
             engineStatus = PAUSED;
         }
         else if(engineStatus == PAUSED) {
-            System.out.println("unpausing");
+//            System.out.println("unpausing");
             engineStatus = RUNNING;
             inputLine.start();
         }        
@@ -295,9 +307,18 @@ public class AudioEngine implements Runnable {
     
     public void changeInputAndOutputLine(int indexInput, int indexOutput) {
     	stopEngine();
-        try {			
-        	inputLine = (TargetDataLine) AudioSystem.getMixer( inputInfos[indexInput] ).getLine(targetInfo);
-        	outputLine = (SourceDataLine) AudioSystem.getMixer( outputInfos[indexOutput] ).getLine(sourceInfo);
+        try {
+        	if(indexInput == inputNames.length-1) {
+        		
+        	} else { 
+        		inputLine = (TargetDataLine) AudioSystem.getMixer( inputInfos[indexInput] ).getLine(targetInfo);
+        	}
+        	
+        	if(indexOutput == outputNames.length-1) {
+        		
+        	} else {
+        		outputLine = (SourceDataLine) AudioSystem.getMixer( outputInfos[indexOutput] ).getLine(sourceInfo);
+        	}
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
 		}
@@ -306,11 +327,66 @@ public class AudioEngine implements Runnable {
 		 * Wait until audioEngine Thread come to STOPPED state.
 		 */
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(250);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
     	startEngine();
+    }
+    
+    public void selectInputAndOutputLine() {
+    	JFrame selectDevicesFrame = new JFrame("Select Audio Devices");
+    	JPanel panel = new JPanel();
+    	panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+    	
+    	final JDialog dialog = new JDialog(selectDevicesFrame, "Select Audio Devices", true);
+    	dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+    	dialog.setLocation(100, 100);
+    	
+    	JPanel upperPanel = new JPanel();
+    	JLabel label = new JLabel("input: ");
+    	upperPanel.add(label);
+    	
+    	final ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(inputNames);
+		final JComboBox comboBoxInputDevice = new JComboBox();
+		comboBoxInputDevice.setModel(comboBoxInputDeviceModel);
+		upperPanel.add(comboBoxInputDevice);
+		
+		JPanel lowerPanel = new JPanel();
+		JLabel label2 = new JLabel("output: ");
+    	lowerPanel.add(label2);
+    	
+    	ComboBoxModel comboBoxOutputDevicesModel = new DefaultComboBoxModel(outputNames);
+		final JComboBox comboBoxOutputDevices = new JComboBox();
+		comboBoxOutputDevices.setModel(comboBoxOutputDevicesModel);
+		lowerPanel.add(comboBoxOutputDevices);
+		
+		JPanel lowestPanel = new JPanel();
+		JButton ok = new JButton("OK");
+		ok.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				changeInputAndOutputLine(comboBoxInputDevice.getSelectedIndex(), comboBoxOutputDevices.getSelectedIndex());
+				dialog.setVisible(false);
+			}
+		});
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				cont = 0;
+				dialog.setVisible(false);
+			}	
+		});
+		
+		lowestPanel.add(ok);
+		lowestPanel.add(cancel);
+		
+		panel.add(upperPanel);
+		panel.add(lowerPanel);
+		panel.add(lowestPanel);
+
+    	dialog.setContentPane(panel);
+    	dialog.pack();
+    	dialog.setVisible(true);
     }
     
     
@@ -375,7 +451,6 @@ public class AudioEngine implements Runnable {
 
 	public void setMuteSpeaker(boolean muteSpeaker) {
 		this.muteSpeaker = muteSpeaker;
-	}
-	
+	}	
 	
 }

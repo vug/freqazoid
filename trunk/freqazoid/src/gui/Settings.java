@@ -202,7 +202,7 @@ public class Settings extends JFrame implements ActionListener {
 						panelAudioDevices.add(panelSelectDevice);
 						panelSelectDevice.setBounds(0, 0, 238, 140);
 						panelSelectDevice.setBorder(BorderFactory.createTitledBorder(BorderFactory.createTitledBorder(""), "Select Device", TitledBorder.LEADING, TitledBorder.TOP));
-						
+
 						{
 							labelInputDevice = new JLabel();
 							panelSelectDevice.add(labelInputDevice);
@@ -210,15 +210,16 @@ public class Settings extends JFrame implements ActionListener {
 							labelInputDevice.setBounds(14, 14, 119, 14);
 						}
 						{
-							ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(
-							//new String[] { "AudioDevice1", "Input2", "Soundcard3"}
-								inputInfos);
+							ComboBoxModel comboBoxInputDeviceModel = new DefaultComboBoxModel(inputInfos);
 							comboBoxInputDevice = new JComboBox();
 							panelSelectDevice.add(comboBoxInputDevice);
 							comboBoxInputDevice
 								.setModel(comboBoxInputDeviceModel);
 							comboBoxInputDevice.setBounds(14, 28, 210, 21);
-							comboBoxInputDevice.setPreferredSize(new java.awt.Dimension(212, 21));
+							comboBoxInputDevice
+								.setPreferredSize(new java.awt.Dimension(
+									212,
+									21));
 							comboBoxInputDevice.addActionListener(this);
 						}
 						{
