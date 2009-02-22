@@ -3,11 +3,11 @@
 
 == C'ye geçiş ==
 == yapılacaklar ==
-* dandik bir buffer oluştur. Callback onu doldursun. dolunca bir iş yapsın ve buffer'ı boşaltsın.
+ * dandik bir buffer oluştur. Callback onu doldursun. dolunca bir iş yapsın ve buffer'ı boşaltsın.
 
 == yapılanlar ==
-* Portaudio Visual Studio projesinde kodun içine yedirilebiliyor. WMME kullanılarak realtime ses input'u sağlanabiliyor.
-* SDL ve SDL graphics kütüphaneleri Visual Studio'da kullanılabiliyorlar
+ * Portaudio Visual Studio projesinde kodun içine yedirilebiliyor. WMME kullanılarak realtime ses input'u sağlanabiliyor.
+ * SDL ve SDL graphics kütüphaneleri Visual Studio'da kullanılabiliyorlar
 
 == To Do ==
  * Use a parabolic interpolation to find a peaks frequency more precise
