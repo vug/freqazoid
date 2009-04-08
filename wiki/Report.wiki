@@ -1,0 +1,11 @@
+#labels Featured,Phase-Design
+#what is done, what will be done
+
+= To Do =
+  * Try: Cross-platform soundfile input output library: libsnd
+  * Try: [http://www.gnu.org/software/gsl/ GNU Scientific Library] for FFT and function minimization algorithms
+
+
+= Done =
+  * Cross-platform realtime audio API [http://www.portaudio.com/ portaudio] is compiled and tested
+  * Cross-platform GUI and Threading API [http://www.libsdl.org/ SDL] is compiled and tested
