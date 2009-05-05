@@ -2,7 +2,7 @@
 #what is done, what will be done
 
 = To Do =
-  * Add Cross-platform soundfile input output library [http://www.mega-nerd.com/libsndfile/ libsndfile] to the project
+  * Write a program which splits an audio data into many files according to given window and hop sizes.
   * Add [http://www.gnu.org/software/gsl/ GNU Scientific Library] for FFT and function minimization algorithms to the project.
   * Implement a GUI which displays a waveform of an audio file for offline usage.
   * Implement Oscilloscope and Spectroscope for online usage(1).
@@ -11,6 +11,8 @@
 
 
 = Done =
+  * [4 May 2009] A .wav file is read successfully. A little program (stereo2mono) is written which reads an entire stereo sound file and writes its left and right channels into two different mono sound files.
+  * [2 May 2009] Add Cross-platform soundfile input output library [http://www.mega-nerd.com/libsndfile/ libsndfile] to the project  
   * Cross-platform realtime audio API [http://www.portaudio.com/ portaudio] is compiled and tested
   * Cross-platform GUI and Threading API [http://www.libsdl.org/ SDL] is compiled and tested
 
