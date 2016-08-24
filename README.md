@@ -1,9 +1,6 @@
-# freqazoid
-code exported from code.google.com/p/freqazoid
+A real-time audio pitch detector. It uses Beauchamp's two-way mismatch algorithm for fundamental frequency detection using
 
-This is a project for developing a real-time audio signal analyzer. It will be used for fundamental frequency detection using Beauchamp's two-way mismatch algorithm.
-
-current status: in the early development phase.
+current status: restarting the project in JavaScript
 
 And here is a sample from the cartoon where the name of this program comes from: [Frekazoid](https://www.youtube.com/watch?v=ed-hUoeHcz0)
 
