@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify src/main.js -o dist/js/app.js",
-    "watch": "watchify src/main.js -o dist/js/app.js",
+    "watch": "watchify src/main.js -o dist/js/app.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,6 @@
   "homepage": "https://github.com/vug/freqazoid",
   "devDependencies": {
     "browserify": "latest",
-    "watchify": "latest",
-  },
+    "watchify": "latest"
+  }
 }
