@@ -27,5 +27,8 @@
     "browserify": "^13.1.0",
     "uglify-js": "^2.7.3",
     "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "material-design-lite": "^1.2.0"
   }
 }
