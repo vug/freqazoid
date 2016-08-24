@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify src/main.js -o dist/js/app.js",
+    "build": "browserify src/main.js | babel --presets es2015 | uglifyjs --compress --mangle > dist/js/app.js",
     "watch": "watchify src/main.js -o dist/js/app.js"
   },
   "repository": {
@@ -24,5 +24,7 @@
   "devDependencies": {
     "browserify": "latest",
     "watchify": "latest"
+    "babel-cli": "^6.11.4",
+    "babel-preset-es2015": "^6.13.2",
   }
 }
