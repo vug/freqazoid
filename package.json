@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/vug/freqazoid/issues"
   },
-  "homepage": "https://github.com/vug/freqazoid"
+  "homepage": "https://github.com/vug/freqazoid",
+  "devDependencies": {
+    "browserify": "latest",
+    "watchify": "latest",
+  },
 }
