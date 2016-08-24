@@ -4,7 +4,9 @@
   "description": "A real-time pitch detection software",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify src/main.js -o dist/js/app.js",
+    "watch": "watchify src/main.js -o dist/js/app.js",
   },
   "repository": {
     "type": "git",
