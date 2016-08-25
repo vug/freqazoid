@@ -129,10 +129,15 @@ let initialize = function() {
 
     /* UI */
     let container = document.getElementById('container');
-    let toggleSound = document.getElementById('btnToggleSound');
-    toggleSound.addEventListener('click', ev => {
-        ev.preventDefault();
-        frq.toggleSoundOutput();
+
+    let chkSound = document.getElementById('chkSoundOutput');
+    chkSound.addEventListener('change', ev => {
+        if (ev.srcElement.checked) {
+            frq.turnSoundOn();
+        }
+        else {
+            frq.turnSoundOff();
+        }
     });
 
     let osc = document.getElementById('oscilloscope').getContext('2d');
