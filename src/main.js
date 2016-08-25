@@ -18,20 +18,37 @@ class Freqazoid {
             return;
         }
 
+        this.graphGenerated = false;
+        this.getRequirements();
+    }
+
+    getRequirements() {
         ac = new window.AudioContext();
+
         navigator.getUserMedia(
             {audio: true, video: false},
             stream => {
                 this.micInput = ac.createMediaStreamSource(stream);
-                this.analyser = ac.createAnalyser();
-                this.analyser.fftSize = 2048;
-                this.micInput.connect(this.analyser);
-                this.isMuted = true;
+                this.afterGettingRequirements();
             },
             error => {
                 console.log('ERROR', error);
+                return;
             }
         );
+    }
+
+    afterGettingRequirements() {
+        this.generateAudioGraph();
+
+        this.isMuted = true;
+    }
+
+    generateAudioGraph() {
+        this.analyser = ac.createAnalyser();
+        this.analyser.fftSize = 2048;
+        this.micInput.connect(this.analyser);
+        this.graphGenerated = true;
     }
 
     getOscilloscopeBufferLength() {
