@@ -193,5 +193,15 @@ let initialize = function() {
 
 initialize();
 
+window.addEventListener('resize', function() {
+    let elementsToResize = ['oscilloscope'];
+
+    for (let elementName of elementsToResize) {
+        let element = document.getElementById(elementName);
+        element.width = element.parentNode.clientWidth;
+        element.height = element.parentNode.clientHeight;
+    }
+}, false);
+
 global.ac = ac;
 global.frq = frq;
