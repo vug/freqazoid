@@ -6,6 +6,30 @@ console.log('This is a variable:', myvar);
 console.log('This is a function result:', myfunc(3, 5));
 
 let ac;
+class Freqazoid {
+    constructor() {
+        abstractAwayVendorPrefixes();
+        let isSatisfied = checkRequirements();
+        if (!isSatisfied) {
+            alert('Some of the requirements are not satisfied by your browser or computer.');
+            return;
+        }
+
+        ac = new window.AudioContext();
+        navigator.getUserMedia(
+            {audio: true, video: false},
+            stream => {
+                this.micInput = ac.createMediaStreamSource(stream);
+                this.out = ac.createAnalyser();
+                this.micInput.connect(this.out);
+            },
+            error => {
+                console.log('ERROR', error);
+            }
+        );
+    }
+}
+
 
 /**
  Abstract away from browser vendor prefixes for various APIs that are needed by the app
@@ -45,23 +69,6 @@ let checkRequirements = function() {
  * Initializes the app
  */
 let initialize = function() {
-    abstractAwayVendorPrefixes();
-    let isSatisfied = checkRequirements();
-    if (!isSatisfied) {
-        alert('Some of the requirements are not satisfied by your browser or computer.');
-    }
-
-    ac = new window.AudioContext();
-    navigator.getUserMedia(
-        {audio: true, video: false},
-        function(stream) {
-            let micSource = ac.createMediaStreamSource(stream);
-            //micSource.connect(ac.destination);
-        },
-        function(error) {
-            console.log('ERROR', error);
-        }
-    );
 
 };
 
