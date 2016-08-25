@@ -85,6 +85,15 @@ let checkRequirements = function() {
 let initialize = function() {
     frq = new Freqazoid();
 
+    /* UI */
+    let container = document.getElementById('container');
+    let toggleSound = document.createElement('button');
+    toggleSound.innerText = 'toggle sound';
+    toggleSound.addEventListener('click', ev => {
+        ev.preventDefault();
+        frq.toggleSoundOutput();
+    });
+    container.appendChild(toggleSound);
 };
 
 
