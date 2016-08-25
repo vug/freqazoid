@@ -25,12 +25,12 @@ class Freqazoid {
                 this.analyser = ac.createAnalyser();
                 this.analyser.fftSize = 2048;
                 this.micInput.connect(this.analyser);
+                this.isMuted = true;
             },
             error => {
                 console.log('ERROR', error);
             }
         );
-        this.isMuted = true;
     }
 
     toggleSoundOutput() {
