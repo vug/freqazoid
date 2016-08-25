@@ -6,6 +6,8 @@ console.log('This is a variable:', myvar);
 console.log('This is a function result:', myfunc(3, 5));
 
 let ac;
+let frq;
+
 class Freqazoid {
     constructor() {
         abstractAwayVendorPrefixes();
@@ -69,6 +71,7 @@ let checkRequirements = function() {
  * Initializes the app
  */
 let initialize = function() {
+    frq = new Freqazoid();
 
 };
 
