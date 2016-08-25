@@ -128,7 +128,7 @@ let initialize = function() {
     frq = new Freqazoid();
 
     /* UI */
-    let container = document.getElementById('container');
+    let oscContainer = document.getElementById('oscContainer');
 
     let chkSound = document.getElementById('chkSoundOutput');
     chkSound.addEventListener('change', ev => {
@@ -140,7 +140,11 @@ let initialize = function() {
         }
     });
 
-    let osc = document.getElementById('oscilloscope').getContext('2d');
+    let oscCanvas = document.getElementById('oscilloscope');
+    let osc = oscCanvas.getContext('2d');
+    oscCanvas.width = oscContainer.clientWidth;
+    oscCanvas.height = oscContainer.clientHeight;
+
     let bufferLength = 2048;
     let dataArray = new Uint8Array(bufferLength);
 
@@ -151,8 +155,9 @@ let initialize = function() {
 
         frq.getOscilloscopeData(dataArray);
 
-        WIDTH = 800;
-        HEIGHT = 300;
+        WIDTH = oscContainer.clientWidth;
+        HEIGHT = oscContainer.clientHeight;
+
         osc.fillStyle = 'rgb(200, 200, 200)';
         osc.fillRect(0, 0, WIDTH, HEIGHT);
 
