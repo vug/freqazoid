@@ -89,3 +89,6 @@ let initialize = function() {
 
 
 initialize();
+
+global.ac = ac;
+global.frq = frq;
