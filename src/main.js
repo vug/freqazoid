@@ -11,6 +11,7 @@ let frq;
 class Freqazoid {
     constructor() {
         abstractAwayVendorPrefixes();
+
         let isSatisfied = checkRequirements();
         if (!isSatisfied) {
             alert('Some of the requirements are not satisfied by your browser or computer.');
@@ -56,7 +57,7 @@ class Freqazoid {
 
 /**
  Abstract away from browser vendor prefixes for various APIs that are needed by the app
-*/
+ */
 let abstractAwayVendorPrefixes = function() {
     navigator.getUserMedia = (
         navigator.getUserMedia || navigator.webkitGetUserMedia ||
@@ -110,6 +111,8 @@ let initialize = function() {
 
     let draw = function () {
         requestAnimationFrame(draw);
+
+        if (! frq.graphGenerated) return;
 
         frq.getOscilloscopeData(dataArray);
 
