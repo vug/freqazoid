@@ -47,8 +47,13 @@ class Freqazoid {
     generateAudioGraph() {
         this.analyser = ac.createAnalyser();
         this.analyser.fftSize = 2048;
+        this.out = ac.createGain();
+        this.out.gain.value = 0.0;
+
         this.micInput.connect(this.analyser);
         this.graphGenerated = true;
+        this.analyser.connect(this.out);
+        this.out.connect(ac.destination);
     }
 
     getOscilloscopeBufferLength() {
@@ -61,10 +66,10 @@ class Freqazoid {
 
     toggleSoundOutput() {
         if (this.isMuted) {
-            this.analyser.connect(ac.destination);
+            this.out.gain.value = 1.0;
         }
         else {
-            this.analyser.disconnect();
+            this.out.gain.value = 0.0;
         }
 
         this.isMuted = !this.isMuted;
