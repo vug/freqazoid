@@ -103,6 +103,49 @@ let initialize = function() {
         frq.toggleSoundOutput();
     });
     container.appendChild(toggleSound);
+
+    let osc = document.getElementById('oscilloscope').getContext('2d');
+    let bufferLength = 2048;
+    let dataArray = new Uint8Array(bufferLength);
+
+    let draw = function () {
+        requestAnimationFrame(draw);
+
+        frq.getOscilloscopeData(dataArray);
+
+        WIDTH = 800;
+        HEIGHT = 300;
+        osc.fillStyle = 'rgb(200, 200, 200)';
+        osc.fillRect(0, 0, WIDTH, HEIGHT);
+
+        osc.lineWidth = 2;
+        osc.strokeStyle = 'rgb(0, 0, 0)';
+
+        osc.beginPath();
+
+        var sliceWidth = WIDTH * 1.0 / bufferLength;
+        var x = 0;
+
+        for (var i = 0; i < bufferLength; i++) {
+
+            var v = dataArray[i] / 128.0;
+            var y = v * HEIGHT / 2;
+
+            if (i === 0) {
+                osc.moveTo(x, y);
+            } else {
+                osc.lineTo(x, y);
+            }
+
+            x += sliceWidth;
+        }
+
+        osc.lineTo(WIDTH, HEIGHT / 2);
+        osc.stroke();
+    };
+
+    draw();
+
 };
 
 initialize();
