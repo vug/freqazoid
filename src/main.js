@@ -64,6 +64,16 @@ class Freqazoid {
         this.analyser.getByteTimeDomainData(array);
     }
 
+    turnSoundOn() {
+        this.out.gain.value = 1.0;
+        this.isMuted = false;
+    }
+
+    turnSoundOff() {
+        this.out.gain.value = 0.0;
+        this.isMuted = true;
+    }
+
     toggleSoundOutput() {
         if (this.isMuted) {
             this.out.gain.value = 1.0;
