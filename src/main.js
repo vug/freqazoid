@@ -41,3 +41,30 @@ let checkRequirements = function() {
     }
     return isRequirementsSatisfied;
 };
+
+/**
+ * Initializes the app
+ */
+let initialize = function() {
+    abstractAwayVendorPrefixes();
+    let isSatisfied = checkRequirements();
+    if (!isSatisfied) {
+        alert('Some of the requirements are not satisfied by your browser or computer.');
+    }
+
+    ac = new window.AudioContext();
+    navigator.getUserMedia(
+        {audio: true, video: false},
+        function(stream) {
+            let micSource = ac.createMediaStreamSource(stream);
+            //micSource.connect(ac.destination);
+        },
+        function(error) {
+            console.log('ERROR', error);
+        }
+    );
+
+};
+
+
+initialize();
