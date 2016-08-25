@@ -114,13 +114,11 @@ let initialize = function() {
 
     /* UI */
     let container = document.getElementById('container');
-    let toggleSound = document.createElement('button');
-    toggleSound.innerText = 'toggle sound';
+    let toggleSound = document.getElementById('btnToggleSound');
     toggleSound.addEventListener('click', ev => {
         ev.preventDefault();
         frq.toggleSoundOutput();
     });
-    container.appendChild(toggleSound);
 
     let osc = document.getElementById('oscilloscope').getContext('2d');
     let bufferLength = 2048;
