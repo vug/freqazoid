@@ -29,6 +29,18 @@ class Freqazoid {
                 console.log('ERROR', error);
             }
         );
+        this.isMuted = true;
+    }
+
+    toggleSoundOutput() {
+        if (this.isMuted) {
+            this.out.connect(ac.destination);
+        }
+        else {
+            this.out.disconnect();
+        }
+
+        this.isMuted = !this.isMuted;
     }
 }
 
