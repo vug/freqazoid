@@ -36,17 +36,27 @@
   </div>
   <main class="mdl-layout__content">
     <div class="page-content">
-        <h2 class="mdl-typography--title">Settings</h2>
-        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="chkSoundOutput">
-          <input type="checkbox" id="chkSoundOutput" class="mdl-switch__input">
-          <span class="mdl-switch__label">Output Sound</span>
-        </label>
-    </div>
-
-    <h2 class="mdl-typography--title-color-contrast">Oscilloscope</h2>
-    <div class="mdl-grid">
-        <div id="oscContainer" class="mdl-cell mdl-cell--12-col mdl-shadow--2dp">
-            <canvas id="oscilloscope"></canvas>
+        <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--12-col mdl-shadow--2dp mdl-card">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text">Settings</h2>
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="chkSoundOutput">
+                      <input type="checkbox" id="chkSoundOutput" class="mdl-switch__input">
+                      <span class="mdl-switch__label">Output Sound</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mdl-cell mdl-cell--12-col mdl-shadow--2dp mdl-card">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text">Oscilloscope</h2>
+                </div>
+                <div id="oscContainer" class="mdl-cell mdl-cell--12-col mdl-shadow--2dp">
+                    <canvas id="oscilloscope"></canvas>
+                </div>
+            </div>
         </div>
     </div>
   </main>
