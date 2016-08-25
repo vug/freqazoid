@@ -33,6 +33,14 @@ class Freqazoid {
         );
     }
 
+    getOscilloscopeBufferLength() {
+        return this.analyser.frequencyBinCount;
+    }
+
+    getOscilloscopeData(array) {
+        this.analyser.getByteTimeDomainData(array);
+    }
+
     toggleSoundOutput() {
         if (this.isMuted) {
             this.analyser.connect(ac.destination);
