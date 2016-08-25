@@ -41,6 +41,7 @@ class Freqazoid {
     afterGettingRequirements() {
         this.generateAudioGraph();
 
+        this.graphGenerated = true;
         this.isMuted = true;
     }
 
@@ -51,7 +52,6 @@ class Freqazoid {
         this.out.gain.value = 0.0;
 
         this.micInput.connect(this.analyser);
-        this.graphGenerated = true;
         this.analyser.connect(this.out);
         this.out.connect(ac.destination);
     }
