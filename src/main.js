@@ -22,8 +22,9 @@ class Freqazoid {
             {audio: true, video: false},
             stream => {
                 this.micInput = ac.createMediaStreamSource(stream);
-                this.out = ac.createAnalyser();
-                this.micInput.connect(this.out);
+                this.analyser = ac.createAnalyser();
+                this.analyser.fftSize = 2048;
+                this.micInput.connect(this.analyser);
             },
             error => {
                 console.log('ERROR', error);
@@ -34,10 +35,10 @@ class Freqazoid {
 
     toggleSoundOutput() {
         if (this.isMuted) {
-            this.out.connect(ac.destination);
+            this.analyser.connect(ac.destination);
         }
         else {
-            this.out.disconnect();
+            this.analyser.disconnect();
         }
 
         this.isMuted = !this.isMuted;
