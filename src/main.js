@@ -17,3 +17,25 @@ let abstractAwayVendorPrefixes = function() {
 
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
 };
+
+/**
+ * Check whether requirements of the app are satisfied by the user's computer and browser
+ *
+ * @returns {boolean} true if all requirements are satisfied
+ */
+let checkRequirements = function() {
+    let support = {
+        'microphone input': Boolean(navigator.getUserMedia),
+        'audio context': Boolean(window.AudioContext)
+    };
+
+    let isRequirementsSatisfied = true;
+    for (let functionality in support) {
+        console.log(functionality, support[functionality]);
+        if (!support[functionality]) {
+            console.log('functionality ' + functionality + ' not supported on your device/browser');
+            isRequirementsSatisfied = false;
+        }
+    }
+    return isRequirementsSatisfied;
+};
