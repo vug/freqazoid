@@ -96,7 +96,6 @@ let initialize = function() {
     container.appendChild(toggleSound);
 };
 
-
 initialize();
 
 global.ac = ac;
