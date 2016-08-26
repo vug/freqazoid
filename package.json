@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy:vendor": "cp node_modules/material-design-lite/material.min.css node_modules/material-design-lite/material.min.js dist/vendor/",
     "build": "browserify src/main.js | babel --presets es2015 | uglifyjs --compress --mangle > dist/js/app.js",
-    "watch": "watchify src/main.js -o dist/js/app.js"
+    "watch": "watchify src/main.js -o dist/js/app.js",
+    "deploy": "push-dir --dir=dist --branch=gh-pages"
   },
   "repository": {
     "type": "git",
