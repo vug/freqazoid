@@ -155,8 +155,8 @@ let initialize = function() {
 
         frq.getOscilloscopeData(dataArray);
 
-        WIDTH = oscContainer.clientWidth;
-        HEIGHT = oscContainer.clientHeight;
+        let WIDTH = oscContainer.clientWidth;
+        let HEIGHT = oscContainer.clientHeight;
 
         osc.fillStyle = 'rgb(200, 200, 200)';
         osc.fillRect(0, 0, WIDTH, HEIGHT);
