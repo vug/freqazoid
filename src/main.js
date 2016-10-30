@@ -151,6 +151,22 @@ let initialize = function() {
     let displayLength = 2048;
     let dataArray = new Uint8Array(bufferLength);
 
+    var calcTriggerLocation = function (dataArray) {
+        let delta
+        let sample1 = dataArray[0];
+        for (delta = 1; delta < bufferLength; delta++) {
+            let sample = dataArray[delta];
+            if ((sample1 <= 128 && sample > 128)) {
+                break;
+            }
+        }
+        if (delta === bufferLength) {
+            delta = 0;
+        }
+        document.getElementById('delta').innerText = delta;
+        return delta;
+    };
+
     let draw = function () {
         requestAnimationFrame(draw);
 
