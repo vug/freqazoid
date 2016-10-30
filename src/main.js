@@ -47,6 +47,7 @@ class Freqazoid {
 
     generateAudioGraph() {
         this.analyser = ac.createAnalyser();
+        this.analyser.smoothingTimeConstant = 0.0;
         this.analyser.fftSize = 2048;
         this.out = ac.createGain();
         this.out.gain.value = 0.0;
