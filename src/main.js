@@ -190,8 +190,8 @@ let initialize = function() {
 
         for (var i = delta; i < displayLength; i++) {
 
-            var v = dataArray[i] / 128.0;
-            var y = v * HEIGHT / 2;
+            var v = dataArray[i] / 256.0;
+            var y = HEIGHT - v * HEIGHT;
 
             if (i === 0) {
                 osc.moveTo(x, y);
