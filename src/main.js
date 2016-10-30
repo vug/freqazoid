@@ -152,9 +152,9 @@ let initialize = function() {
     let dataArray = new Uint8Array(bufferLength);
 
     var calcTriggerLocation = function (dataArray) {
-        let delta
         let sample1 = dataArray[0];
-        for (delta = 1; delta < bufferLength; delta++) {
+        let delta = 1;
+        for (; delta < bufferLength; delta++) {
             let sample = dataArray[delta];
             if ((sample1 <= 128 && sample > 128)) {
                 break;
@@ -173,6 +173,7 @@ let initialize = function() {
         if (! frq.graphGenerated) return;
 
         frq.getOscilloscopeData(dataArray);
+        var delta = calcTriggerLocation(dataArray);
 
         let WIDTH = oscContainer.clientWidth;
         let HEIGHT = oscContainer.clientHeight;
