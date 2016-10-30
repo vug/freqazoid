@@ -20,6 +20,7 @@ class Freqazoid {
 
         this.graphGenerated = false;
         this.getRequirements();
+        this.analyserSize = 8192;
     }
 
     getRequirements() {
@@ -48,7 +49,7 @@ class Freqazoid {
     generateAudioGraph() {
         this.analyser = ac.createAnalyser();
         this.analyser.smoothingTimeConstant = 0.0;
-        this.analyser.fftSize = 2048;
+        this.analyser.fftSize = this.analyserSize;
         this.out = ac.createGain();
         this.out.gain.value = 0.0;
 
@@ -146,7 +147,8 @@ let initialize = function() {
     oscCanvas.width = oscContainer.clientWidth;
     oscCanvas.height = oscContainer.clientHeight;
 
-    let bufferLength = 2048;
+    let bufferLength = frq.analyserSize;
+    let displayLength = 2048;
     let dataArray = new Uint8Array(bufferLength);
 
     let draw = function () {
@@ -167,10 +169,10 @@ let initialize = function() {
 
         osc.beginPath();
 
-        var sliceWidth = WIDTH * 1.0 / bufferLength;
+        var sliceWidth = WIDTH * 1.0 / displayLength;
         var x = 0;
 
-        for (var i = 0; i < bufferLength; i++) {
+        for (var i = delta; i < displayLength; i++) {
 
             var v = dataArray[i] / 128.0;
             var y = v * HEIGHT / 2;
