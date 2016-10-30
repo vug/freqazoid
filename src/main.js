@@ -185,25 +185,20 @@ let initialize = function() {
         osc.strokeStyle = 'rgb(0, 0, 0)';
 
         osc.beginPath();
-
         var sliceWidth = WIDTH * 1.0 / displayLength;
         var x = 0;
-
         for (var i = delta; i < displayLength; i++) {
-
             var v = dataArray[i] / 256.0;
             var y = HEIGHT - v * HEIGHT;
 
-            if (i === 0) {
+            if (i === delta) {
                 osc.moveTo(x, y);
             } else {
                 osc.lineTo(x, y);
             }
-
             x += sliceWidth;
         }
 
-        osc.lineTo(WIDTH, HEIGHT / 2);
         osc.stroke();
     };
 
