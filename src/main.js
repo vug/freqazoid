@@ -173,7 +173,8 @@ let initialize = function() {
         if (! frq.graphGenerated) return;
 
         frq.getOscilloscopeData(dataArray);
-        var delta = calcTriggerLocation(dataArray);
+        let useTrigger = document.getElementById('chkTrigger').checked;
+        var delta = useTrigger ? calcTriggerLocation(dataArray) : 0;
 
         let WIDTH = oscContainer.clientWidth;
         let HEIGHT = oscContainer.clientHeight;
