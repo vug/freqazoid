@@ -20,6 +20,7 @@ class Freqazoid {
 
         this.graphGenerated = false;
         this.getRequirements();
+        this.analyserSize = 8192;
     }
 
     getRequirements() {
@@ -48,7 +49,7 @@ class Freqazoid {
     generateAudioGraph() {
         this.analyser = ac.createAnalyser();
         this.analyser.smoothingTimeConstant = 0.0;
-        this.analyser.fftSize = 2048;
+        this.analyser.fftSize = this.analyserSize;
         this.out = ac.createGain();
         this.out.gain.value = 0.0;
 
@@ -146,8 +147,24 @@ let initialize = function() {
     oscCanvas.width = oscContainer.clientWidth;
     oscCanvas.height = oscContainer.clientHeight;
 
-    let bufferLength = 2048;
+    let bufferLength = frq.analyserSize;
+    let displayLength = 2048;
     let dataArray = new Uint8Array(bufferLength);
+
+    var calcTriggerLocation = function (dataArray) {
+        let delta = 0;
+        for (; delta < bufferLength; delta++) {
+            let sample = dataArray[delta];
+            let sample1 = dataArray[delta + 1];
+            if ((sample1 > 128 && sample <= 128)) {
+                break;
+            }
+        }
+        if (delta === bufferLength) {
+            delta = 0;
+        }
+        return delta;
+    };
 
     let draw = function () {
         requestAnimationFrame(draw);
@@ -155,6 +172,9 @@ let initialize = function() {
         if (! frq.graphGenerated) return;
 
         frq.getOscilloscopeData(dataArray);
+        let useTrigger = document.getElementById('chkTrigger').checked;
+        var delta = useTrigger ? calcTriggerLocation(dataArray) : 0;
+        document.getElementById('delta').innerText = delta;
 
         let WIDTH = oscContainer.clientWidth;
         let HEIGHT = oscContainer.clientHeight;
@@ -162,29 +182,30 @@ let initialize = function() {
         osc.fillStyle = 'rgb(200, 200, 200)';
         osc.fillRect(0, 0, WIDTH, HEIGHT);
 
+        osc.lineWidth = 1;
+        osc.strokeStyle = 'rgb(0.1, 0.1, 0.5)';
+        osc.beginPath();
+        osc.moveTo(0, HEIGHT / 2);
+        osc.lineTo(WIDTH, HEIGHT / 2);
+        osc.stroke();
+
         osc.lineWidth = 2;
         osc.strokeStyle = 'rgb(0, 0, 0)';
-
         osc.beginPath();
-
-        var sliceWidth = WIDTH * 1.0 / bufferLength;
+        var sliceWidth = WIDTH * 1.0 / displayLength;
         var x = 0;
+        for (var i = delta; i < displayLength + delta; i++) {
+            var v = dataArray[i] / 256.0;
+            var y = HEIGHT - v * HEIGHT;
 
-        for (var i = 0; i < bufferLength; i++) {
-
-            var v = dataArray[i] / 128.0;
-            var y = v * HEIGHT / 2;
-
-            if (i === 0) {
+            if (i === delta) {
                 osc.moveTo(x, y);
             } else {
                 osc.lineTo(x, y);
             }
-
             x += sliceWidth;
         }
 
-        osc.lineTo(WIDTH, HEIGHT / 2);
         osc.stroke();
     };
 
