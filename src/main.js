@@ -163,7 +163,6 @@ let initialize = function() {
         if (delta === bufferLength) {
             delta = 0;
         }
-        document.getElementById('delta').innerText = delta;
         return delta;
     };
 
@@ -175,6 +174,7 @@ let initialize = function() {
         frq.getOscilloscopeData(dataArray);
         let useTrigger = document.getElementById('chkTrigger').checked;
         var delta = useTrigger ? calcTriggerLocation(dataArray) : 0;
+        document.getElementById('delta').innerText = delta;
 
         let WIDTH = oscContainer.clientWidth;
         let HEIGHT = oscContainer.clientHeight;
