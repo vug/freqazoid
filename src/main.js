@@ -181,9 +181,15 @@ let initialize = function() {
         osc.fillStyle = 'rgb(200, 200, 200)';
         osc.fillRect(0, 0, WIDTH, HEIGHT);
 
+        osc.lineWidth = 1;
+        osc.strokeStyle = 'rgb(0.1, 0.1, 0.5)';
+        osc.beginPath();
+        osc.moveTo(0, HEIGHT / 2);
+        osc.lineTo(WIDTH, HEIGHT / 2);
+        osc.stroke();
+
         osc.lineWidth = 2;
         osc.strokeStyle = 'rgb(0, 0, 0)';
-
         osc.beginPath();
         var sliceWidth = WIDTH * 1.0 / displayLength;
         var x = 0;
