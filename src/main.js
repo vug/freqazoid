@@ -193,7 +193,7 @@ let initialize = function() {
         osc.beginPath();
         var sliceWidth = WIDTH * 1.0 / displayLength;
         var x = 0;
-        for (var i = delta; i < displayLength; i++) {
+        for (var i = delta; i < displayLength + delta; i++) {
             var v = dataArray[i] / 256.0;
             var y = HEIGHT - v * HEIGHT;
 
