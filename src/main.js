@@ -152,11 +152,11 @@ let initialize = function() {
     let dataArray = new Uint8Array(bufferLength);
 
     var calcTriggerLocation = function (dataArray) {
-        let sample1 = dataArray[0];
-        let delta = 1;
+        let delta = 0;
         for (; delta < bufferLength; delta++) {
             let sample = dataArray[delta];
-            if ((sample1 <= 128 && sample > 128)) {
+            let sample1 = dataArray[delta + 1];
+            if ((sample1 > 128 && sample <= 128)) {
                 break;
             }
         }
