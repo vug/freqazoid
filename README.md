@@ -6,7 +6,9 @@ current status: restarting the project in JavaScript
 
 ## Build
 
-You need npm, node to build the project `npm run build`. Then open `index.html` in `dist` folder with your browser.
+You need `npm` to build the project. If you just cloned the repo, first run `npm run init` once. 
+
+To build the project `npm run build`. Then open `index.html` in `dist` folder with your browser.
 
 ## Misc
 
