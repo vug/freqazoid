@@ -4,6 +4,7 @@
   "description": "A real-time pitch detection software",
   "main": "index.js",
   "scripts": {
+    "init": "npm run copy:vendor",
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy:vendor": "node node_modules/copyfiles/copyfiles -f node_modules/material-design-lite/material.min.css node_modules/material-design-lite/material.min.js dist/vendor/",
     "build": "browserify src/main.js | babel --presets es2015 | uglifyjs --compress --mangle > dist/js/app.js",
