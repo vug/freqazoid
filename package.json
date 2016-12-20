@@ -6,7 +6,7 @@
   "scripts": {
     "init": "npm run copy:vendor",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "copy:vendor": "node node_modules/copyfiles/copyfiles -f node_modules/material-design-lite/material.min.css node_modules/material-design-lite/material.min.js dist/vendor/",
+    "copy:vendor": "node node_modules/copyfiles/copyfiles -f node_modules/material-design-lite/material.min.css node_modules/material-design-lite/material.min.js node_modules/vue/dist/vue.js dist/vendor/",
     "build": "browserify src/main.js | babel --presets es2015 | uglifyjs --compress --mangle > dist/js/app.js",
     "watch": "watchify src/main.js -o dist/js/app.js",
     "deploy": "push-dir --dir=dist --branch=gh-pages"
@@ -34,6 +34,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
-    "material-design-lite": "^1.2.0"
+    "material-design-lite": "^1.2.0",
+    "vue": "^2.1.6"
   }
 }
