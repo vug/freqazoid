@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue + Canvas</title>
+  <script src="../node_modules/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" crossorigin="anonymous"></script>
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css" />-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/darcula.min.css" />
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<p>
+<h1>Design ideas for vue with "continuous interaction"</h1>
+<p>As far as I understand, this two-way binding model of HTML UI components with JS objects is designed for sporadic ("discrete") interactions.
+  User clicks on a checkbox and a boolean becomes true, or moves a slider and a variable's value changes.
+  And if those variables are used in some other UI, they reflect the change too.
+  Using computed variables and watches a chain of reaction can be constructed.
+  The chain is a linear progress from the initiation (either via a user UI input, or some changing the variable from the console, or something else)
+  to the final binded elements at the end of the chain.</p>
+<p>I encountered another type of interaction between UI and JS objects, where
+  the JS object has a continuously running process.
+  Two examples can be: A webaudio engine running in the background, or a canvas drawn continuously via requestAnimationFrame.
+  In each case, user is able to change parameters of JS objects, such as a synthesizer parameter or
+  the selected item on Canvas.</p>
+<p>How should we structure the code that obeys principles of clean code?</p>
+<p>For a variable to work both inside and outside of the Vue context it has to be declared in an object or array
+  so that we can have a two-way binding. A number object cannot be shared by both the JS object and Vue object.</p>
+
+<h2>Anti-pattern</h2>
+<p>The visualization reaching to a global vue object
+<pre><code class="javascript">var vue = Vue({/* vue app definition here */});
+class Visualization {
+  render() { this.f(vue.var1); }
+}
+</code></pre>
+or getting the Vue object as function parameter <pre><code class="javascript">render(vue) { this.f(vue.var1); }</code></pre>
+is an anti-design. "Model" shouldn't know about the "view".</p>
+
+<h2>Pattern</h2>
+<p>A separate visualization State object can be generated and its reference can be shared by both parties.
+<pre><code class="javascript">var uiState = {var1: 1.0};
+var vis = Visualization(uiState);
+var vue = Vue({data: {uiState: uiState}});
+</code></pre>
+now on the HTML side a slider declared this way <pre><code class="html">&lt;input type="range" v-model.number="uiState.var1"&gt;</code></pre></p>
+will affect both Vue and the Visualization.</p>
+<p>I thought about this additional layer of uiState variable, because I believed that putting the reference of the whole
+Visualization object to Vue data will make it run slower.
+  But I guess I was wrong.
+  On Vue's website they explain <a href="https://vuejs.org/v2/guide/reactivity.html">how Vue listens to the changes in the model</a> and updates the view.</p>
+<blockquote>One of Vue’s most distinct features is the unobtrusive reactivity system. Models are just plain JavaScript objects. When you modify them, the view updates.</blockquote>
+<p>So, apparently I can keep the state to be modified by the view inside the model object
+<pre><code class="javascript">class Visualization {
+  constructor() {
+    this.var1 = 0;
+  }
+}
+var vis = Visualization();
+var vue = Vue({data: {vis: vis}});
+</code></pre>
+</p>
+
+<p>Here are the two methods implemented. Actually, the state object does not have to be created outside of the model object.
+  In the implementation, I created it inside the constructor of the model.</p>
+
+<h2>Method 1 - Use intermediate state object shared by both model object and vue</h2>
+<canvas id="canvas1" width="200" height="150px" style="outline: black 1px solid;"></canvas>
+<div id="app1">
+  <input type="range" min="0" max="1" step="0.01" v-model.number="xPct" title="x position of the object">
+  <input type="range" min="0" max="2.0" step="0.1" v-model.number="freq" title="oscillation frequency of the object">
+  <span>x: {{xPct}}, f: {{freq}}</span>
+</div>
+
+<h2>Method 2 - Vue has reference to model object</h2>
+<canvas id="canvas2" width="200" height="150px" style="outline: black 1px solid;"></canvas>
+<div id="app2">
+  <input type="range" min="0" max="1" step="0.01" v-model.number="vis.xPct" title="x position of the object">
+  <input type="range" min="0" max="2.0" step="0.1" v-model.number="vis.freq" title="oscillation frequency of the object">
+  <span>x: {{vis.xPct}}, f: {{vis.freq}}</span>
+</div>
+
+<p>Also here are two jsfiddles <a href="https://jsfiddle.net/qzkc59uy/2/">option 1</a>, <a href="https://jsfiddle.net/ned5tgcu/2/">option 2</a>
+  that I prepared to ask a <a href="https://forum.vuejs.org/t/should-i-assign-to-vue-data-whole-model-object-or-only-the-part-of-it-that-is-going-to-be-controlled/4316">question </a> on Vuejs forum. </p>
+
+<script>
+/* Method 1 */
+class Visualization1 {
+  constructor() {
+    this.canvas = document.getElementById('canvas1');
+    this.ctx = this.canvas.getContext('2d');
+    this.t = performance.now();
+    this.phase = 0;
+    this.state =  { // Exposed to controllers
+        xPct: 0.5,
+        freq: 0.5
+    };
+  }
+
+  render() {
+    var ctx = this.ctx;
+    var w = this.canvas.width;
+    var h = this.canvas.height;
+    var deltaT = (performance.now() - this.t) * 0.001; // seconds
+    this.t = performance.now();
+    const TWO_PI = 2.0 * Math.PI;
+    this.phase += TWO_PI * this.state.freq * deltaT;
+    var x = this.state.xPct * w;
+    var deltaY = Math.sin(this.phase) * h * 0.5;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.beginPath();
+    ctx.arc(x, h / 2 + deltaY, 20, 0, TWO_PI);
+    ctx.fill();
+  }
+}
+
+var vis1 = new Visualization1();
+
+var vue1 = new Vue({
+  el: '#app1',
+  data: vis1.state
+});
+
+function animate1() {
+  vis1.render();
+
+  requestAnimationFrame(animate1);
+}
+animate1();
+
+
+
+/* Method 2 */
+class Visualization2 {
+  constructor() {
+    this.canvas = document.getElementById('canvas2');
+    this.ctx = this.canvas.getContext('2d');
+    this.t = performance.now();
+    this.phase = 0;
+    this.xPct = 0.5;
+    this.freq = 0.5;
+  }
+
+  render() {
+    var ctx = this.ctx;
+    var w = this.canvas.width;
+    var h = this.canvas.height;
+    var deltaT = (performance.now() - this.t) * 0.001; // seconds
+    this.t = performance.now();
+    const TWO_PI = 2.0 * Math.PI;
+    this.phase += TWO_PI * this.freq * deltaT;
+    var x = this.xPct * w;
+    var deltaY = Math.sin(this.phase) * h * 0.5;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.beginPath();
+    ctx.arc(x, h / 2 + deltaY, 20, 0, TWO_PI);
+    ctx.fill();
+  }
+}
+
+var vis2 = new Visualization2();
+
+var vue2 = new Vue({
+  el: '#app2',
+  data: {vis: vis2}
+});
+
+function animate2() {
+  vis2.render();
+
+  requestAnimationFrame(animate2);
+}
+animate2();
+
+</script>
+</body>
+</html>
