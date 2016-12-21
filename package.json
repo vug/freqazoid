@@ -4,7 +4,7 @@
   "description": "A real-time pitch detection software",
   "main": "index.js",
   "scripts": {
-    "init": "npm run copy:vendor",
+    "init": "npm run copy:vendor && cd dist && mkdir js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy:vendor": "node node_modules/copyfiles/copyfiles -f node_modules/material-design-lite/material.css node_modules/material-design-lite/material.js node_modules/vue/dist/vue.js dist/vendor/",
     "build": "browserify src/main.js | babel --presets es2015 | uglifyjs --compress --mangle > dist/js/app.js",
