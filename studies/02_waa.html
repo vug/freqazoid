@@ -35,6 +35,11 @@
             <option>square</option>
         </select>
     </div>
+
+    <div>
+        <label>audioContext</label>
+        <button v-on:click="pauseAudioEngine">{{enginePlaying ? 'pause' : 'play'}}</button>
+    </div>
 </div>
 
 <div id="cnv-osc"></div>
@@ -111,8 +116,24 @@ var vue =  new Vue({
     el: '#app',
     data: {
         ae: ae,
+        enginePlaying: true,
         x: 100
     },
+    methods: {
+        pauseAudioEngine: function() {
+            if(this.ae.context.state === "running") {
+                this.ae.context.suspend();
+                this.enginePlaying = false;
+            }
+            else if(this.ae.context.state === "suspended") {
+                this.ae.context.resume();
+                this.enginePlaying = true;
+            }
+        }
+    },
+    computed: {
+
+    }
 });
 
 //var buffer = context.createBuffer(1, 44100, 44100);
