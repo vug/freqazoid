@@ -43,6 +43,7 @@
 </div>
 
 <div id="cnv-osc"></div>
+<div id="cnv-spc"></div>
 
 <script>
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -137,6 +138,7 @@ class Spectroscope extends AudioVisualization {
 
 var ae = new AudioEngine();
 var osc = new Oscilloscope(ae.analyser, 'cnv-osc');
+var spc = new Spectroscope(ae.analyser, 'cnv-spc');
 var vue =  new Vue({
     el: '#app',
     data: {
