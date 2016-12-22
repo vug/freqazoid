@@ -37,6 +37,8 @@
     </div>
 </div>
 
+<div id="cnv-osc"></div>
+
 <script>
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
@@ -45,17 +47,65 @@ class AudioEngine {
 
         this.oscillator = this.context.createOscillator();
         this.gain = this.context.createGain();
-
-        this.oscillator.connect(this.gain);
-        this.gain.connect(this.context.destination);
+        this.analyser = this.context.createAnalyser();
 
         this.oscillator.type = 'sine';
         this.oscillator.frequency.value = 440;
         this.oscillator.start();
+
+        this.analyser.fftSize = 2048;
+
+        this.oscillator.connect(this.gain);
+        this.oscillator.connect(this.analyser);
+        this.gain.connect(this.context.destination);
+    }
+}
+
+class Oscilloscope {
+    constructor(analyser, elemId) {
+        this.analyser = analyser;
+        this.elemId = elemId;
+
+        this.div = document.getElementById(this.elemId);
+        this.div.style.setProperty('outline', 'solid 1px');
+        this.div.style.setProperty('display', 'inline-block');
+        this.canvas = document.createElement('canvas');
+        this.canvas.setAttribute('width', 2048);
+        this.canvas.setAttribute('height', 300);
+        this.div.appendChild(this.canvas);
+        this.context = this.canvas.getContext('2d');
+
+        this.buffer = new Float32Array(this.analyser.frequencyBinCount);
+
+        this.animate();
+    }
+
+    render() {
+        this.analyser.getFloatTimeDomainData(this.buffer);
+        var ctx = this.context;
+        var width = this.canvas.width;
+        var height = this.canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.beginPath();
+        ctx.moveTo(0, height / 2);
+        for (var x=0; x<2048; x++) {
+            var sample = this.buffer[x];
+            var y = sample * height / 2 + (height / 2)
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    animate() {
+        this.render();
+
+        requestAnimationFrame(this.animate.bind(this));
     }
 }
 
 var ae = new AudioEngine();
+var osc = new Oscilloscope(ae.analyser, 'cnv-osc');
 var vue =  new Vue({
     el: '#app',
     data: {
