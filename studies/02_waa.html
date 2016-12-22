@@ -70,7 +70,7 @@ class Oscilloscope {
         this.div.style.setProperty('outline', 'solid 1px');
         this.div.style.setProperty('display', 'inline-block');
         this.canvas = document.createElement('canvas');
-        this.canvas.setAttribute('width', 2048);
+        this.canvas.setAttribute('width', this.analyser.frequencyBinCount);
         this.canvas.setAttribute('height', 300);
         this.div.appendChild(this.canvas);
         this.context = this.canvas.getContext('2d');
@@ -90,7 +90,7 @@ class Oscilloscope {
         ctx.clearRect(0, 0, width, height);
         ctx.beginPath();
         ctx.moveTo(0, height / 2);
-        for (var x=0; x<2048; x++) {
+        for (var x=0; x<this.analyser.frequencyBinCount; x++) {
             var sample = this.buffer[x];
             var y = sample * halfHeight + halfHeight;
             ctx.lineTo(x, y);
