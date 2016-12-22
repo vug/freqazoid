@@ -85,13 +85,14 @@ class Oscilloscope {
         var ctx = this.context;
         var width = this.canvas.width;
         var height = this.canvas.height;
+        var halfHeight = height * 0.5;
 
         ctx.clearRect(0, 0, width, height);
         ctx.beginPath();
         ctx.moveTo(0, height / 2);
         for (var x=0; x<2048; x++) {
             var sample = this.buffer[x];
-            var y = sample * height / 2 + (height / 2)
+            var y = sample * halfHeight + halfHeight;
             ctx.lineTo(x, y);
         }
         ctx.stroke();
