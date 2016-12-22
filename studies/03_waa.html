@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Audio API</title>
+    <script src="../node_modules/vue/dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="param-num">
+        <label>x</label>
+        <input type="range" min="20" max="2000" v-model.number="x">
+        <input type="range" min="20" max="2000" v-model.number="x">
+        {{x}}
+    </div>
+
+    <div class="param-num">
+        <label>gain</label>
+        <input type="range" min="0" max="1.0" step="0.01" v-model.number="params.vol">
+        <input type="range" min="0" max="1.0" step="0.01" v-model.number="params.vol">
+        {{params.vol}
+    </div>
+
+    <div class="param-num">
+        <label>frequency</label>
+        <input type="range" min="20" max="2000" v-model.number="params.freq">
+        <input type="range" min="20" max="2000" v-model.number="params.freq">
+        {{params.freq}}
+    </div>
+
+    <div class="param-sel">
+        <label>type</label>
+        <select v-model="params.type">
+            <option>sine</option>
+            <option>square</option>
+        </select>
+    </div>
+</div>
+
+<script>
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+class AudioEngine {
+    constructor() {
+        this.context = new window.AudioContext();
+
+        this.oscillator = this.context.createOscillator();
+        this.gain = this.context.createGain();
+
+        this.oscillator.connect(this.gain);
+        this.gain.connect(this.context.destination);
+
+        this.oscillator.type = 'sine';
+        this.oscillator.frequency.value = 440;
+        this.oscillator.start();
+
+        this.params = {
+            type: this.oscillator.type,
+            freq: this.oscillator.frequency,
+            vol: this.gain.gain.value
+        }
+    }
+}
+
+
+var ae = new AudioEngine();
+var vue =  new Vue({
+    el: '#app',
+    data: {
+        params: ae.params,
+        x: 100
+    },
+});
+
+//var buffer = context.createBuffer(1, 44100, 44100);
+//var bufferSource = context.createBufferSource();
+</script>
+</body>
+</html>
