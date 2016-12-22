@@ -28,6 +28,13 @@
         {{ae.oscillator.frequency.value}}
     </div>
 
+    <div class="param-num">
+        <label>analyser smoothing time constant</label>
+        <input type="range" min="0.0" max="1.0" step="0.01" v-model.number="ae.analyser.smoothingTimeConstant">
+        <input type="range" min="0.0" max="1.0" step="0.01" v-model.number="ae.analyser.smoothingTimeConstant">
+        {{ae.analyser.smoothingTimeConstant}}
+    </div>
+
     <div class="param-sel">
         <label>type</label>
         <select v-model="ae.oscillator.type">
@@ -58,6 +65,8 @@ class AudioEngine {
         this.oscillator.type = 'sine';
         this.oscillator.frequency.value = 440;
         this.oscillator.start();
+        this.gain.gain.value = 0.5;
+        this.analyser.smoothingTimeConstant = 0.5;
 
         this.analyser.fftSize = 2048;
 
