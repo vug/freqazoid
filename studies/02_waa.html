@@ -116,6 +116,25 @@ class Oscilloscope extends AudioVisualization {
     }
 }
 
+class Spectroscope extends AudioVisualization {
+    render() {
+        this.analyser.getFloatFrequencyData(this.buffer);
+        var ctx = this.context;
+        var width = this.canvas.width;
+        var height = this.canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        for (var x=0; x<this.buffer.length; x++) {
+            var sample = -this.buffer[x];
+            var y = sample;
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+}
+
 var ae = new AudioEngine();
 var osc = new Oscilloscope(ae.analyser, 'cnv-osc');
 var vue =  new Vue({
