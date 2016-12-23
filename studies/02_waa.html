@@ -56,6 +56,26 @@
 <div id="cnv-spc"></div>
 
 <script>
+/**
+ * Cut an array into numSlices arrays with mostly equal length
+ * @param {Array} arr An array of numbers
+ * @param numSlices Number of slice arrays
+ * @returns {Array}
+ */
+function slicesOfArray(arr, numSlices) {
+	var q = arr.length / numSlices;
+	var t = 0;
+	var slices = [];
+
+	for(var i=0; i<numSlices; i++) {
+		var ixp = Math.floor(t);
+		var ix = Math.floor(t + q);
+		var slice = arr.slice(ixp, ix);
+		slices.push(slice);
+		t += q;
+	}
+	return slices;
+}
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
     constructor() {
