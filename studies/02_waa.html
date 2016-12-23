@@ -76,6 +76,16 @@ function slicesOfArray(arr, numSlices) {
 	}
 	return slices;
 }
+
+/**
+ * The sum of all items in an array
+ * @param {Array} arr
+ * @returns {Number} Sum
+ */
+function sum(arr) {
+    return arr.reduce((prev, curr) => prev + curr);
+}
+
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
     constructor() {
