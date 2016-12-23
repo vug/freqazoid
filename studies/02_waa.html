@@ -147,11 +147,15 @@ class Oscilloscope extends AudioVisualization {
         var height = this.canvas.height;
         var halfHeight = height * 0.5;
 
+        var slices = slicesOfArray(this.buffer, width);
+        var samples = slices.map((slice) => sum(slice) / slice.length);
+
+
         ctx.clearRect(0, 0, width, height);
         ctx.beginPath();
-        ctx.moveTo(0, height / 2);
-        for (var x=0; x<this.analyser.frequencyBinCount; x++) {
-            var sample = this.buffer[x];
+        ctx.moveTo(0, samples[0]);
+        for (var x=1; x<width; x++) {
+            var sample = samples[x];
             var y = sample * halfHeight + halfHeight;
             ctx.lineTo(x, y);
         }
