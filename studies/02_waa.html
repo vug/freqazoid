@@ -219,6 +219,10 @@ class Spectroscope extends AudioVisualization {
 var ae = new AudioEngine();
 var osc = new Oscilloscope(ae.analyser, 'osc');
 var spc = new Spectroscope(ae.analyser, 'spc');
+var visualizations = [osc, spc];
+for (let vis of visualizations) {
+    window.addEventListener('resize', vis.resize.bind(vis), false);
+}
 var vue =  new Vue({
     el: '#app',
     data: {
