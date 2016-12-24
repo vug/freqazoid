@@ -166,16 +166,28 @@ class Oscilloscope extends AudioVisualization {
         var halfHeight = height * 0.5;
 
         var slices = slicesOfArray(this.buffer, width);
-        var samples = slices.map((slice) => sum(slice) / slice.length);
+        var sliceMaxes = slices.map((slice) => absoluteMax(slice));
 
 
         ctx.clearRect(0, 0, width, height);
         ctx.beginPath();
-        ctx.moveTo(0, samples[0]);
-        for (var x=1; x<width; x++) {
-            var sample = samples[x];
-            var y = sample * halfHeight + halfHeight;
-            ctx.lineTo(x, y);
+        if(false) {
+            // A line for every sample
+            ctx.moveTo(0, this.buffer[0]);
+            for (var x=1; x<this.buffer.length; x++) {
+                var sample = this.buffer[x];
+                var y = sample * halfHeight + halfHeight;
+                ctx.lineTo(x / this.buffer.length * width, y);
+            }
+        }
+        else {
+            // Absolute Max
+            ctx.moveTo(0, sliceMaxes[0]);
+            for (var x=1; x<width; x++) {
+                var sample = sliceMaxes[x];
+                var y = sample * halfHeight + halfHeight;
+                ctx.lineTo(x, y);
+            }
         }
         ctx.stroke();
     }
