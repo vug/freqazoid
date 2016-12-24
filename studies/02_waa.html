@@ -104,22 +104,14 @@ function absoluteMax(arr) {
     return arr[ix];
 }
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-class AudioEngine {
-    constructor() {
-        this.context = new window.AudioContext();
+class AnalysisBuffer {
+    constructor(context, hopSize, numHops) {
+        this.context = context;
+        this.hopSize = hopSize;
+        this.numHops = numHops;
 
-        this.oscillator = this.context.createOscillator();
-        this.gain = this.context.createGain();
-        this.analyser = this.context.createAnalyser();
-        this.script = this.context.createScriptProcessor(1024, 1, 1);
-
-        this.oscillator.type = 'sine';
-        this.oscillator.frequency.value = 440;
-        this.oscillator.start();
-        this.gain.gain.value = 0.5;
-        this.analyser.smoothingTimeConstant = 0.5;
-        this.script.onaudioprocess = function(audioProcessingEvent) {
+        this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
+        this.node.onaudioprocess = function(audioProcessingEvent) {
             var inputBuffer = audioProcessingEvent.inputBuffer;
             var outputBuffer = audioProcessingEvent.outputBuffer;
             var inputData = inputBuffer.getChannelData(0);
@@ -130,14 +122,32 @@ class AudioEngine {
               outputData[sample] += ((Math.random() * 2) - 1) * 0.2;
             }
         };
+    }
+}
+
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+class AudioEngine {
+    constructor() {
+        this.context = new window.AudioContext();
+
+        this.oscillator = this.context.createOscillator();
+        this.gain = this.context.createGain();
+        this.analyser = this.context.createAnalyser();
+        this.analysisBuffer = new AnalysisBuffer(this.context, 1024, 4);
+
+        this.oscillator.type = 'sine';
+        this.oscillator.frequency.value = 440;
+        this.oscillator.start();
+        this.gain.gain.value = 0.5;
+        this.analyser.smoothingTimeConstant = 0.5;
 
         this.analyser.fftSize = 2048;
 
 //        this.oscillator.connect(this.gain);
-        this.oscillator.connect(this.script);
-        this.script.connect(this.gain);
+        this.oscillator.connect(this.analysisBuffer.node);
+        this.analysisBuffer.node.connect(this.gain);
 //        this.oscillator.connect(this.analyser);
-        this.script.connect(this.analyser);
+        this.analysisBuffer.node.connect(this.analyser);
         this.gain.connect(this.context.destination);
     }
 }
