@@ -86,6 +86,24 @@ function sum(arr) {
     return arr.reduce((prev, curr) => prev + curr);
 }
 
+/**
+ * The item in an array that has the largest absolute value
+ * @param {Array} arr
+ * @returns {Number}
+ */
+function absoluteMax(arr) {
+    var ix = -1;
+    var absMax = -Infinity;
+    for (var k = 0; k < arr.length; k++) {
+        var abs = Math.abs(arr[k]);
+        if (abs > absMax) {
+            ix = k;
+            absMax = abs;
+        }
+    }
+    return arr[ix];
+}
+
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
     constructor() {
