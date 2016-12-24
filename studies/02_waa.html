@@ -207,9 +207,9 @@ class Spectroscope extends AudioVisualization {
         ctx.clearRect(0, 0, width, height);
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        for (var x=0; x<this.buffer.length; x++) {
-            var sample = -this.buffer[x];
-            var y = sample;
+        for (var ix=0; ix<this.buffer.length; ix++) {
+            var y = -this.buffer[ix];
+            var x = ix / this.buffer.length * width;
             ctx.lineTo(x, y);
         }
         ctx.stroke();
