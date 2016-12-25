@@ -123,10 +123,7 @@ class AnalysisBuffer {
             var inputData = inputBuffer.getChannelData(0);
             var outputData = outputBuffer.getChannelData(0);
 
-            for (var sample = 0; sample < inputBuffer.length; sample++) {
-              outputData[sample] = inputData[sample];
-              outputData[sample] += ((Math.random() * 2) - 1) * 0.2;
-            }
+            outputData.set(inputData);
             this.frame.copyWithin(0, this.hopSize);
             this.frame.set(inputData, this.hopSize * (this.numHops - 1));
 
