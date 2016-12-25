@@ -150,10 +150,8 @@ class AudioEngine {
 
         this.analyser.fftSize = 2048;
 
-//        this.oscillator.connect(this.gain);
         this.oscillator.connect(this.analysisBuffer.node);
         this.analysisBuffer.node.connect(this.gain);
-//        this.oscillator.connect(this.analyser);
         this.analysisBuffer.node.connect(this.analyser);
         this.gain.connect(this.context.destination);
     }
@@ -195,7 +193,6 @@ class AudioVisualization {
 
 class Oscilloscope extends AudioVisualization {
     render() {
-//        this.analyser.getFloatTimeDomainData(this.buffer);
         this.buffer = this.analyser.frame;
         var ctx = this.context;
         var width = this.canvas.width;
@@ -232,7 +229,6 @@ class Oscilloscope extends AudioVisualization {
 
 class Spectroscope extends AudioVisualization {
     render() {
-//        this.analyser.getFloatFrequencyData(this.buffer);
         this.buffer = this.analyser.fft.spectrum;
         var ctx = this.context;
         var width = this.canvas.width;
@@ -280,9 +276,7 @@ var vue =  new Vue({
 
     }
 });
-
-//var buffer = context.createBuffer(1, 44100, 44100);
-//var bufferSource = context.createBufferSource();
+    
 </script>
 </body>
 </html>
