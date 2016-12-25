@@ -127,9 +127,9 @@ class AnalysisBuffer {
               outputData[sample] = inputData[sample];
               outputData[sample] += ((Math.random() * 2) - 1) * 0.2;
             }
+            this.frame.copyWithin(0, this.hopSize);
+            this.frame.set(inputData, this.hopSize * (this.numHops - 1));
 
-            this.frame.copyWithin(this.hopSize, 0);
-            this.frame.set(inputData);
 
             var real = this.frame.slice();
             var imag = new Float32Array(this.hopSize * this.numHops);
