@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Web Audio API</title>
     <script src="../node_modules/vue/dist/vue.js"></script>
-    <script src="../dist/vendor/fft.js"></script>
+    <script src="../dist/vendor/dsp.js"></script>
 </head>
 <body>
 <div id="app">
@@ -112,10 +112,7 @@ class AnalysisBuffer {
         this.numHops = numHops;
 
         this.frame = new Float32Array(this.hopSize * this.numHops);
-        this.fft = new FFTNayuki(this.frame.length);
-        this.magnitude = new Float32Array(this.hopSize * this.numHops);
-        this.real = new Float32Array(this.hopSize * this.numHops);
-        this.imag = new Float32Array(this.hopSize * this.numHops);
+        this.fft = new FFT(this.frame.length, 44100);
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = (audioProcessingEvent) => {
@@ -130,14 +127,7 @@ class AnalysisBuffer {
             this.frame.copyWithin(0, this.hopSize);
             this.frame.set(inputData, this.hopSize * (this.numHops - 1));
 
-
-            this.real.set(this.frame);
-            this.imag.fill(0);
-            this.fft.forward(this.real, this.imag);
-
-            for(var ix=0; ix<this.magnitude.length; ix++) {
-                this.magnitude[ix] = Math.sqrt(this.real[ix] ** 2 + this.imag[ix] ** 2);
-            }
+            this.fft.forward(this.frame);
         };
     }
 }
@@ -243,7 +233,7 @@ class Oscilloscope extends AudioVisualization {
 class Spectroscope extends AudioVisualization {
     render() {
 //        this.analyser.getFloatFrequencyData(this.buffer);
-        this.buffer = this.analyser.magnitude.slice(0, this.analyser.magnitude.length / 2);
+        this.buffer = this.analyser.fft.spectrum;
         var ctx = this.context;
         var width = this.canvas.width;
         var height = this.canvas.height;
@@ -252,7 +242,7 @@ class Spectroscope extends AudioVisualization {
         ctx.beginPath();
         ctx.moveTo(0, 0);
         for (var ix=0; ix<this.buffer.length; ix++) {
-            var y = height - this.buffer[ix];
+            var y = height -  this.buffer[ix] * height;
             var x = ix / this.buffer.length * width;
             ctx.lineTo(x, y);
         }
