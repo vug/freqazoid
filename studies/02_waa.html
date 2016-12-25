@@ -110,8 +110,10 @@ class AnalysisBuffer {
         this.hopSize = hopSize;
         this.numHops = numHops;
 
+        this.frame = new Float32Array(this.hopSize * this.numHops);
+
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
-        this.node.onaudioprocess = function(audioProcessingEvent) {
+        this.node.onaudioprocess = (audioProcessingEvent) => {
             var time = audioProcessingEvent.playbackTime;
             var inputBuffer = audioProcessingEvent.inputBuffer;
             var outputBuffer = audioProcessingEvent.outputBuffer;
@@ -122,6 +124,10 @@ class AnalysisBuffer {
               outputData[sample] = inputData[sample];
               outputData[sample] += ((Math.random() * 2) - 1) * 0.2;
             }
+
+            this.frame.copyWithin(this.hopSize, 0);
+            this.frame.set(inputData);
+
         };
     }
 }
