@@ -150,7 +150,7 @@ class AudioEngine {
         this.oscillator = this.context.createOscillator();
         this.gain = this.context.createGain();
         this.analyser = this.context.createAnalyser();
-        this.analysisBuffer = new AnalysisBuffer(this.context, 1024, 4);
+        this.analysisBuffer = new AnalysisBuffer(this.context, 4096, 2);
 
         this.oscillator.type = 'sine';
         this.oscillator.frequency.value = 440;
