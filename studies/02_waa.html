@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Web Audio API</title>
     <script src="../node_modules/vue/dist/vue.js"></script>
+    <script src="../dist/vendor/fft.js"></script>
 </head>
 <body>
 <div id="app">
@@ -111,6 +112,8 @@ class AnalysisBuffer {
         this.numHops = numHops;
 
         this.frame = new Float32Array(this.hopSize * this.numHops);
+        this.fft = new FFTNayuki(this.frame.length);
+        this.magnitude = new Float32Array(this.hopSize * this.numHops);
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = (audioProcessingEvent) => {
@@ -128,6 +131,13 @@ class AnalysisBuffer {
             this.frame.copyWithin(this.hopSize, 0);
             this.frame.set(inputData);
 
+            var real = this.frame.slice();
+            var imag = new Float32Array(this.hopSize * this.numHops);
+            this.fft.forward(real, imag);
+
+            for(var ix=0; ix<this.magnitude.length; ix++) {
+                this.magnitude[ix] = Math.sqrt(real[ix] ** 2 + imag[ix] ** 2);
+            }
         };
     }
 }
