@@ -112,6 +112,7 @@ class AnalysisBuffer {
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = function(audioProcessingEvent) {
+            var time = audioProcessingEvent.playbackTime;
             var inputBuffer = audioProcessingEvent.inputBuffer;
             var outputBuffer = audioProcessingEvent.outputBuffer;
             var inputData = inputBuffer.getChannelData(0);
