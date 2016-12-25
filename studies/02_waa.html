@@ -113,6 +113,7 @@ class AnalysisBuffer {
 
         this.frame = new Float32Array(this.hopSize * this.numHops);
         this.fft = new FFT(this.frame.length, 44100);
+        this.peaks = [];
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = (audioProcessingEvent) => {
@@ -128,6 +129,14 @@ class AnalysisBuffer {
             this.frame.set(inputData, this.hopSize * (this.numHops - 1));
 
             this.fft.forward(this.frame);
+
+            this.peaks = [];
+            var mag = this.fft.spectrum;
+            for(var ix = 1; ix < mag.length - 1; ix++) {
+                if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.05) {
+                    this.peaks.push(ix);
+                }
+            }
         };
     }
 }
