@@ -16,6 +16,14 @@
     </div>
 
     <div class="param-num">
+        <label>osc amp</label>
+        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
+        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
+        {{ae.oscVolume.gain.value}}
+    </div>
+
+
+    <div class="param-num">
         <label>gain</label>
         <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
         <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
@@ -143,10 +151,12 @@ class AnalysisBuffer {
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
-    constructor() {
-        this.context = new window.AudioContext();
+    constructor(context, mic) {
+        this.context = context;
+        this.micInput = mic;
 
         this.oscillator = this.context.createOscillator();
+        this.oscVolume = this.context.createGain();
         this.gain = this.context.createGain();
         this.analyser = this.context.createAnalyser();
 //        this.analysisBuffer = new AnalysisBuffer(this.context, 1024, 4);
@@ -160,7 +170,9 @@ class AudioEngine {
 
         this.analyser.fftSize = 2048;
 
-        this.oscillator.connect(this.analysisBuffer.node);
+        this.oscillator.connect(this.oscVolume);
+        this.oscVolume.connect(this.analysisBuffer.node);
+        this.micInput.connect(this.analysisBuffer.node);
         this.analysisBuffer.node.connect(this.gain);
         this.analysisBuffer.node.connect(this.analyser);
         this.gain.connect(this.context.destination);
@@ -269,36 +281,56 @@ class Spectroscope extends AudioVisualization {
     }
 }
 
-var ae = new AudioEngine();
-var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
-var spc = new Spectroscope(ae.analysisBuffer, 'spc');
-var visualizations = [osc, spc];
-for (let vis of visualizations) {
-    window.addEventListener('resize', vis.resize.bind(vis), false);
-}
-var vue =  new Vue({
-    el: '#app',
-    data: {
-        ae: ae,
-        enginePlaying: true,
-        x: 100
-    },
-    methods: {
-        pauseAudioEngine: function() {
-            if(this.ae.context.state === "running") {
-                this.ae.context.suspend();
-                this.enginePlaying = false;
-            }
-            else if(this.ae.context.state === "suspended") {
-                this.ae.context.resume();
-                this.enginePlaying = true;
-            }
-        }
-    },
-    computed: {
+navigator.getUserMedia(
+    {audio: true, video: false},
+    stream => {
+        var context = new window.AudioContext();
+        var mic = context.createMediaStreamSource(stream);
 
+        var ae = new AudioEngine(context, mic);
+        init(ae);
+    },
+    error => {
+        console.log('ERROR', error);
+        return;
     }
-});
+);
+
+
+function init(ae) {
+    var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
+    var spc = new Spectroscope(ae.analysisBuffer, 'spc');
+    var visualizations = [osc, spc];
+    for (let vis of visualizations) {
+        window.addEventListener('resize', vis.resize.bind(vis), false);
+    }
+    var vue =  new Vue({
+        el: '#app',
+        data: {
+            ae: ae,
+            enginePlaying: true,
+            x: 100
+        },
+        methods: {
+            pauseAudioEngine: function() {
+                if(this.ae.context.state === "running") {
+                    this.ae.context.suspend();
+                    this.enginePlaying = false;
+                }
+                else if(this.ae.context.state === "suspended") {
+                    this.ae.context.resume();
+                    this.enginePlaying = true;
+                }
+            }
+        },
+        computed: {
+
+        }
+    });
+}
+
+
+
     
 </script>
 </body>
