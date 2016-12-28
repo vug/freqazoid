@@ -252,7 +252,7 @@ class Oscilloscope extends AudioVisualization {
 
 class Spectroscope extends AudioVisualization {
     render() {
-        this.buffer = this.analyser.fft.spectrum;
+        var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
         var ctx = this.context;
         var width = this.canvas.width;
         var height = this.canvas.height;
@@ -261,9 +261,10 @@ class Spectroscope extends AudioVisualization {
         ctx.strokeStyle = 'black';
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        for (var ix=0; ix<this.buffer.length; ix++) {
-            var y = height -  this.buffer[ix] * height;
-            var x = ix / this.buffer.length * width;
+        for (var ix=0; ix<spectrum.length; ix++) {
+//            var y = height - spectrum[ix] * height;
+            var y = - Math.log(spectrum[ix]) * height * 0.1;
+            var x = ix / spectrum.length * width;
             ctx.lineTo(x, y);
         }
         ctx.stroke();
@@ -272,7 +273,7 @@ class Spectroscope extends AudioVisualization {
         for (var ix=0; ix<this.analyser.peaks.length; ix++) {
             var peak = this.analyser.peaks[ix];
             ctx.beginPath();
-            var x = peak / this.buffer.length * width;
+            var x = peak / spectrum.length * width;
             ctx.moveTo(x, 0);
             ctx.lineTo(x, height);
             ctx.stroke();
