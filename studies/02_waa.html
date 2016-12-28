@@ -141,7 +141,7 @@ class AnalysisBuffer {
             this.peaks = [];
             var mag = this.fft.spectrum;
             for(var ix = 1; ix < mag.length - 1; ix++) {
-                if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.05) {
+                if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
                     this.peaks.push(ix);
                 }
             }
