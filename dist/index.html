@@ -8,50 +8,51 @@
 </head>
 <body>
 <div id="app">
-    <div class="param-num">
-        <label>dummy slider</label>
-        <input type="range" min="20" max="2000" v-model.number="x">
-        {{x}}
+    <div>
+        <label>synth input:</label>
+        <span class="param-sel">
+            <label>type</label>
+            <select v-model="ae.oscillator.type">
+                <option>sine</option>
+                <option>square</option>
+                <option>sawtooth</option>
+                <option>triangle</option>
+                <option>custom</option>
+            </select>
+        </span>
+        <span class="param-num">
+            <label>osc amp</label>
+            <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
+            {{ae.oscVolume.gain.value}}
+        </span>
+        <span class="param-num">
+            <label>frequency</label>
+            <input type="range" min="20" max="2000" v-model.number="ae.oscillator.frequency.value">
+            {{ae.oscillator.frequency.value}}
+        </span>
     </div>
 
     <div class="param-num">
-        <label>osc amp</label>
-        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
-        {{ae.oscVolume.gain.value}}
-    </div>
-
-    <div class="param-num">
-        <label>frequency</label>
-        <input type="range" min="20" max="2000" v-model.number="ae.oscillator.frequency.value">
-        {{ae.oscillator.frequency.value}}
-    </div>
-
-    <div class="param-num">
-        <label>gain</label>
+        <label>output volume:</label>
         <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
         {{ae.gain.gain.value}}
     </div>
 
-    <div class="param-num">
-        <label>analyser smoothing time constant</label>
-        <input type="range" min="0.0" max="1.0" step="0.01" v-model.number="ae.analyser.smoothingTimeConstant">
-        {{ae.analyser.smoothingTimeConstant}}
-    </div>
-
-    <div class="param-sel">
-        <label>type</label>
-        <select v-model="ae.oscillator.type">
-            <option>sine</option>
-            <option>square</option>
-            <option>sawtooth</option>
-            <option>triangle</option>
-            <option>custom</option>
-        </select>
-    </div>
+    <!--<div class="param-num">-->
+        <!--<label>analyser smoothing time constant</label>-->
+        <!--<input type="range" min="0.0" max="1.0" step="0.01" v-model.number="ae.analyser.smoothingTimeConstant">-->
+        <!--{{ae.analyser.smoothingTimeConstant}}-->
+    <!--</div>-->
 
     <div>
-        <label>audioContext</label>
+        <label>audio engine:</label>
         <button v-on:click="pauseAudioEngine">{{enginePlaying ? 'pause' : 'play'}}</button>
+    </div>
+
+    <div class="param-num">
+        <label>dummy slider</label>
+        <input type="range" min="20" max="2000" v-model.number="x">
+        {{x}}
     </div>
 </div>
 
