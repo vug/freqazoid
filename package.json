@@ -6,7 +6,7 @@
   "scripts": {
     "init": "npm run copy:vendor && cd dist && mkdir js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "copy:vendor": "node node_modules/copyfiles/copyfiles -f node_modules/material-design-lite/material.css node_modules/material-design-lite/material.js node_modules/vue/dist/vue.js dist/vendor/",
+    "copy:vendor": "node node_modules/copyfiles/copyfiles -f node_modules/material-design-lite/material.css node_modules/material-design-lite/material.js node_modules/vue/dist/vue.js node_modules/dspjs/dsp.js dist/vendor/",
     "build": "browserify src/main.js | babel --presets es2015 | uglifyjs --compress --mangle > dist/js/app.js",
     "watch": "watchify src/main.js -o dist/js/app.js",
     "deploy": "push-dir --dir=dist --branch=gh-pages"
