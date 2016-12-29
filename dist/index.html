@@ -9,8 +9,7 @@
 <body>
 <div id="app">
     <div class="param-num">
-        <label>x</label>
-        <input type="range" min="20" max="2000" v-model.number="x">
+        <label>dummy slider</label>
         <input type="range" min="20" max="2000" v-model.number="x">
         {{x}}
     </div>
@@ -18,28 +17,23 @@
     <div class="param-num">
         <label>osc amp</label>
         <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
-        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
         {{ae.oscVolume.gain.value}}
-    </div>
-
-
-    <div class="param-num">
-        <label>gain</label>
-        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
-        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
-        {{ae.gain.gain.value}}
     </div>
 
     <div class="param-num">
         <label>frequency</label>
         <input type="range" min="20" max="2000" v-model.number="ae.oscillator.frequency.value">
-        <input type="range" min="20" max="2000" v-model.number="ae.oscillator.frequency.value">
         {{ae.oscillator.frequency.value}}
     </div>
 
     <div class="param-num">
+        <label>gain</label>
+        <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
+        {{ae.gain.gain.value}}
+    </div>
+
+    <div class="param-num">
         <label>analyser smoothing time constant</label>
-        <input type="range" min="0.0" max="1.0" step="0.01" v-model.number="ae.analyser.smoothingTimeConstant">
         <input type="range" min="0.0" max="1.0" step="0.01" v-model.number="ae.analyser.smoothingTimeConstant">
         {{ae.analyser.smoothingTimeConstant}}
     </div>
