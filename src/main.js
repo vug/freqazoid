@@ -5,225 +5,268 @@ let myfunc = mymodule.myfunction;
 console.log('This is a variable:', myvar);
 console.log('This is a function result:', myfunc(3, 5));
 
-let ac;
-let frq;
+/**
+ * Cut an array into numSlices arrays with mostly equal length
+ * @param {Array} arr An array of numbers
+ * @param numSlices Number of slice arrays
+ * @returns {Array}
+ */
+function slicesOfArray(arr, numSlices) {
+	var q = arr.length / numSlices;
+	var t = 0;
+	var slices = [];
 
-class Freqazoid {
-    constructor() {
-        abstractAwayVendorPrefixes();
+	for(var i=0; i<numSlices; i++) {
+		var ixp = Math.floor(t);
+		var ix = Math.floor(t + q);
+		var slice = arr.slice(ixp, ix);
+		slices.push(slice);
+		t += q;
+	}
+	return slices;
+}
 
-        let isSatisfied = checkRequirements();
-        if (!isSatisfied) {
-            alert('Some of the requirements are not satisfied by your browser or computer.');
-            return;
+/**
+ * The sum of all items in an array
+ * @param {Array} arr
+ * @returns {Number} Sum
+ */
+function sum(arr) {
+    return arr.reduce((prev, curr) => prev + curr);
+}
+
+/**
+ * The item in an array that has the largest absolute value
+ * @param {Array} arr
+ * @returns {Number}
+ */
+function absoluteMax(arr) {
+    var ix = -1;
+    var absMax = -Infinity;
+    for (var k = 0; k < arr.length; k++) {
+        var abs = Math.abs(arr[k]);
+        if (abs > absMax) {
+            ix = k;
+            absMax = abs;
         }
-
-        this.graphGenerated = false;
-        this.getRequirements();
-        this.analyserSize = 8192;
     }
+    return arr[ix];
+}
 
-    getRequirements() {
-        ac = new window.AudioContext();
+class AnalysisBuffer {
+    constructor(context, hopSize, numHops) {
+        this.context = context;
+        this.hopSize = hopSize;
+        this.numHops = numHops;
 
-        navigator.getUserMedia(
-            {audio: true, video: false},
-            stream => {
-                this.micInput = ac.createMediaStreamSource(stream);
-                this.afterGettingRequirements();
-            },
-            error => {
-                console.log('ERROR', error);
-                return;
+        this.frame = new Float32Array(this.hopSize * this.numHops);
+        this.fft = new FFT(this.frame.length, 44100);
+        this.peaks = [];
+
+        this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
+        this.node.onaudioprocess = (audioProcessingEvent) => {
+            var time = audioProcessingEvent.playbackTime;
+            var inputBuffer = audioProcessingEvent.inputBuffer;
+            var outputBuffer = audioProcessingEvent.outputBuffer;
+            var inputData = inputBuffer.getChannelData(0);
+            var outputData = outputBuffer.getChannelData(0);
+
+            outputData.set(inputData);
+
+            this.frame.copyWithin(0, this.hopSize);
+            this.frame.set(inputData, this.hopSize * (this.numHops - 1));
+
+            this.fft.forward(this.frame);
+
+            this.peaks = [];
+            var mag = this.fft.spectrum;
+            for(var ix = 1; ix < mag.length - 1; ix++) {
+                if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
+                    this.peaks.push(ix);
+                }
             }
-        );
-    }
-
-    afterGettingRequirements() {
-        this.generateAudioGraph();
-
-        this.graphGenerated = true;
-        this.isMuted = true;
-    }
-
-    generateAudioGraph() {
-        this.analyser = ac.createAnalyser();
-        this.analyser.smoothingTimeConstant = 0.0;
-        this.analyser.fftSize = this.analyserSize;
-        this.out = ac.createGain();
-        this.out.gain.value = 0.0;
-
-        this.micInput.connect(this.analyser);
-        this.analyser.connect(this.out);
-        this.out.connect(ac.destination);
-    }
-
-    getOscilloscopeBufferLength() {
-        return this.analyser.frequencyBinCount;
-    }
-
-    getOscilloscopeData(array) {
-        this.analyser.getByteTimeDomainData(array);
-    }
-
-    turnSoundOn() {
-        this.out.gain.value = 1.0;
-        this.isMuted = false;
-    }
-
-    turnSoundOff() {
-        this.out.gain.value = 0.0;
-        this.isMuted = true;
-    }
-
-    toggleSoundOutput() {
-        if (this.isMuted) {
-            this.out.gain.value = 1.0;
-        }
-        else {
-            this.out.gain.value = 0.0;
-        }
-
-        this.isMuted = !this.isMuted;
+        };
     }
 }
 
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+class AudioEngine {
+    constructor(context, mic) {
+        this.context = context;
+        this.micInput = mic;
 
-/**
- Abstract away from browser vendor prefixes for various APIs that are needed by the app
- */
-let abstractAwayVendorPrefixes = function() {
-    navigator.getUserMedia = (
-        navigator.getUserMedia || navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia || navigator.msGetUserMedia
-    );
+        this.oscillator = this.context.createOscillator();
+        this.oscVolume = this.context.createGain();
+        this.gain = this.context.createGain();
+        this.analyser = this.context.createAnalyser();
+//        this.analysisBuffer = new AnalysisBuffer(this.context, 1024, 4);
+        this.analysisBuffer = new AnalysisBuffer(this.context, 2048, 2);
 
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-};
+        this.oscillator.type = 'sine';
+        this.oscillator.frequency.value = 440;
+        this.oscillator.start();
+        this.oscVolume.gain.value = 0.0;
+        this.gain.gain.value = 0.0;
+        this.analyser.smoothingTimeConstant = 0.5;
 
-/**
- * Check whether requirements of the app are satisfied by the user's computer and browser
- *
- * @returns {boolean} true if all requirements are satisfied
- */
-let checkRequirements = function() {
-    let support = {
-        'microphone input': Boolean(navigator.getUserMedia),
-        'audio context': Boolean(window.AudioContext)
-    };
+        this.analyser.fftSize = 2048;
 
-    let isRequirementsSatisfied = true;
-    for (let functionality in support) {
-        console.log(functionality, support[functionality]);
-        if (!support[functionality]) {
-            console.log('functionality ' + functionality + ' not supported on your device/browser');
-            isRequirementsSatisfied = false;
-        }
+        this.oscillator.connect(this.oscVolume);
+        this.oscVolume.connect(this.analysisBuffer.node);
+        this.micInput.connect(this.analysisBuffer.node);
+        this.analysisBuffer.node.connect(this.gain);
+        this.analysisBuffer.node.connect(this.analyser);
+        this.gain.connect(this.context.destination);
     }
-    return isRequirementsSatisfied;
-};
+}
 
-/**
- * Initializes the app
- */
-let initialize = function() {
-    frq = new Freqazoid();
+class AudioVisualization {
+    constructor(analyser, elemId) {
+        this.analyser = analyser;
+        this.elemId = elemId;
 
-    /* UI */
-    let oscContainer = document.getElementById('oscContainer');
+        this.div = document.getElementById(this.elemId);
+        this.div.style.setProperty('outline', 'solid 1px');
+        this.div.style.setProperty('display', 'inline-block');
+        this.canvas = document.createElement('canvas');
+        this.resize();
+        this.div.appendChild(this.canvas);
+        this.context = this.canvas.getContext('2d');
 
-    let chkSound = document.getElementById('chkSoundOutput');
-    chkSound.addEventListener('change', ev => {
-        if (ev.srcElement.checked) {
-            frq.turnSoundOn();
+        this.buffer = new Float32Array(this.analyser.frequencyBinCount);
+
+        this.animate();
+    }
+
+    render() {
+
+    }
+
+    resize() {
+        this.canvas.width = this.div.clientWidth;
+        this.canvas.height = this.div.clientHeight;
+    }
+
+    animate() {
+        this.render();
+
+        requestAnimationFrame(this.animate.bind(this));
+    }
+}
+
+class Oscilloscope extends AudioVisualization {
+    render() {
+        this.buffer = this.analyser.frame;
+        var ctx = this.context;
+        var width = this.canvas.width;
+        var height = this.canvas.height;
+        var halfHeight = height * 0.5;
+
+        var slices = slicesOfArray(this.buffer, width);
+        var sliceMaxes = slices.map((slice) => absoluteMax(slice));
+
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.beginPath();
+        if(false) {
+            // A line for every sample
+            ctx.moveTo(0, this.buffer[0]);
+            for (var x=1; x<this.buffer.length; x++) {
+                var sample = this.buffer[x];
+                var y = sample * halfHeight + halfHeight;
+                ctx.lineTo(x / this.buffer.length * width, y);
+            }
         }
         else {
-            frq.turnSoundOff();
+            // Absolute Max
+            ctx.moveTo(0, sliceMaxes[0]);
+            for (var x=1; x<width; x++) {
+                var sample = sliceMaxes[x];
+                var y = sample * halfHeight + halfHeight;
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+    }
+}
+
+class Spectroscope extends AudioVisualization {
+    render() {
+        var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
+        var ctx = this.context;
+        var width = this.canvas.width;
+        var height = this.canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.strokeStyle = 'black';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        for (var ix=0; ix<spectrum.length; ix++) {
+//            var y = height - spectrum[ix] * height;
+            var y = - Math.log(spectrum[ix]) * height * 0.1;
+            var x = ix / spectrum.length * width;
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = 'green';
+        for (var ix=0; ix<this.analyser.peaks.length; ix++) {
+            var peak = this.analyser.peaks[ix];
+            ctx.beginPath();
+            var x = peak / spectrum.length * width;
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+
+
+    }
+}
+
+navigator.getUserMedia(
+    {audio: true, video: false},
+    stream => {
+        var context = new window.AudioContext();
+        var mic = context.createMediaStreamSource(stream);
+
+        var ae = new AudioEngine(context, mic);
+        init(ae);
+    },
+    error => {
+        console.log('ERROR', error);
+        return;
+    }
+);
+
+
+function init(ae) {
+    var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
+    var spc = new Spectroscope(ae.analysisBuffer, 'spc');
+    var visualizations = [osc, spc];
+    for (let vis of visualizations) {
+        window.addEventListener('resize', vis.resize.bind(vis), false);
+    }
+    var vue =  new Vue({
+        el: '#app',
+        data: {
+            ae: ae,
+            enginePlaying: true,
+            x: 100
+        },
+        methods: {
+            pauseAudioEngine: function() {
+                if(this.ae.context.state === "running") {
+                    this.ae.context.suspend();
+                    this.enginePlaying = false;
+                }
+                else if(this.ae.context.state === "suspended") {
+                    this.ae.context.resume();
+                    this.enginePlaying = true;
+                }
+            }
+        },
+        computed: {
+
         }
     });
-
-    let oscCanvas = document.getElementById('oscilloscope');
-    let osc = oscCanvas.getContext('2d');
-    oscCanvas.width = oscContainer.clientWidth;
-    oscCanvas.height = oscContainer.clientHeight;
-
-    let bufferLength = frq.analyserSize;
-    let displayLength = 2048;
-    let dataArray = new Uint8Array(bufferLength);
-
-    var calcTriggerLocation = function (dataArray) {
-        let delta = 0;
-        for (; delta < bufferLength; delta++) {
-            let sample = dataArray[delta];
-            let sample1 = dataArray[delta + 1];
-            if ((sample1 > 128 && sample <= 128)) {
-                break;
-            }
-        }
-        if (delta === bufferLength) {
-            delta = 0;
-        }
-        return delta;
-    };
-
-    let draw = function () {
-        requestAnimationFrame(draw);
-
-        if (! frq.graphGenerated) return;
-
-        frq.getOscilloscopeData(dataArray);
-        let useTrigger = document.getElementById('chkTrigger').checked;
-        var delta = useTrigger ? calcTriggerLocation(dataArray) : 0;
-        document.getElementById('delta').innerText = delta;
-
-        let WIDTH = oscContainer.clientWidth;
-        let HEIGHT = oscContainer.clientHeight;
-
-        osc.fillStyle = 'rgb(200, 200, 200)';
-        osc.fillRect(0, 0, WIDTH, HEIGHT);
-
-        osc.lineWidth = 1;
-        osc.strokeStyle = 'rgb(0.1, 0.1, 0.5)';
-        osc.beginPath();
-        osc.moveTo(0, HEIGHT / 2);
-        osc.lineTo(WIDTH, HEIGHT / 2);
-        osc.stroke();
-
-        osc.lineWidth = 2;
-        osc.strokeStyle = 'rgb(0, 0, 0)';
-        osc.beginPath();
-        var sliceWidth = WIDTH * 1.0 / displayLength;
-        var x = 0;
-        for (var i = delta; i < displayLength + delta; i++) {
-            var v = dataArray[i] / 256.0;
-            var y = HEIGHT - v * HEIGHT;
-
-            if (i === delta) {
-                osc.moveTo(x, y);
-            } else {
-                osc.lineTo(x, y);
-            }
-            x += sliceWidth;
-        }
-
-        osc.stroke();
-    };
-
-    draw();
-
-};
-
-initialize();
-
-window.addEventListener('resize', function() {
-    let elementsToResize = ['oscilloscope'];
-
-    for (let elementName of elementsToResize) {
-        let element = document.getElementById(elementName);
-        element.width = element.parentNode.clientWidth;
-        element.height = element.parentNode.clientHeight;
-    }
-}, false);
-
-global.ac = ac;
-global.frq = frq;
+}
