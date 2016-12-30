@@ -4,22 +4,21 @@ var Spectroscope = visualizations.Spectroscope;
 
 class TwoWayMismatch {
     constructor() {
-
+        this.peaks = [];
     }
 
     detectPeaks(spectrum) {
-        var peaks = [];
+        this.peaks = [];
         var mag = spectrum;
         for(var ix = 1; ix < mag.length - 1; ix++) {
             if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
-                peaks.push(ix);
+                this.peaks.push(ix);
             }
         }
-        return peaks;
     }
 
     process(samples, spectrum) {
-        return this.detectPeaks(spectrum);
+        this.detectPeaks(spectrum);
     }
 
     threshold(freq) {
@@ -121,6 +120,7 @@ function init(ae) {
     var visualizations = [osc, spc];
     for (let vis of visualizations) {
         window.addEventListener('resize', vis.resize.bind(vis), false);
+        vis.animate();
     }
     var vue =  new Vue({
         el: '#app',

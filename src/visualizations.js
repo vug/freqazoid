@@ -14,8 +14,6 @@ class AudioVisualization {
         this.context = this.canvas.getContext('2d');
 
         this.buffer = new Float32Array(this.analyser.frequencyBinCount);
-
-        this.animate();
     }
 
     render() {
@@ -78,6 +76,7 @@ class Spectroscope extends AudioVisualization {
 
     render() {
         var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
+        var peaks = this.twm.peaks;
         var ctx = this.context;
         var width = this.canvas.width;
         var height = this.canvas.height;
@@ -95,8 +94,8 @@ class Spectroscope extends AudioVisualization {
         ctx.stroke();
 
         ctx.strokeStyle = 'green';
-        for (var ix=0; ix<this.analyser.peaks.length; ix++) {
-            var peak = this.analyser.peaks[ix];
+        for (var ix=0; ix<peaks.length; ix++) {
+            var peak = peaks[ix];
             ctx.beginPath();
             var x = peak / spectrum.length * width;
             ctx.moveTo(x, 0);
