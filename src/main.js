@@ -5,9 +5,9 @@ var Spectroscope = visualizations.Spectroscope;
 class TwoWayMismatch {
     constructor() {
         this.peaks = [];
-        this.initial = 0.1;
-        this.final = 0.002;
-        this.freqDecay = 50.0;
+        this.initial = 0.05;
+        this.final = 0.004;
+        this.freqDecay = 1000.0;
     }
 
     detectPeaks(spectrum) {
