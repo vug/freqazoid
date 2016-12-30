@@ -84,6 +84,7 @@ class Spectroscope extends AudioVisualization {
         this.renderSpectrum(ctx, spectrum, width, height);
         if(typeof(this.twm) !== "undefined") {
             this.renderPeaks(ctx, peaks, spectrum, width, height);
+            this.renderThreshold(ctx, spectrum, width, height);
         }
     }
 
@@ -111,6 +112,19 @@ class Spectroscope extends AudioVisualization {
             ctx.lineTo(x, height);
             ctx.stroke();
         }
+    }
+
+    renderThreshold(ctx, spectrum, width, height) {
+        ctx.strokeStyle = 'orange';
+        ctx.beginPath();
+        for (var freq = 0; freq < spectrum.length; freq++) {
+            var threshold = this.twm.threshold(freq);
+//            var y = height - threshold * height;
+            var y = - Math.log(threshold) * height * 0.1;
+            var x = freq / spectrum.length * width;
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
     }
 }
 

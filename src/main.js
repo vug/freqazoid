@@ -22,8 +22,8 @@ class TwoWayMismatch {
     }
 
     threshold(freq) {
-        var t0 = 1.0;
-        var freqDecay = 1000.0;
+        var t0 = 0.5;
+        var freqDecay = 100.0;
         return t0 * Math.exp(- freq / freqDecay);
     }
 }
