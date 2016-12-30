@@ -105,9 +105,9 @@ class Spectroscope extends AudioVisualization {
     renderPeaks(ctx, peaks, spectrum, width, height) {
         ctx.strokeStyle = 'green';
         for (var ix=0; ix<peaks.length; ix++) {
-            var peak = peaks[ix];
+            var peakFreq = peaks[ix];
             ctx.beginPath();
-            var x = peak / spectrum.length * width;
+            var x = peakFreq / 22050 * width;
             ctx.moveTo(x, 0);
             ctx.lineTo(x, height);
             ctx.stroke();
@@ -117,11 +117,12 @@ class Spectroscope extends AudioVisualization {
     renderThreshold(ctx, spectrum, width, height) {
         ctx.strokeStyle = 'orange';
         ctx.beginPath();
-        for (var freq = 0; freq < spectrum.length; freq++) {
+        for (var ix = 0; ix < spectrum.length; ix++) {
+            var freq = ix * 22050 / spectrum.length;
             var threshold = this.twm.threshold(freq);
-//            var y = height - threshold * height;
+            // var y = height - threshold * height;
             var y = - Math.log(threshold) * height * 0.1;
-            var x = freq / spectrum.length * width;
+            var x = ix / spectrum.length * width;
             ctx.lineTo(x, y);
         }
         ctx.stroke();
