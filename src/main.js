@@ -7,7 +7,7 @@ class TwoWayMismatch {
 
     }
 
-    detectPeaks(samples, spectrum) {
+    detectPeaks(spectrum) {
         var peaks = [];
         var mag = spectrum;
         for(var ix = 1; ix < mag.length - 1; ix++) {
@@ -16,6 +16,10 @@ class TwoWayMismatch {
             }
         }
         return peaks;
+    }
+
+    process(samples, spectrum) {
+        return this.detectPeaks(spectrum);
     }
 
     threshold(freq) {
@@ -111,7 +115,7 @@ navigator.getUserMedia(
 
 function init(ae) {
     var twm = new TwoWayMismatch();
-    ae.analysisBuffer.registerProcess(twm.detectPeaks);
+    ae.analysisBuffer.registerProcess(twm.process.bind(twm));
     var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
     var spc = new Spectroscope(ae.analysisBuffer, 'spc');
     var visualizations = [osc, spc];
