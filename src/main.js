@@ -117,7 +117,7 @@ function init(ae) {
     var twm = new TwoWayMismatch();
     ae.analysisBuffer.registerProcess(twm.process.bind(twm));
     var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
-    var spc = new Spectroscope(ae.analysisBuffer, 'spc');
+    var spc = new Spectroscope(ae.analysisBuffer, twm, 'spc');
     var visualizations = [osc, spc];
     for (let vis of visualizations) {
         window.addEventListener('resize', vis.resize.bind(vis), false);

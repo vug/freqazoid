@@ -71,6 +71,11 @@ class Oscilloscope extends AudioVisualization {
 }
 
 class Spectroscope extends AudioVisualization {
+    constructor(analyser, twm, elemId) {
+        super(analyser, elemId);
+        this.twm = twm;
+    }
+
     render() {
         var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
         var ctx = this.context;
