@@ -2,6 +2,17 @@ var visualizations = require('./visualizations');
 var Oscilloscope = visualizations.Oscilloscope;
 var Spectroscope = visualizations.Spectroscope;
 
+function detectPeaks(samples, spectrum) {
+    var peaks = [];
+    var mag = spectrum;
+    for(var ix = 1; ix < mag.length - 1; ix++) {
+        if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
+            peaks.push(ix);
+        }
+    }
+    return peaks;
+}
+
 class AnalysisBuffer {
     constructor(context, hopSize, numHops) {
         this.context = context;
@@ -10,7 +21,6 @@ class AnalysisBuffer {
 
         this.frame = new Float32Array(this.hopSize * this.numHops);
         this.fft = new FFT(this.frame.length, 44100);
-        this.peaks = [];
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = (audioProcessingEvent) => {
@@ -27,13 +37,7 @@ class AnalysisBuffer {
 
             this.fft.forward(this.frame);
 
-            this.peaks = [];
-            var mag = this.fft.spectrum;
-            for(var ix = 1; ix < mag.length - 1; ix++) {
-                if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
-                    this.peaks.push(ix);
-                }
-            }
+            this.peaks = detectPeaks(this.frame, this.fft.spectrum);
         };
     }
 }
