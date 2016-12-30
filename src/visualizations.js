@@ -94,7 +94,7 @@ class Spectroscope extends AudioVisualization {
         ctx.beginPath();
         ctx.moveTo(0, 0);
         for (var ix=0; ix<spectrum.length; ix++) {
-//            var y = height - spectrum[ix] * height;
+            // var y = height - spectrum[ix] * height;
             var y = - Math.log(spectrum[ix]) * height * 0.1;
             var x = ix / spectrum.length * width;
             ctx.lineTo(x, y);
