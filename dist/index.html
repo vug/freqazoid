@@ -9,6 +9,25 @@
 <body>
 <div id="app">
     <div>
+        <label>threshold:</label>
+        <span class="param-num">
+            <label>initial</label>
+            <input type="range" min="0.001" max="1.0" step="0.001" v-model.number="twm.initial">
+            {{twm.initial}}
+        </span>
+        <span class="param-num">
+            <label>final</label>
+            <input type="range" min="0.001" max="1.0" step="0.001" v-model.number="twm.final">
+            {{twm.final}}
+        </span>
+        <span class="param-num">
+            <label>decay</label>
+            <input type="range" min="1" max="1000" step="1" v-model.number="twm.freqDecay">
+            {{twm.freqDecay}}
+        </span>
+    </div>
+
+    <div>
         <label>synth input:</label>
         <span class="param-sel">
             <label>type</label>
