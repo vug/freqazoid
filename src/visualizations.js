@@ -81,6 +81,13 @@ class Spectroscope extends AudioVisualization {
         var width = this.canvas.width;
         var height = this.canvas.height;
 
+        this.renderSpectrum(ctx, spectrum, width, height);
+        if(typeof(this.twm) !== "undefined") {
+            this.renderPeaks(ctx, peaks, spectrum, width, height);
+        }
+    }
+
+    renderSpectrum(ctx, spectrum, width, height) {
         ctx.clearRect(0, 0, width, height);
         ctx.strokeStyle = 'black';
         ctx.beginPath();
@@ -92,7 +99,9 @@ class Spectroscope extends AudioVisualization {
             ctx.lineTo(x, y);
         }
         ctx.stroke();
+    }
 
+    renderPeaks(ctx, peaks, spectrum, width, height) {
         ctx.strokeStyle = 'green';
         for (var ix=0; ix<peaks.length; ix++) {
             var peak = peaks[ix];
@@ -102,8 +111,6 @@ class Spectroscope extends AudioVisualization {
             ctx.lineTo(x, height);
             ctx.stroke();
         }
-
-
     }
 }
 
