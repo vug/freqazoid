@@ -17,6 +17,11 @@ class TwoWayMismatch {
         }
         return peaks;
     }
+
+    static threshold(freq) {
+        var t0 = 1.0;
+        var freqDecay = 1000.0;
+        return t0 * Math.exp(- freq / freqDecay);
     }
 }
 
