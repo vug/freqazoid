@@ -7,7 +7,7 @@ class TwoWayMismatch {
 
     }
 
-    static detectPeaks(samples, spectrum) {
+    detectPeaks(samples, spectrum) {
         var peaks = [];
         var mag = spectrum;
         for(var ix = 1; ix < mag.length - 1; ix++) {
@@ -18,7 +18,7 @@ class TwoWayMismatch {
         return peaks;
     }
 
-    static threshold(freq) {
+    threshold(freq) {
         var t0 = 1.0;
         var freqDecay = 1000.0;
         return t0 * Math.exp(- freq / freqDecay);
@@ -31,6 +31,8 @@ class AnalysisBuffer {
         this.hopSize = hopSize;
         this.numHops = numHops;
 
+        this.processes = [];
+        this.peaks = [];
         this.frame = new Float32Array(this.hopSize * this.numHops);
         this.fft = new FFT(this.frame.length, 44100);
 
@@ -49,8 +51,14 @@ class AnalysisBuffer {
 
             this.fft.forward(this.frame);
 
-            this.peaks = TwoWayMismatch.detectPeaks(this.frame, this.fft.spectrum);
+            for (var process of this.processes) {
+                this.peaks = process(this.frame, this.fft.spectrum);
+            }
         };
+    }
+
+    registerProcess(processFunc) {
+        this.processes.push(processFunc);
     }
 }
 
@@ -102,6 +110,8 @@ navigator.getUserMedia(
 
 
 function init(ae) {
+    var twm = new TwoWayMismatch();
+    ae.analysisBuffer.registerProcess(twm.detectPeaks);
     var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
     var spc = new Spectroscope(ae.analysisBuffer, 'spc');
     var visualizations = [osc, spc];
