@@ -126,6 +126,7 @@ function init(ae) {
         el: '#app',
         data: {
             ae: ae,
+            twm: twm,
             enginePlaying: true,
             x: 100
         },
