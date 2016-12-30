@@ -2,15 +2,22 @@ var visualizations = require('./visualizations');
 var Oscilloscope = visualizations.Oscilloscope;
 var Spectroscope = visualizations.Spectroscope;
 
-function detectPeaks(samples, spectrum) {
-    var peaks = [];
-    var mag = spectrum;
-    for(var ix = 1; ix < mag.length - 1; ix++) {
-        if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
-            peaks.push(ix);
-        }
+class TwoWayMismatch {
+    constructor() {
+
     }
-    return peaks;
+
+    static detectPeaks(samples, spectrum) {
+        var peaks = [];
+        var mag = spectrum;
+        for(var ix = 1; ix < mag.length - 1; ix++) {
+            if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1] && mag[ix] > 0.03) {
+                peaks.push(ix);
+            }
+        }
+        return peaks;
+    }
+    }
 }
 
 class AnalysisBuffer {
@@ -37,7 +44,7 @@ class AnalysisBuffer {
 
             this.fft.forward(this.frame);
 
-            this.peaks = detectPeaks(this.frame, this.fft.spectrum);
+            this.peaks = TwoWayMismatch.detectPeaks(this.frame, this.fft.spectrum);
         };
     }
 }
