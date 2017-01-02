@@ -101,11 +101,22 @@ class AudioEngine {
         this.analyser.fftSize = 2048;
 
         this.oscillator.connect(this.oscVolume);
+        this.connectAnalysisBuffer();
+        this.gain.connect(this.context.destination);
+    }
+
+    connectAnalysisBuffer() {
         this.oscVolume.connect(this.analysisBuffer.node);
         this.micInput.connect(this.analysisBuffer.node);
         this.analysisBuffer.node.connect(this.gain);
         this.analysisBuffer.node.connect(this.analyser);
-        this.gain.connect(this.context.destination);
+    }
+
+    disconnectAnalysisBuffer() {
+        this.analysisBuffer.node.disconnect();
+        this.oscVolume.disconnect();
+        this.micInput.disconnect();
+    }
     }
 }
 
