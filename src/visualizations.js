@@ -41,28 +41,39 @@ class Oscilloscope extends AudioVisualization {
         var halfHeight = height * 0.5;
 
         var slices = utils.slicesOfArray(this.buffer, width);
-        var sliceMaxes = slices.map((slice) => utils.absoluteMax(slice));
+        // var sliceAbsMaxes = slices.map((slice) => utils.absoluteMax(slice));
+        var slcMaxs = slices.map(slice => Math.max(...slice));
+        var slcMins = slices.map(slice => Math.min(...slice));
 
 
         ctx.clearRect(0, 0, width, height);
-        ctx.beginPath();
         if(false) {
             // A line for every sample
+            ctx.beginPath();
             ctx.moveTo(0, this.buffer[0]);
             for (var x=1; x<this.buffer.length; x++) {
                 var sample = this.buffer[x];
                 var y = sample * halfHeight + halfHeight;
                 ctx.lineTo(x / this.buffer.length * width, y);
             }
+            ctx.stroke();
         }
         else {
-            // Absolute Max
-            ctx.moveTo(0, sliceMaxes[0]);
-            for (var x=1; x<width; x++) {
-                var sample = sliceMaxes[x];
-                var y = sample * halfHeight + halfHeight;
-                ctx.lineTo(x, y);
-            }
+            this.plotArray(ctx, slcMaxs);
+            this.plotArray(ctx, slcMins);
+        }
+    }
+
+    plotArray(ctx, arr) {
+        var width = this.canvas.width;
+        var halfHeight = this.canvas.height * 0.5;
+
+        ctx.beginPath();
+        ctx.moveTo(0, arr[0] * halfHeight + halfHeight);
+        for (var x = 1; x < width; x++) {
+            var sample = arr[x];
+            var y = sample * halfHeight + halfHeight;
+            ctx.lineTo(x, y);
         }
         ctx.stroke();
     }
