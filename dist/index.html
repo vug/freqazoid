@@ -39,17 +39,17 @@
         <span class="param-num">
             <label>initial</label>
             <input type="range" min="0.001" max="1.0" step="0.001" v-model.number="twm.initial">
-            {{twm.initial}}
+            <input type="number" min="0.0001" max="1.0" step="0.0001" v-model.number="twm.initial">
         </span>
         <span class="param-num">
             <label>final</label>
             <input type="range" min="0.001" max="1.0" step="0.001" v-model.number="twm.final">
-            {{twm.final}}
+            <input type="number" min="0.0001" max="1.0" step="0.0001" v-model.number="twm.final">
         </span>
         <span class="param-num">
             <label>decay</label>
-            <input type="range" min="1" max="1000" step="1" v-model.number="twm.freqDecay">
-            {{twm.freqDecay}}
+            <input type="range" min="1" max="5000" step="1" v-model.number="twm.freqDecay">
+            <input type="number" min="1" max="5000" v-model.number="twm.freqDecay">
         </span>
     </div>
 
