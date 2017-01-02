@@ -33,6 +33,11 @@ class AudioVisualization {
 }
 
 class Oscilloscope extends AudioVisualization {
+    /**
+     * If the analysis buffer is shorter than the canvas width, draw a line for each sample,
+     * Otherwise, split the buffer into slices (number of slices = width), calculate the maximum and minimum sample
+     * value at each slice and draw one line for maximum samples and another one for minimum samples.
+     */
     render() {
         this.buffer = this.analyser.frame;
         var ctx = this.context;
