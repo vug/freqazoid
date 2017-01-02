@@ -24,11 +24,26 @@ class AnalysisBuffer {
         this.numHops = numHops;
 
         this.processes = [];
-        this.frame = new Float32Array(this.hopSize * this.numHops);
-        this.fft = new FFT(this.frame.length, 44100);
+        this.createWindowAndFFT();
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = this.processAudioCallback.bind(this);
+    }
+
+    createWindowAndFFT() {
+        this.frame = new Float32Array(this.hopSize * this.numHops);
+        this.fft = new FFT(this.frame.length, 44100);
+    }
+
+    setHopSize(hopSize) {
+        this.hopSize = hopSize;
+        this.frame = new Float32Array(this.hopSize * this.numHops);
+        this.createWindowAndFFT();
+    }
+
+    setNumHops(numHops) {
+        this.numHops = numHops;
+        this.createWindowAndFFT();
     }
 
     /**
