@@ -117,6 +117,11 @@ class AudioEngine {
         this.oscVolume.disconnect();
         this.micInput.disconnect();
     }
+
+    setBufferSize(hopSize, numHops) {
+        this.disconnectAnalysisBuffer();
+        this.analysisBuffer.setBufferSize(hopSize, numHops);
+        this.connectAnalysisBuffer();
     }
 }
 
