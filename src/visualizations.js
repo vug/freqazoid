@@ -36,41 +36,42 @@ class Oscilloscope extends AudioVisualization {
     render() {
         this.buffer = this.analyser.frame;
         var ctx = this.context;
-        var width = this.canvas.width;
-        var height = this.canvas.height;
-        var halfHeight = height * 0.5;
 
-        var slices = utils.slicesOfArray(this.buffer, width);
-        // var sliceAbsMaxes = slices.map((slice) => utils.absoluteMax(slice));
-        var slcMaxs = slices.map(slice => Math.max(...slice));
-        var slcMins = slices.map(slice => Math.min(...slice));
-
-
-        ctx.clearRect(0, 0, width, height);
-        if(false) {
-            // A line for every sample
-            ctx.beginPath();
-            ctx.moveTo(0, this.buffer[0]);
-            for (var x=1; x<this.buffer.length; x++) {
-                var sample = this.buffer[x];
-                var y = sample * halfHeight + halfHeight;
-                ctx.lineTo(x / this.buffer.length * width, y);
-            }
-            ctx.stroke();
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if(this.buffer.length <= this.canvas.width) {
+            this.plotShortArray(ctx, this.buffer);
         }
         else {
+            var slices = utils.slicesOfArray(this.buffer, this.canvas.width);
+            // var sliceAbsMaxes = slices.map((slice) => utils.absoluteMax(slice));
+            var slcMaxs = slices.map(slice => Math.max(...slice));
+            var slcMins = slices.map(slice => Math.min(...slice));
+
             this.plotArray(ctx, slcMaxs);
             this.plotArray(ctx, slcMins);
         }
     }
 
-    plotArray(ctx, arr) {
-        var width = this.canvas.width;
+    plotShortArray(ctx, arr) {
         var halfHeight = this.canvas.height * 0.5;
 
         ctx.beginPath();
         ctx.moveTo(0, arr[0] * halfHeight + halfHeight);
-        for (var x = 1; x < width; x++) {
+        for (var ix = 1; ix < arr.length; ix++) {
+            var sample = arr[ix];
+            var x = ix / arr.length * this.canvas.width;
+            var y = sample * halfHeight + halfHeight;
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    plotArray(ctx, arr) {
+        var halfHeight = this.canvas.height * 0.5;
+
+        ctx.beginPath();
+        ctx.moveTo(0, arr[0] * halfHeight + halfHeight);
+        for (var x = 1; x < this.canvas.width; x++) {
             var sample = arr[x];
             var y = sample * halfHeight + halfHeight;
             ctx.lineTo(x, y);
