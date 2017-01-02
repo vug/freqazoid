@@ -33,7 +33,20 @@ class TwoWayMismatch {
     }
 }
 
+/**
+ * An audio buffer of size hopSize * numHops. At each iteration it takes hopSize new samples, puts them at the end of
+ * the frame after sliding old samples towards the left of the frame (while getting rid of the earliest hop in the
+ * frame)
+ * Assume that each place represents a hop of data, and the array is one frame, this is its evolution:
+ * [0 0 0 0] -> [0 0 0 1] -> [0 0 1 2] -> [0 1 2 3] -> [1 2 3 4] -> [2 3 4 5] -> ...
+ */
 class AnalysisBuffer {
+    /**
+     * Create an AnalysisBuffer.
+     * @param {AudioContext} context - Web Audio API audio context
+     * @param {int} hopSize - an audio process event is triggered every hopSize samples
+     * @param {int} numHops - the window size in number of hops
+     */
     constructor(context, hopSize, numHops) {
         this.context = context;
         this.hopSize = hopSize;
@@ -45,24 +58,34 @@ class AnalysisBuffer {
         this.fft = new FFT(this.frame.length, 44100);
 
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
-        this.node.onaudioprocess = (audioProcessingEvent) => {
-            var time = audioProcessingEvent.playbackTime;
-            var inputBuffer = audioProcessingEvent.inputBuffer;
-            var outputBuffer = audioProcessingEvent.outputBuffer;
-            var inputData = inputBuffer.getChannelData(0);
-            var outputData = outputBuffer.getChannelData(0);
+        this.node.onaudioprocess = this.processAudioCallback.bind(this);
+    }
 
-            outputData.set(inputData);
+    /**
+     * Shift the frame towards left by hopSize samples and copy the inputData at the end of the frame.
+     * Calculate FFT.
+     * Run registered process functions.
+     *
+     * This function is a callback function that listens to the AudioProcess event.
+     * @param audioProcessingEvent
+     */
+    processAudioCallback(audioProcessingEvent) {
+        var time = audioProcessingEvent.playbackTime;
+        var inputBuffer = audioProcessingEvent.inputBuffer;
+        var outputBuffer = audioProcessingEvent.outputBuffer;
+        var inputData = inputBuffer.getChannelData(0);
+        var outputData = outputBuffer.getChannelData(0);
 
-            this.frame.copyWithin(0, this.hopSize);
-            this.frame.set(inputData, this.hopSize * (this.numHops - 1));
+        outputData.set(inputData);
 
-            this.fft.forward(this.frame);
+        this.frame.copyWithin(0, this.hopSize);
+        this.frame.set(inputData, this.hopSize * (this.numHops - 1));
 
-            for (var process of this.processes) {
-                this.peaks = process(this.frame, this.fft.spectrum);
-            }
-        };
+        this.fft.forward(this.frame);
+
+        for (var process of this.processes) {
+            this.peaks = process(this.frame, this.fft.spectrum);
+        }
     }
 
     registerProcess(processFunc) {
