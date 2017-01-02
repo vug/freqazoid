@@ -125,20 +125,22 @@ class AudioEngine {
     }
 }
 
-navigator.getUserMedia(
-    {audio: true, video: false},
-    stream => {
-        var context = new window.AudioContext();
-        var mic = context.createMediaStreamSource(stream);
+navigator.mediaDevices.getUserMedia({audio: true, video: false})
+    .then(
+        stream => {
+            var context = new window.AudioContext();
+            var mic = context.createMediaStreamSource(stream);
 
-        var ae = new AudioEngine(context, mic);
-        init(ae);
-    },
-    error => {
-        console.log('ERROR', error);
-        return;
-    }
-);
+            var ae = new AudioEngine(context, mic);
+            init(ae);
+        }
+    )
+    .catch(
+        error => {
+            console.log('ERROR', error);
+            return;
+        }
+    );
 
 
 function init(ae) {
