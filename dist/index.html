@@ -9,6 +9,32 @@
 <body>
 <div id="app">
     <div>
+        <label>buffer size:</label>
+        <span class="param-num">
+            <label>hop size</label>
+            <select v-model.number="hopSize">
+                <option>256</option>
+                <option>512</option>
+                <option>1024</option>
+                <option>2048</option>
+                <option>4096</option>
+                <option>8192</option>
+                <option>16384</option>
+            </select>
+        </span>
+        <span class="param-num">
+            <label>window size (# of hops)</label>
+            <select v-model.number="numHops">
+                <option>1</option>
+                <option>2</option>
+                <option>4</option>
+                <option>8</option>
+                <option>16</option>
+            </select>
+        </span>
+        <span><label>window size (# of samples)</label> <span>{{windowSize}}</span></span>
+    </div>
+    <div>
         <label>threshold:</label>
         <span class="param-num">
             <label>initial</label>

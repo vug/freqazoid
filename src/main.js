@@ -159,6 +159,8 @@ function init(ae) {
             ae: ae,
             twm: twm,
             enginePlaying: true,
+            hopSize: ae.analysisBuffer.hopSize,
+            numHops: ae.analysisBuffer.numHops,
             x: 100
         },
         methods: {
@@ -174,7 +176,17 @@ function init(ae) {
             }
         },
         computed: {
-
+            windowSize: function() {
+                return this.hopSize * this.numHops;
+            }
+        },
+        watch: {
+            hopSize: function(newHopSize) {
+                this.ae.setBufferSize(newHopSize, this.ae.analysisBuffer.numHops);
+            },
+            numHops: function(newNumHops) {
+                this.ae.setBufferSize(this.ae.analysisBuffer.hopSize, newNumHops);
+            }
         }
     });
 }
