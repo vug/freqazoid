@@ -53,7 +53,6 @@ class AnalysisBuffer {
         this.numHops = numHops;
 
         this.processes = [];
-        this.peaks = [];
         this.frame = new Float32Array(this.hopSize * this.numHops);
         this.fft = new FFT(this.frame.length, 44100);
 
@@ -84,7 +83,7 @@ class AnalysisBuffer {
         this.fft.forward(this.frame);
 
         for (var process of this.processes) {
-            this.peaks = process(this.frame, this.fft.spectrum);
+            process(this.frame, this.fft.spectrum);
         }
     }
 
