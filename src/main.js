@@ -135,7 +135,7 @@ function init(ae) {
         window.addEventListener('resize', vis.resize.bind(vis), false);
         vis.animate();
     }
-    var vue =  new Vue({
+    vue =  new Vue({
         el: '#app',
         data: {
             ae: ae,
