@@ -68,7 +68,7 @@
         <span class="param-num">
             <label>osc amp</label>
             <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.oscVolume.gain.value">
-            {{ae.oscVolume.gain.value}}
+            {{ae.oscVolume.gain.value.toFixed(2)}}
         </span>
         <span class="param-num">
             <label>frequency</label>
