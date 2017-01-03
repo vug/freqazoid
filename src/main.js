@@ -125,68 +125,80 @@ class AudioEngine {
     }
 }
 
-navigator.mediaDevices.getUserMedia({audio: true, video: false})
-    .then(
-        stream => {
-            var context = new window.AudioContext();
-            var mic = context.createMediaStreamSource(stream);
-
-            var ae = new AudioEngine(context, mic);
-            init(ae);
-        }
-    )
-    .catch(
-        error => {
-            console.log('ERROR', error);
-            return;
-        }
-    );
 
 
-function init(ae) {
-    var twm = new TwoWayMismatch();
-    ae.analysisBuffer.registerProcess(twm.process.bind(twm));
-    var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
-    var spc = new Spectroscope(ae.analysisBuffer, twm, 'spc');
-    var visualizations = [osc, spc];
-    for (let vis of visualizations) {
-        window.addEventListener('resize', vis.resize.bind(vis), false);
-        vis.animate();
+class Freqazoid {
+    constructor() {
+
     }
-    vue =  new Vue({
-        el: '#app',
-        data: {
-            ae: ae,
-            twm: twm,
-            enginePlaying: true,
-            hopSize: ae.analysisBuffer.hopSize,
-            numHops: ae.analysisBuffer.numHops,
-            x: 100
-        },
-        methods: {
-            pauseAudioEngine: function() {
-                if(this.ae.context.state === "running") {
-                    this.ae.context.suspend();
-                    this.enginePlaying = false;
-                }
-                else if(this.ae.context.state === "suspended") {
-                    this.ae.context.resume();
-                    this.enginePlaying = true;
-                }
-            }
-        },
-        computed: {
-            windowSize: function() {
-                return this.hopSize * this.numHops;
-            }
-        },
-        watch: {
-            hopSize: function(newHopSize) {
-                this.ae.setBufferSize(newHopSize, this.ae.analysisBuffer.numHops);
-            },
-            numHops: function(newNumHops) {
-                this.ae.setBufferSize(this.ae.analysisBuffer.hopSize, newNumHops);
-            }
+
+    init(ae) {
+        var twm = new TwoWayMismatch();
+        ae.analysisBuffer.registerProcess(twm.process.bind(twm));
+        var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
+        var spc = new Spectroscope(ae.analysisBuffer, twm, 'spc');
+        var visualizations = [osc, spc];
+        for (let vis of visualizations) {
+            window.addEventListener('resize', vis.resize.bind(vis), false);
+            vis.animate();
         }
-    });
+        vue =  new Vue({
+            el: '#app',
+            data: {
+                ae: ae,
+                twm: twm,
+                enginePlaying: true,
+                hopSize: ae.analysisBuffer.hopSize,
+                numHops: ae.analysisBuffer.numHops,
+                x: 100
+            },
+            methods: {
+                pauseAudioEngine: function() {
+                    if(this.ae.context.state === "running") {
+                        this.ae.context.suspend();
+                        this.enginePlaying = false;
+                    }
+                    else if(this.ae.context.state === "suspended") {
+                        this.ae.context.resume();
+                        this.enginePlaying = true;
+                    }
+                }
+            },
+            computed: {
+                windowSize: function() {
+                    return this.hopSize * this.numHops;
+                }
+            },
+            watch: {
+                hopSize: function(newHopSize) {
+                    this.ae.setBufferSize(newHopSize, this.ae.analysisBuffer.numHops);
+                },
+                numHops: function(newNumHops) {
+                    this.ae.setBufferSize(this.ae.analysisBuffer.hopSize, newNumHops);
+                }
+            }
+        });
+    }
+
+    requestMicrophone() {
+        navigator.mediaDevices.getUserMedia({audio: true, video: false})
+            .then(
+                stream => {
+                    var context = new window.AudioContext();
+                    var mic = context.createMediaStreamSource(stream);
+
+                    var ae = new AudioEngine(context, mic);
+                    this.init(ae);
+                }
+            )
+            .catch(
+                error => {
+                    console.log('ERROR', error);
+                    return;
+                }
+            );
+    }
 }
+
+var freqazoid = new Freqazoid();
+freqazoid.requestMicrophone();
