@@ -93,7 +93,6 @@ class AudioEngine {
         this.oscVolume = this.context.createGain();
         this.gain = this.context.createGain();
         this.analyser = this.context.createAnalyser();
-//        this.analysisBuffer = new AnalysisBuffer(this.context, 1024, 4);
         this.analysisBuffer = new AnalysisBuffer(this.context, 2048, 2);
 
         this.oscillator.type = 'sine';
