@@ -91,7 +91,7 @@ class TwoWayMismatch {
 
     computeFundamentalFrequency() {
         var peaks = this.peakDetector.peaks;
-        if(!peaks) {
+        if(peaks.length === 0) {
             this.fundamentalFrequency = null;
             return;
         }
