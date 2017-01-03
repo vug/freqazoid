@@ -12,8 +12,6 @@ class AudioVisualization {
         this.resize();
         this.div.appendChild(this.canvas);
         this.context = this.canvas.getContext('2d');
-
-        this.buffer = new Float32Array(this.analyser.frequencyBinCount);
     }
 
     render() {
