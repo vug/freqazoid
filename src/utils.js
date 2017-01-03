@@ -47,6 +47,9 @@ function absoluteMax(arr) {
 }
 
 windowFunctions = {
+    'RECTANGLE': function() {
+
+    },
     'HANN': function(arr) {
         for(var n = 0; n < arr.length; n++) {
             arr[n] = 0.5 * (1.0 - Math.cos(2.0 * Math.PI * n / (arr.length - 1))) * arr[n];
