@@ -115,8 +115,7 @@ class TwoWayMismatch {
 		// Second pass
         var f0Min2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, -1.0 / 12.0);
         var f0Max2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, 1.0 / 12.0);
-
-        console.log(this.ftrials1[minErrorIdx], minErrorVal);
+        
         this.fundamentalFrequency = this.ftrials1[minErrorIdx];
     }
 
