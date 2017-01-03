@@ -80,7 +80,7 @@
     <div class="param-num">
         <label>output volume:</label>
         <input type="range" min="0" max="1.0" step="0.01" v-model.number="ae.gain.gain.value">
-        {{ae.gain.gain.value}}
+        {{ae.gain.gain.value.toFixed(2)}}
     </div>
 
     <!--<div class="param-num">-->
