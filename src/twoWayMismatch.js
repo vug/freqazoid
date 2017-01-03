@@ -9,12 +9,14 @@ class TwoWayMismatch {
     detectPeaks(spectrum) {
         this.peaks = [];
         var mag = spectrum;
+        var dFreq = 44100 / mag.length;
         for(var ix = 1; ix < mag.length - 1; ix++) {
             if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1]) {
-                var freq = ix * 44100 / mag.length;
+                var freq = ix * dFreq;
                 var threshold = this.threshold(freq);
                 if(mag[ix] > threshold) {
-                    this.peaks.push(freq);
+                    var dix = this.fractionalIndexByFittingParabola(mag[ix - 1], mag[ix], mag[ix + 1]);
+                    this.peaks.push(freq + dix * dFreq);
                 }
             }
         }
