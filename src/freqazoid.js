@@ -23,8 +23,7 @@ class Freqazoid {
                 twm: twm,
                 enginePlaying: true,
                 hopSize: ae.analysisBuffer.hopSize,
-                numHops: ae.analysisBuffer.numHops,
-                x: 100
+                numHops: ae.analysisBuffer.numHops
             },
             methods: {
                 pauseAudioEngine: function() {
