@@ -120,11 +120,13 @@ class Spectroscope extends AudioVisualization {
     renderPeaks(ctx, peaks, spectrum, width, height) {
         ctx.strokeStyle = 'green';
         for (var ix=0; ix<peaks.length; ix++) {
-            var peakFreq = peaks[ix];
+            var [peakFreq, peakMag] = peaks[ix];
             ctx.beginPath();
             var x = peakFreq / 22050 * width;
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, height);
+            var y = - Math.log(peakMag) * height * 0.1;
+            ctx.arc(x, y, 5, 0, 2.0 * Math.PI, false);
+            ctx.moveTo(x, height);
+            ctx.lineTo(x, y);
             ctx.stroke();
         }
     }

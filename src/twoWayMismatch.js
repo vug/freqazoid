@@ -15,8 +15,8 @@ class TwoWayMismatch {
                 var freq = ix * dFreq;
                 var threshold = this.threshold(freq);
                 if(mag[ix] > threshold) {
-                    var dix = this.fractionalIndexByFittingParabola(mag[ix - 1], mag[ix], mag[ix + 1]);
-                    this.peaks.push(freq + dix * dFreq);
+                    var [dix, vertexMag] = this.parabolaVertex(mag[ix - 1], mag[ix], mag[ix + 1]);
+                    this.peaks.push([freq + dix * dFreq, vertexMag]);
                 }
             }
         }
@@ -48,11 +48,12 @@ class TwoWayMismatch {
      * @param y2
      * @param y3
      */
-    fractionalIndexByFittingParabola(y1, y2, y3) {
+    parabolaVertex(y1, y2, y3) {
         var a = 0.5 * (y1 + y3) - y2;
         var b = 0.5 * (y3 - y1);
-        var r = - 0.5 * b / a;
-        return r;
+        var x = - 0.5 * b / a;
+        var y = - 0.25 * b * b + y2;
+        return [x, y];
     }
 
     process(samples, spectrum) {
