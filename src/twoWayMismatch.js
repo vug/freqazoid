@@ -130,7 +130,7 @@ class TwoWayMismatch {
 
 		var predictedToMeasuredError = 0.0;
 		var measuredToPredictedError = 0.0;
-		var totalError = 0.0;
+		var totalError;
 
 		var measuredPartials = []; // of length peaks
 		var measuredAmplitudes = [];
