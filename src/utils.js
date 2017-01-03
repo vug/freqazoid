@@ -46,6 +46,25 @@ function absoluteMax(arr) {
     return arr[ix];
 }
 
+windowFunctions = {
+    'HANN': function(arr) {
+        for(var n = 0; n < arr.length; n++) {
+            arr[n] = 0.5 * (1.0 - Math.cos(2.0 * Math.PI * n / (arr.length - 1))) * arr[n];
+        }
+    },
+    'HAMMING': function(arr) {
+        for(var n = 0; n < arr.length; n++) {
+            arr[n] = (0.53836 - 0.46164 * Math.cos(2.0 * Math.PI * n / (arr.length - 1))) * arr[n];
+        }
+    },
+    'BLACKMANN': function(arr) {
+        for(var n = 0; n < arr.length; n++) {
+            arr[n] = (0.42 - 0.5 * Math.cos(2.0 * Math.PI * n / (arr.length - 1)) + 0.08 * Math.cos(4.0 * Math.PI * n / (arr.length - 1))) * arr[n];
+        }
+    }
+};
+
 module.exports['slicesOfArray'] = slicesOfArray;
 module.exports['sum'] = sum;
 module.exports['absoluteMax'] = absoluteMax;
+module.exports['windowFunctions'] = windowFunctions;
