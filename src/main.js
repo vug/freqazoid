@@ -80,9 +80,9 @@ class AnalysisBuffer {
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
-    constructor(micStream) {
+    constructor() {
         this.context = new window.AudioContext();
-        this.micInput = this.context.createMediaStreamSource(micStream);
+        this.micInput = null;
 
         this.oscillator = this.context.createOscillator();
         this.oscVolume = this.context.createGain();
@@ -107,7 +107,7 @@ class AudioEngine {
 
     connectAnalysisBuffer() {
         this.oscVolume.connect(this.analysisBuffer.node);
-        this.micInput.connect(this.analysisBuffer.node);
+        if (this.micInput) { this.micInput.connect(this.analysisBuffer.node); }
         this.analysisBuffer.node.connect(this.gain);
         this.analysisBuffer.node.connect(this.analyser);
     }
@@ -115,7 +115,7 @@ class AudioEngine {
     disconnectAnalysisBuffer() {
         this.analysisBuffer.node.disconnect();
         this.oscVolume.disconnect();
-        this.micInput.disconnect();
+        if (this.micInput) { this.micInput.disconnect(); }
     }
 
     setBufferSize(hopSize, numHops) {
@@ -123,16 +123,19 @@ class AudioEngine {
         this.analysisBuffer.setBufferSize(hopSize, numHops);
         this.connectAnalysisBuffer();
     }
+
+    setMicrophone(micStream) {
+        if (this.micInput) { this.micInput.disconnect(); }
+        this.micInput = this.context.createMediaStreamSource(micStream);
+        this.micInput.connect(this.analysisBuffer.node);
+    }
 }
 
 
 
 class Freqazoid {
     constructor() {
-
-    }
-
-    init(ae) {
+        var ae = new AudioEngine();
         var twm = new TwoWayMismatch();
         ae.analysisBuffer.registerProcess(twm.process.bind(twm));
         var osc = new Oscilloscope(ae.analysisBuffer, 'osc');
@@ -142,7 +145,7 @@ class Freqazoid {
             window.addEventListener('resize', vis.resize.bind(vis), false);
             vis.animate();
         }
-        vue =  new Vue({
+        this.vue =  new Vue({
             el: '#app',
             data: {
                 ae: ae,
@@ -178,24 +181,24 @@ class Freqazoid {
                 }
             }
         });
+
+
+        this.requestMicrophone(ae);
     }
 
-    requestMicrophone() {
+    requestMicrophone(ae) {
         navigator.mediaDevices.getUserMedia({audio: true, video: false})
             .then(
                 micStream => {
-                    var ae = new AudioEngine(micStream);
-                    this.init(ae);
+                    ae.setMicrophone(micStream);
                 }
             )
             .catch(
                 error => {
-                    console.log('ERROR', error);
-                    return;
+                    console.log('MIC REQUEST ERROR', error);
                 }
             );
     }
 }
 
-var freqazoid = new Freqazoid();
-freqazoid.requestMicrophone();
+freqazoid = new Freqazoid();
