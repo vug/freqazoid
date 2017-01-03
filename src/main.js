@@ -129,9 +129,21 @@ class AudioEngine {
         this.micInput = this.context.createMediaStreamSource(micStream);
         this.micInput.connect(this.analysisBuffer.node);
     }
+
+    requestMicrophone() {
+        navigator.mediaDevices.getUserMedia({audio: true, video: false})
+            .then(
+                micStream => {
+                    this.setMicrophone(micStream);
+                }
+            )
+            .catch(
+                error => {
+                    console.log('MIC REQUEST ERROR', error);
+                }
+            );
+    }
 }
-
-
 
 class Freqazoid {
     constructor() {
@@ -183,21 +195,7 @@ class Freqazoid {
         });
 
 
-        this.requestMicrophone(ae);
-    }
-
-    requestMicrophone(ae) {
-        navigator.mediaDevices.getUserMedia({audio: true, video: false})
-            .then(
-                micStream => {
-                    ae.setMicrophone(micStream);
-                }
-            )
-            .catch(
-                error => {
-                    console.log('MIC REQUEST ERROR', error);
-                }
-            );
+        ae.requestMicrophone();
     }
 }
 
