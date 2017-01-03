@@ -62,11 +62,66 @@ class PeakDetector {
 
 class TwoWayMismatch {
     constructor() {
+        this.fundamentalFrequency = 0.0;
         this.peakDetector = new PeakDetector();
+        this.pmP = 0.5;
+        this.pmQ = 1.4;
+        this.pmR = 0.5;
+        this.mpP = 0.5;
+        this.mpQ = 1.4;
+        this.mpR = 0.5;
+        this.rho = 0.33;
+
+        this.errors1 = [];
+        this.ftrials1 = [];
+        this.errors2 = [];
+        this.ftrials2 = [];
+
+        this.errorThreshold = 7.0;
+
+        this.f0Min = 220;
+        this.f0Max = 880;
     }
 
     process(samples, spectrum) {
         this.peakDetector.detectPeaks(spectrum);
+        this.computeFundamentalFrequency();
+    }
+
+    computeFundamentalFrequency() {
+        var peaks = this.peakDetector.peaks;
+
+		// divide the frequency range to equal tempered semitone steps.
+		var log102 = 1.0 / Math.log10(2.0);
+		var nFreqs = Math.floor(12.0 * log102 * Math.log10(this.f0Max / this.f0Min));
+
+		this.errors1 = [];
+		this.ftrials1 = [];
+
+		for (var i = 0; i < nFreqs; i++) {
+			this.ftrials1[i] = this.f0Min * Math.pow(2.0, i / 12.0);
+			this.errors1[i] = this.calculateTotalError(this.ftrials1[i], peaks);
+		}
+
+		var minErrorVal = Number.POSITIVE_INFINITY;
+		var minErrorIdx = 0;
+		for (var i = 0; i < nFreqs; i++) {
+			if(this.errors1[i] < minErrorVal) {
+				minErrorVal = this.errors1[i];
+				minErrorIdx = i;
+			}
+		}
+
+		// Second pass
+        var f0Min2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, -1.0 / 12.0);
+        var f0Max2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, 1.0 / 12.0);
+
+        console.log(this.ftrials1[minErrorIdx], minErrorVal);
+        this.fundamentalFrequency = this.ftrials1[minErrorIdx];
+    }
+
+    calculateTotalError(ftrials, peaks) {
+        return 1.0;
     }
 }
 
