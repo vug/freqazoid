@@ -1,4 +1,4 @@
-class TwoWayMismatch {
+class PeakDetector {
     constructor() {
         this.peaks = [];
         this.initial = 0.05;
@@ -55,12 +55,18 @@ class TwoWayMismatch {
         return [x, y];
     }
 
-    process(samples, spectrum) {
-        this.detectPeaks(spectrum);
-    }
-
     threshold(freq) {
         return (this.initial - this.final) * Math.exp(- freq / this.freqDecay) + this.final;
+    }
+}
+
+class TwoWayMismatch {
+    constructor() {
+        this.peakDetector = new PeakDetector();
+    }
+
+    process(samples, spectrum) {
+        this.peakDetector.detectPeaks(spectrum);
     }
 }
 

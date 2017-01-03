@@ -91,7 +91,7 @@ class Spectroscope extends AudioVisualization {
 
     render() {
         var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
-        var peaks = this.twm.peaks;
+        var peaks = this.twm.peakDetector.peaks;
         var ctx = this.context;
         var width = this.canvas.width;
         var height = this.canvas.height;
@@ -136,7 +136,7 @@ class Spectroscope extends AudioVisualization {
         ctx.beginPath();
         for (var ix = 0; ix < spectrum.length; ix++) {
             var freq = ix * 22050 / spectrum.length;
-            var threshold = this.twm.threshold(freq);
+            var threshold = this.twm.peakDetector.threshold(freq);
             // var y = height - threshold * height;
             var y = - Math.log(threshold) * height * 0.1;
             var x = ix / spectrum.length * width;
