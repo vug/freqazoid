@@ -91,6 +91,7 @@ class Spectroscope extends AudioVisualization {
 
     render() {
         var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
+        var f0 = this.twm.fundamentalFrequency;
         var peaks = this.twm.peakDetector.peaks;
         var ctx = this.context;
         var width = this.canvas.width;
@@ -100,6 +101,7 @@ class Spectroscope extends AudioVisualization {
         if(typeof(this.twm) !== "undefined") {
             this.renderPeaks(ctx, peaks, spectrum, width, height);
             this.renderThreshold(ctx, spectrum, width, height);
+            if(f0) this.renderFundamentalFrequency(ctx, f0, width, height);
         }
     }
 
@@ -129,6 +131,15 @@ class Spectroscope extends AudioVisualization {
             ctx.lineTo(x, y);
             ctx.stroke();
         }
+    }
+
+    renderFundamentalFrequency(ctx, f0, width, height) {
+        ctx.strokeStyle = 'red';
+        ctx.beginPath();
+        var x = f0 / 22050 * width;
+        ctx.moveTo(x, height);
+        ctx.lineTo(x, 0);
+        ctx.stroke();
     }
 
     renderThreshold(ctx, spectrum, width, height) {
