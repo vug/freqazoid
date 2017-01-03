@@ -83,9 +83,9 @@ class AnalysisBuffer {
     }
 }
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
     constructor() {
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.context = new window.AudioContext();
         this.micInput = null;
 
