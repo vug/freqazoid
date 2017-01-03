@@ -46,7 +46,7 @@ function absoluteMax(arr) {
     return arr[ix];
 }
 
-windowFunctions = {
+var windowFunctions = {
     'RECTANGLE': function() {
 
     },
