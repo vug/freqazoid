@@ -63,6 +63,7 @@ class PeakDetector {
 class TwoWayMismatch {
     constructor() {
         this.fundamentalFrequency = 0.0;
+        this.totalError = 0.0;
         this.peakDetector = new PeakDetector();
         this.pmP = 0.5;
         this.pmQ = 1.4;
@@ -119,8 +120,9 @@ class TwoWayMismatch {
 		// Second pass
         var f0Min2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, -1.0 / 12.0);
         var f0Max2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, 1.0 / 12.0);
-        
+
         this.fundamentalFrequency = this.ftrials1[minErrorIdx];
+        this.totalError = minErrorVal;
     }
 
     calculateTotalError(f0Trial) {
