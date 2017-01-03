@@ -80,9 +80,9 @@ class AnalysisBuffer {
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 class AudioEngine {
-    constructor(context, micStream) {
-        this.context = context;
-        this.micInput = context.createMediaStreamSource(micStream);
+    constructor(micStream) {
+        this.context = new window.AudioContext();
+        this.micInput = this.context.createMediaStreamSource(micStream);
 
         this.oscillator = this.context.createOscillator();
         this.oscVolume = this.context.createGain();
@@ -184,8 +184,7 @@ class Freqazoid {
         navigator.mediaDevices.getUserMedia({audio: true, video: false})
             .then(
                 micStream => {
-                    var context = new window.AudioContext();
-                    var ae = new AudioEngine(context, micStream);
+                    var ae = new AudioEngine(micStream);
                     this.init(ae);
                 }
             )
