@@ -20,6 +20,39 @@ class TwoWayMismatch {
         }
     }
 
+    /**
+     * Compute x-coordinate of the peak of a parabola that passes through these three points: (-1, y1), (-1, y2), (-1, y2)
+     *
+     * Parabola equation: y = a * x ** 2 + b * x + c
+     *
+     * x == -1 => a - b + c = y1
+     * x ==  0 => c = y2
+     * x ==  1 => a + b + c = y3
+     *
+     * a - b = y1 - y2
+     * a + b = y3 - y2
+     *
+     * which gives:
+     *
+     * a = 0.5 * (y1 + y3) - y2
+     * b = 0.5 * (y3 - y1)
+     * c = y2
+     *
+     * then x-coordinate of the maxima is: - b / (2 * a)
+     *
+     * which is:
+     *
+     * @param y1
+     * @param y2
+     * @param y3
+     */
+    fractionalIndexByFittingParabola(y1, y2, y3) {
+        var a = 0.5 * (y1 + y3) - y2;
+        var b = 0.5 * (y3 - y1);
+        var r = - 0.5 * b / a;
+        return r;
+    }
+
     process(samples, spectrum) {
         this.detectPeaks(spectrum);
     }
