@@ -166,7 +166,7 @@ class TwoWayMismatch {
 		for (let n = 0; n < predictedHarmonics.length; n++) {
 			differences[n] = Number.POSITIVE_INFINITY;
 			for (let k = 0; k < measuredPartials.length; k++) {
-				var diff = Math.abs(predictedHarmonics[n] - measuredPartials[k]);
+				let diff = Math.abs(predictedHarmonics[n] - measuredPartials[k]);
 				if(diff < differences[n]) {
 					differences[n] = diff;
 					predictedAmplitudes[n] = measuredAmplitudes[k];
@@ -174,12 +174,32 @@ class TwoWayMismatch {
 			}
 			predictedToMeasuredError += this.computePredictedToMeasuredError(differences[n], predictedHarmonics[n], predictedAmplitudes[n], ampMax);
 		}
-        return predictedToMeasuredError;
+
+        // measured to predicted
+		differences = new Float32Array(peaks.length);
+		for (let k = 0; k < differences.length; k++) {
+			differences[k] = Number.POSITIVE_INFINITY;
+			for (let n = 0; n < predictedHarmonics.length; n++) {
+				let diff = Math.abs(predictedHarmonics[n] - peaks[k][0]);
+				if(diff < differences[k]) {
+					differences[k] = diff;
+				}
+			}
+			measuredToPredictedError += this.computeMeasuredToPredictedError(differences[k], peaks[k][0], peaks[k][1], ampMax);
+		}
+
+		totalError = predictedToMeasuredError / predictedHarmonics.length + this.rho * measuredToPredictedError / peaks.length;
+        return totalError;
     }
 
 	computePredictedToMeasuredError(deltaFreqN, freqN, ampN, ampMax) {
 		var error = deltaFreqN * Math.pow(freqN, -this.pmP) + (ampN / ampMax) * (this.pmQ * deltaFreqN * Math.pow(freqN, -this.pmP) - this.pmR);
 		// freqN === 0 => error === Infinity
+		return error;
+	}
+
+	computeMeasuredToPredictedError(deltaFreqK, freqK, ampK, ampMax) {
+		var error = deltaFreqK * Math.pow(freqK, -this.mpP)+(ampK / ampMax) * (this.mpQ * deltaFreqK * Math.pow(freqK, -this.mpP) - this.mpR);
 		return error;
 	}
 }
