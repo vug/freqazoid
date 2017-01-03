@@ -120,9 +120,63 @@ class TwoWayMismatch {
         this.fundamentalFrequency = this.ftrials1[minErrorIdx];
     }
 
-    calculateTotalError(ftrials, peaks) {
-        return 1.0;
+    calculateTotalError(f0Trial) {
+        var peaks = this.peakDetector.peaks;
+
+		var predictedToMeasuredError = 0.0;
+		var measuredToPredictedError = 0.0;
+		var totalError = 0.0;
+
+		var measuredPartials = []; // of length peaks
+		var measuredAmplitudes = [];
+
+		// determine maximum measured amplitude and partial frequency
+		var ampMax = 0.0;
+		var freqMax = 0.0;
+		for (var i = 0; i < peaks.length; i++) {
+            var freq = peaks[i][0];
+            var mag = peaks[i][1];
+			measuredPartials[i] = freq;
+			measuredAmplitudes[i] = mag;
+
+			if( measuredAmplitudes[i] > ampMax ) {
+				ampMax = measuredPartials[i];
+			}
+
+			if( measuredPartials[i] > freqMax ) {
+				freqMax = measuredPartials[i];
+			}
+		}
+
+		// calculate predicted frequencies of harmonics
+		var nPredictedHarmonics = Math.ceil(freqMax / f0Trial);
+		var predictedHarmonics = new Float32Array(nPredictedHarmonics);
+		var predictedAmplitudes = new Float32Array(nPredictedHarmonics);
+		for (let n = 0; n < nPredictedHarmonics; n++) {
+			predictedHarmonics[n] = f0Trial * (n + 1);
+		}
+
+		// predicted to measured
+		var differences = new Float32Array(nPredictedHarmonics);
+		for (let n = 0; n < predictedHarmonics.length; n++) {
+			differences[n] = Number.POSITIVE_INFINITY;
+			for (let k = 0; k < measuredPartials.length; k++) {
+				var diff = Math.abs(predictedHarmonics[n] - measuredPartials[k]);
+				if(diff < differences[n]) {
+					differences[n] = diff;
+					predictedAmplitudes[n] = measuredAmplitudes[k];
+				}
+			}
+			predictedToMeasuredError += this.computePredictedToMeasuredError(differences[n], predictedHarmonics[n], predictedAmplitudes[n], ampMax);
+		}
+        return predictedToMeasuredError;
     }
+
+	computePredictedToMeasuredError(deltaFreqN, freqN, ampN, ampMax) {
+		var error = deltaFreqN * Math.pow(freqN, -this.pmP) + (ampN / ampMax) * (this.pmQ * deltaFreqN * Math.pow(freqN, -this.pmP) - this.pmR);
+		// freqN === 0 => error === Infinity
+		return error;
+	}
 }
 
 module.exports['TwoWayMismatch'] = TwoWayMismatch;
