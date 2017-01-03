@@ -177,6 +177,9 @@ class Freqazoid {
                         this.ae.context.resume();
                         this.enginePlaying = true;
                     }
+                },
+                requestMicrophone: function() {
+                    this.ae.requestMicrophone();
                 }
             },
             computed: {

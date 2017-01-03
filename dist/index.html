@@ -92,6 +92,7 @@
     <div>
         <label>audio engine:</label>
         <button v-on:click="pauseAudioEngine">{{enginePlaying ? 'pause' : 'play'}}</button>
+        <button v-on:click="requestMicrophone">request microphone</button>
     </div>
 
     <div class="param-num">
