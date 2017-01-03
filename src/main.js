@@ -145,6 +145,7 @@ class AudioEngine {
             .catch(
                 error => {
                     console.log('MIC REQUEST ERROR', error);
+                    return null;
                 }
             );
     }
