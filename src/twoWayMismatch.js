@@ -23,7 +23,8 @@ class TwoWayMismatch {
     }
 
     /**
-     * Compute x-coordinate of the peak of a parabola that passes through these three points: (-1, y1), (-1, y2), (-1, y2)
+     * Compute x-coordinate of the peak of a parabola (vertex) that passes through these three points:
+     * (-1, y1), (-1, y2), (-1, y2)
      *
      * Parabola equation: y = a * x ** 2 + b * x + c
      *
@@ -40,19 +41,17 @@ class TwoWayMismatch {
      * b = 0.5 * (y3 - y1)
      * c = y2
      *
-     * then x-coordinate of the maxima is: - b / (2 * a)
+     * therefore the coordinates of the vertex is: [x, y] = [- b / (2 * a), - b ** 2 / (4 * a) + c]
      *
-     * which is:
-     *
-     * @param y1
-     * @param y2
-     * @param y3
+     * @param {float} y1
+     * @param {float} y2
+     * @param {float} y3
      */
     parabolaVertex(y1, y2, y3) {
         var a = 0.5 * (y1 + y3) - y2;
         var b = 0.5 * (y3 - y1);
         var x = - 0.5 * b / a;
-        var y = - 0.25 * b * b + y2;
+        var y = - 0.25 * b * b / a + y2;
         return [x, y];
     }
 
