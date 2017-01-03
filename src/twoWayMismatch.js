@@ -90,6 +90,10 @@ class TwoWayMismatch {
 
     computeFundamentalFrequency() {
         var peaks = this.peakDetector.peaks;
+        if(!peaks) {
+            this.fundamentalFrequency = null;
+            return;
+        }
 
 		// divide the frequency range to equal tempered semitone steps.
 		var log102 = 1.0 / Math.log10(2.0);
