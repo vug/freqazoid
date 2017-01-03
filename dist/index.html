@@ -93,6 +93,13 @@
         <label>audio engine:</label>
         <button v-on:click="pauseAudioEngine">{{enginePlaying ? 'pause' : 'play'}}</button>
         <button v-on:click="requestMicrophone">request microphone</button>
+        <label>window function</label>
+        <select v-model="ae.analysisBuffer.windowFunction">
+            <option value="RECTANGLE">Rectangle</option>
+            <option value="HANN">Hann</option>
+            <option value="HAMMING">Hamming</option>
+            <option value="BLACKMANN">Blackmann</option>
+        </select>
     </div>
 
     <div class="param-num">
