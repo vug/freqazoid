@@ -2,7 +2,7 @@ var visualizations = require('./visualizations');
 var TwoWayMismatch = require('./twoWayMismatch').TwoWayMismatch;
 var Oscilloscope = visualizations.Oscilloscope;
 var Spectroscope = visualizations.Spectroscope;
-
+var windowFunctions = require('./utils').windowFunctions;
 
 /**
  * An audio buffer of size hopSize * numHops. At each iteration it takes hopSize new samples, puts them at the end of
@@ -22,7 +22,9 @@ class AnalysisBuffer {
         this.context = context;
         this.hopSize = hopSize;
         this.numHops = numHops;
+        this.windowFunction = 'HANN';
         this.frame = null;
+        this.windowed = null;
         this.fft = null;
         this.node = null;
         this.processes = [];
@@ -36,6 +38,7 @@ class AnalysisBuffer {
         }
         this.frame = new Float32Array(this.hopSize * this.numHops);
         this.fft = new FFT(this.frame.length, 44100);
+        this.windowed = new Float32Array(this.frame.length);
         this.node = this.context.createScriptProcessor(this.hopSize, 1, 1);
         this.node.onaudioprocess = this.processAudioCallback.bind(this);
     }
@@ -66,7 +69,9 @@ class AnalysisBuffer {
         this.frame.copyWithin(0, this.hopSize);
         this.frame.set(inputData, this.hopSize * (this.numHops - 1));
 
-        this.fft.forward(this.frame);
+        this.windowed.set(this.frame);
+        windowFunctions[this.windowFunction](this.windowed);
+        this.fft.forward(this.windowed);
 
         for (var process of this.processes) {
             process(this.frame, this.fft.spectrum);
