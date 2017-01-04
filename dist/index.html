@@ -12,9 +12,9 @@
 
 <div id="app">
     <div>
-        <label>Fundamental Frequency: </label>
-        <label>f0</label> <span v-if="twm.fundamentalFrequency">{{twm.fundamentalFrequency.toFixed(2)}}</span> Hz
-        <label>Note</label> <span v-if="twm.fundamentalFrequency">{{noteName(twm.fundamentalFrequency)}}</span>
+        <label>fundamental frequency:</label>
+        <label>f0</label> <span v-if="twm.fundamentalFrequency">{{twm.fundamentalFrequency.toFixed(2)}}</span> Hz |
+        <label>Note</label> <span v-if="twm.fundamentalFrequency">{{noteName(twm.fundamentalFrequency)}}</span> |
         <label>error</label> <span>{{twm.totalError.toFixed(2)}}</span>
     </div>
     <div>
