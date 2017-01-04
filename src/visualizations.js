@@ -90,7 +90,7 @@ class Spectroscope extends AudioVisualization {
     }
 
     render() {
-        var spectrum = this.analyser.fft.spectrum.slice(0, this.analyser.fft.spectrum.length / 2);
+        var spectrum = this.analyser.fft.spectrum;
         var f0 = this.twm.fundamentalFrequency;
         var peaks = this.twm.peakDetector.peaks;
         var ctx = this.context;

@@ -9,7 +9,7 @@ class PeakDetector {
     detectPeaks(spectrum) {
         this.peaks = [];
         var mag = spectrum;
-        var dFreq = 44100 / mag.length;
+        var dFreq = 22050 / mag.length;
         for(var ix = 1; ix < mag.length - 1; ix++) {
             if(mag[ix] > mag[ix - 1] && mag[ix] > mag[ix + 1]) {
                 var freq = ix * dFreq;
