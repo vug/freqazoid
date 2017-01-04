@@ -110,7 +110,7 @@ class TwoWayMismatch {
 
 		var minErrorVal = Number.POSITIVE_INFINITY;
 		var minErrorIdx = 0;
-		for (var i = 0; i < nFreqs; i++) {
+		for (let i = 0; i < nFreqs; i++) {
 			if(this.errors1[i] < minErrorVal) {
 				minErrorVal = this.errors1[i];
 				minErrorIdx = i;
@@ -121,7 +121,29 @@ class TwoWayMismatch {
         var f0Min2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, -1.0 / 12.0);
         var f0Max2 = this.ftrials1[minErrorIdx] * Math.pow(2.0, 1.0 / 12.0);
 
-        this.fundamentalFrequency = this.ftrials1[minErrorIdx];
+        log102 = 1.0 / Math.log10(2.0);
+        // nFreqs = Math.floor(12.0 * log102 * Math.log10(f0Max2 /  f0Min2));
+        nFreqs = 20;
+
+		this.errors2 = Array(nFreqs);
+		this.ftrials2 = Array(nFreqs);
+
+        for (let i = 0; i < nFreqs; i++) {
+            // ftrials[i] = f0Min*Math.pow(2, (double)i/10);
+            this.ftrials2[i] = i * (f0Max2 - f0Min2) / nFreqs + f0Min2;
+            this.errors2[i] = this.calculateTotalError(this.ftrials2[i], this.peaks);
+        }
+
+		var minErrorVal = Number.POSITIVE_INFINITY;
+		var minErrorIdx = 0;
+		for (let i = 0; i < nFreqs; i++) {
+			if(this.errors2[i] < minErrorVal) {
+				minErrorVal = this.errors2[i];
+				minErrorIdx = i;
+			}
+		}
+
+        this.fundamentalFrequency = this.ftrials2[minErrorIdx];
         this.totalError = minErrorVal;
     }
 
