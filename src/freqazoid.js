@@ -3,6 +3,7 @@ var visualizations = require('./visualizations');
 var TwoWayMismatch = require('./twoWayMismatch').TwoWayMismatch;
 var Oscilloscope = visualizations.Oscilloscope;
 var Spectroscope = visualizations.Spectroscope;
+var freqToNoteName = require('./utils').freqToNoteName;
 
 class Freqazoid {
     constructor() {
@@ -38,6 +39,9 @@ class Freqazoid {
                 },
                 requestMicrophone: function() {
                     this.ae.requestMicrophone();
+                },
+                noteName: function(f) {
+                    return freqToNoteName(f);
                 }
             },
             computed: {
